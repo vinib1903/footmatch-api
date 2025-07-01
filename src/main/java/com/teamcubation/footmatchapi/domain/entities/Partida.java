@@ -7,12 +7,9 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "partidas")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Entity @Table(name = "partidas")
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor
 @Builder
 public class Partida {
 
