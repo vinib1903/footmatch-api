@@ -35,9 +35,15 @@ public class EstadioController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EstadioResponseDTO> atualizarEstadio(@PathVariable Long id, @RequestBody EstadioRequestDTO estadioRequestDTO) {
+    public ResponseEntity<EstadioResponseDTO> updateEstadio(@PathVariable Long id, @RequestBody EstadioRequestDTO estadioRequestDTO) {
         EstadioResponseDTO estadio = estadioService.atualizarEstadio(id, estadioRequestDTO);
         return ResponseEntity.ok(estadio);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteEstadio(@PathVariable Long id) {
+        estadioService.deletarEstadio(id);
+        return ResponseEntity.noContent().build();
     }
 }
 

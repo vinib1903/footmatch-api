@@ -29,4 +29,7 @@ public class EstadioService {
     public EstadioResponseDTO atualizarEstadio(Long id, EstadioRequestDTO estadioRequestDTO) {
         return null;
     }
+
+    public void deletarEstadio(Long id) {
+    }
 }
