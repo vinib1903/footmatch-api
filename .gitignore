@@ -1,10 +1,16 @@
-HELP.md
-target/
-.mvn/wrapper/maven-wrapper.jar
+# Build output
+/target/
+build/
 !**/src/main/**/target/
 !**/src/test/**/target/
+!**/src/main/**/build/
+!**/src/test/**/build/
 
-### STS ###
+# Maven wrapper
+.mvn/wrapper/maven-wrapper.jar
+
+# IDEs
+# STS
 .apt_generated
 .classpath
 .factorypath
@@ -13,21 +19,47 @@ target/
 .springBeans
 .sts4-cache
 
-### IntelliJ IDEA ###
-.idea
+# IntelliJ IDEA
+.idea/
 *.iws
 *.iml
 *.ipr
+/out/
 
-### NetBeans ###
+# NetBeans
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
-### VS Code ###
+# VS Code
 .vscode/
+
+# System & OS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment/config files
+*.env
+
+# Arquivos temporários/swap (Vim, etc)
+*.swp
+*.swo
+*.tmp
+
+# Gradle
+/.gradle/
+
+# Banco local (H2)
+*.h2.db
+
+# Node (se usar frontend junto)
+node_modules/
