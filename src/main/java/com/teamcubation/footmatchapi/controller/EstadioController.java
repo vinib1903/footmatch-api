@@ -1,0 +1,43 @@
+package com.teamcubation.footmatchapi.controller;
+
+import com.teamcubation.footmatchapi.domain.dto.request.EstadioRequestDTO;
+import com.teamcubation.footmatchapi.domain.dto.response.EstadioResponseDTO;
+import com.teamcubation.footmatchapi.service.EstadioService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("api/v1/estadios")
+@RequiredArgsConstructor
+public class EstadioController {
+
+    private final EstadioService estadioService;
+
+    @PostMapping
+    public ResponseEntity<EstadioResponseDTO> createEstadio(@RequestBody EstadioRequestDTO estadioRequestDTO) {
+        EstadioResponseDTO estadio = estadioService.criarEstadio(estadioRequestDTO);
+        return ResponseEntity.ok(estadio);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<EstadioResponseDTO>> getAllEstadios() {
+        List<EstadioResponseDTO> estadios = estadioService.obterEstadios();
+        return ResponseEntity.ok(estadios);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<EstadioResponseDTO> getEstadioById(@PathVariable Long id) {
+        EstadioResponseDTO estadio = estadioService.obterEstadioPorId(id);
+        return ResponseEntity.ok(estadio);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<EstadioResponseDTO> atualizarEstadio(@PathVariable Long id, @RequestBody EstadioRequestDTO estadioRequestDTO) {
+        EstadioResponseDTO estadio = estadioService.atualizarEstadio(id, estadioRequestDTO);
+        return ResponseEntity.ok(estadio);
+    }
+}
+

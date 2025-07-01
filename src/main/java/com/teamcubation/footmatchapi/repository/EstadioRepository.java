@@ -1,0 +1,9 @@
+package com.teamcubation.footmatchapi.repository;
+
+import com.teamcubation.footmatchapi.domain.entities.Estadio;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface EstadioRepository extends JpaRepository<Estadio, Long> {
+
+
+}
