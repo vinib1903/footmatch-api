@@ -1,7 +1,7 @@
 package com.teamcubation.footmatchapi.service;
 
-import com.teamcubation.footmatchapi.domain.dto.request.PartidaRequestDTO;
-import com.teamcubation.footmatchapi.domain.dto.response.PartidaResponseDTO;
+import com.teamcubation.footmatchapi.dto.request.PartidaRequestDTO;
+import com.teamcubation.footmatchapi.dto.response.PartidaResponseDTO;
 import com.teamcubation.footmatchapi.repository.PartidaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

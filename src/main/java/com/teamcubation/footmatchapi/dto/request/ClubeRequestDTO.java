@@ -1,4 +1,4 @@
-package com.teamcubation.footmatchapi.domain.dto.request;
+package com.teamcubation.footmatchapi.dto.request;
 
 import jakarta.validation.constraints.*;
 import lombok.*;

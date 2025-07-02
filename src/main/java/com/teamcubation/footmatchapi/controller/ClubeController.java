@@ -1,26 +1,27 @@
 package com.teamcubation.footmatchapi.controller;
 
-import com.teamcubation.footmatchapi.domain.dto.request.ClubeRequestDTO;
-import com.teamcubation.footmatchapi.domain.dto.response.ClubeResponseDTO;
 import com.teamcubation.footmatchapi.domain.entities.Clube;
+import com.teamcubation.footmatchapi.dto.request.ClubeRequestDTO;
+import com.teamcubation.footmatchapi.dto.response.ClubeResponseDTO;
+import com.teamcubation.footmatchapi.mapper.ClubeMapper;
 import com.teamcubation.footmatchapi.service.ClubeService;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/clubes")
+@RequestMapping("/api/clubes")
 @RequiredArgsConstructor
 public class ClubeController {
-
     private final ClubeService clubeService;
 
     @PostMapping
     public ResponseEntity<ClubeResponseDTO> createClube(@RequestBody ClubeRequestDTO clubeRequestDTO) {
         ClubeResponseDTO clube = clubeService.criarClube(clubeRequestDTO);
-        return ResponseEntity.ok(clube);
+        return ResponseEntity.status(HttpStatus.CREATED).body(clube);
     }
 
     @GetMapping

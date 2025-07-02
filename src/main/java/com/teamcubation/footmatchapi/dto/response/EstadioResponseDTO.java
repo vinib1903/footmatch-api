@@ -1,4 +1,4 @@
-package com.teamcubation.footmatchapi.domain.dto.response;
+package com.teamcubation.footmatchapi.dto.response;
 
 import lombok.*;
 
