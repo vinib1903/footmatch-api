@@ -8,6 +8,9 @@ import com.teamcubation.footmatchapi.mapper.ClubeMapper;
 import com.teamcubation.footmatchapi.repository.ClubeRepository;
 import com.teamcubation.footmatchapi.repository.PartidaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -24,28 +27,57 @@ public class ClubeService {
     private final ClubeMapper clubeMapper;
     private final PartidaRepository partidaRepository;
 
+
     public ClubeResponseDTO criarClube(ClubeRequestDTO clubeRequestDTO) {
+
+        if (clubeRequestDTO.getNome() == null || clubeRequestDTO.getNome().trim().length() < 2) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nome do clube deve ter pelo menos 2 letras.");
+        }
+
+        if (clubeRequestDTO.getSiglaEstado() == null || !SiglaEstado.isValido(clubeRequestDTO.getSiglaEstado())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sigla de estado inválida.");
+        }
+
+        if (clubeRequestDTO.getDataCriacao() == null || clubeRequestDTO.getDataCriacao().isAfter(LocalDate.now())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data de criação não pode ser no futuro.");
+        }
+
+        Optional<Clube> clubeExistente = clubeRepository.findByNomeAndSiglaEstado(clubeRequestDTO.getNome(), SiglaEstado.valueOf(clubeRequestDTO.getSiglaEstado()));
+        if (clubeExistente.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um clube com esse nome nesse estado.");
+        }
+
         Clube clube = clubeMapper.toEntity(clubeRequestDTO);
         Clube salvo = clubeRepository.save(clube);
         return clubeMapper.toDto(salvo);
     }
 
-    public List<ClubeResponseDTO> obterClubes() {
+    public Page<ClubeResponseDTO> obterClubes(String nome, String siglaEstado, Boolean ativo, Pageable pageable) {
+        Specification<Clube> spec = Specification.where(null);
 
-        return clubeRepository.findAll()
-                .stream()
-                .map(clubeMapper::toDto)
-                .toList();
+        if (nome != null && !nome.isBlank()) {
+            spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("nome")), "%" + nome.toLowerCase() + "%"));
+        }
+        if (siglaEstado != null && !siglaEstado.isBlank() && SiglaEstado.isValido(siglaEstado)) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("siglaEstado"), SiglaEstado.valueOf(siglaEstado)));
+        }
+        if (ativo != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("ativo"), ativo));
+        }
+
+        return clubeRepository.findAll(spec, pageable).map(clubeMapper::toDto);
     }
 
     public ClubeResponseDTO obterClubePorId(Long id) {
 
-        return clubeRepository.findById(id)
-                .map(clubeMapper::toDto)
-                .orElse(null);
+        Clube clube = clubeRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube não encontrado"));
+        return clubeMapper.toDto(clube);
     }
 
+    // TODO - Implementar validações adicionais
     public ClubeResponseDTO atualizarClube(Long id, ClubeRequestDTO dto) {
+
         Clube clube = clubeRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube não encontrado"));
 
@@ -84,11 +116,12 @@ public class ClubeService {
         return clubeMapper.toDto(salvo);
     }
 
+
     public void inativarClube(Long id) {
-        clubeRepository.findById(id).ifPresent(clube -> {
-            clube.setAtivo(false);
-            clubeRepository.save(clube);
-        });
+        Clube clube = clubeRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube não encontrado"));
+        clube.setAtivo(false);
+        clubeRepository.save(clube);
     }
 }
 

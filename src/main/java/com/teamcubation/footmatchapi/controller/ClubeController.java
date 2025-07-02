@@ -6,6 +6,9 @@ import com.teamcubation.footmatchapi.dto.response.ClubeResponseDTO;
 import com.teamcubation.footmatchapi.mapper.ClubeMapper;
 import com.teamcubation.footmatchapi.service.ClubeService;
 import lombok.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,9 +28,13 @@ public class ClubeController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ClubeResponseDTO>> getAllClubes() {
-        List<ClubeResponseDTO> clubes = clubeService.obterClubes();
-        return ResponseEntity.ok(clubes);
+    public ResponseEntity<Page<ClubeResponseDTO>> searchClubes(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) String siglaEstado,
+            @RequestParam(required = false) Boolean ativo,
+            @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
+        Page<ClubeResponseDTO> page = clubeService.obterClubes(nome, siglaEstado, ativo, pageable);
+        return ResponseEntity.ok(page);
     }
 
     @GetMapping("/{id}")
