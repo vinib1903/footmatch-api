@@ -1,6 +1,7 @@
 package com.teamcubation.footmatchapi.service;
 
 import com.teamcubation.footmatchapi.domain.entities.Clube;
+import com.teamcubation.footmatchapi.domain.entities.Partida;
 import com.teamcubation.footmatchapi.domain.enums.SiglaEstado;
 import com.teamcubation.footmatchapi.dto.request.ClubeRequestDTO;
 import com.teamcubation.footmatchapi.dto.response.ClubeResponseDTO;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.time.LocalTime;
 import java.util.Optional;
 
 @Service
@@ -53,16 +54,19 @@ public class ClubeService {
     }
 
     public Page<ClubeResponseDTO> obterClubes(String nome, String siglaEstado, Boolean ativo, Pageable pageable) {
-        Specification<Clube> spec = Specification.where(null);
+        Specification<Clube> spec = null;
 
         if (nome != null && !nome.isBlank()) {
-            spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("nome")), "%" + nome.toLowerCase() + "%"));
+            Specification<Clube> nomeSpec = (root, query, cb) -> cb.like(cb.lower(root.get("nome")), "%" + nome.toLowerCase() + "%");
+            spec = (spec == null) ? nomeSpec : spec.and(nomeSpec);
         }
         if (siglaEstado != null && !siglaEstado.isBlank() && SiglaEstado.isValido(siglaEstado)) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("siglaEstado"), SiglaEstado.valueOf(siglaEstado)));
+            Specification<Clube> estadoSpec = (root, query, cb) -> cb.equal(root.get("siglaEstado"), SiglaEstado.valueOf(siglaEstado));
+            spec = (spec == null) ? estadoSpec : spec.and(estadoSpec);
         }
         if (ativo != null) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("ativo"), ativo));
+            Specification<Clube> ativoSpec = (root, query, cb) -> cb.equal(root.get("ativo"), ativo);
+            spec = (spec == null) ? ativoSpec : spec.and(ativoSpec);
         }
 
         return clubeRepository.findAll(spec, pageable).map(clubeMapper::toDto);
@@ -75,7 +79,6 @@ public class ClubeService {
         return clubeMapper.toDto(clube);
     }
 
-    // TODO - Implementar validações adicionais
     public ClubeResponseDTO atualizarClube(Long id, ClubeRequestDTO dto) {
 
         Clube clube = clubeRepository.findById(id)
@@ -95,17 +98,26 @@ public class ClubeService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data de criação não pode ser no futuro.");
         }
 
-        // Validação: nome duplicado no mesmo estado (desconsiderando o próprio clube)
-        /*Optional<Clube> existente = clubeRepository.findByNomeAndSiglaEstado(dto.getNome(), SiglaEstado.valueOf(dto.getSiglaEstado()));
+        Optional<Clube> existente = clubeRepository.findByNomeAndSiglaEstado(dto.getNome(), SiglaEstado.valueOf(dto.getSiglaEstado()));
         if (existente.isPresent() && !existente.get().getId().equals(id)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um clube com esse nome nesse estado.");
-        }*/
+        }
 
-        // Validação: data de criação não pode ser posterior a alguma partida já registrada
-        /*boolean existePartidaDepois = partidaRepository.existsByClubeAndDataAfter(clube, dto.getDataCriacao());
+        Specification<Partida> partidaSpec = (root, query, cb) -> {
+            var dataInicioProximoDia = dto.getDataCriacao().plusDays(1).atTime(LocalTime.MIN);
+            return cb.and(
+                cb.or(
+                    cb.equal(root.get("mandante"), clube),
+                    cb.equal(root.get("visitante"), clube)
+                ),
+                cb.greaterThanOrEqualTo(root.get("dataHora"), dataInicioProximoDia)
+            );
+        };
+
+        boolean existePartidaDepois = partidaRepository.exists(partidaSpec);
         if (existePartidaDepois) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Não é possível definir data de criação posterior a partidas já registradas para o clube.");
-        }*/
+        }
 
         clube.setNome(dto.getNome());
         clube.setSiglaEstado(SiglaEstado.valueOf(dto.getSiglaEstado()));
@@ -124,6 +136,3 @@ public class ClubeService {
         clubeRepository.save(clube);
     }
 }
-
-
-
