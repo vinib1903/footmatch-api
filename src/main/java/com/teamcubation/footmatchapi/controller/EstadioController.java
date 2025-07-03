@@ -4,6 +4,7 @@ import com.teamcubation.footmatchapi.dto.request.EstadioRequestDTO;
 import com.teamcubation.footmatchapi.dto.response.EstadioResponseDTO;
 import com.teamcubation.footmatchapi.service.EstadioService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,8 +24,11 @@ public class EstadioController {
     }
 
     @GetMapping
-    public ResponseEntity<List<EstadioResponseDTO>> getAllEstadios() {
-        List<EstadioResponseDTO> estadios = estadioService.obterEstadios();
+    public ResponseEntity<Page<EstadioResponseDTO>> listarEstadios(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "asc") String order) {
+        Page<EstadioResponseDTO> estadios = estadioService.obterEstadios(page, size, order);
         return ResponseEntity.ok(estadios);
     }
 

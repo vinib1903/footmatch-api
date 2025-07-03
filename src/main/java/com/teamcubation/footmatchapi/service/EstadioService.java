@@ -6,6 +6,10 @@ import com.teamcubation.footmatchapi.dto.response.EstadioResponseDTO;
 import com.teamcubation.footmatchapi.mapper.EstadioMapper;
 import com.teamcubation.footmatchapi.repository.EstadioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -36,8 +40,11 @@ public class EstadioService {
         return estadioMapper.toDto(salvo);
     }
 
-    public List<EstadioResponseDTO> obterEstadios() {
-        return null;
+    public Page<EstadioResponseDTO> obterEstadios(int page, int size, String order) {
+        Sort sort = order.equalsIgnoreCase("desc") ? Sort.by("nome").descending() : Sort.by("nome").ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Estadio> estadios = estadioRepository.findAll(pageable);
+        return estadios.map(estadioMapper::toDto);
     }
 
     public EstadioResponseDTO obterEstadioPorId(Long id) {
@@ -66,5 +73,9 @@ public class EstadioService {
     }
 
     public void deletarEstadio(Long id) {
+        Estadio estadio = estadioRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Estádio não encontrado."));
+
+        estadioRepository.delete(estadio);
     }
 }

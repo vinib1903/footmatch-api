@@ -8,5 +8,6 @@ import java.util.Optional;
 
 public interface ClubeRepository extends JpaRepository<Clube, Long>, JpaSpecificationExecutor<Clube> {
 
+
     Optional<Clube> findByNomeAndSiglaEstado(String nome, SiglaEstado siglaEstado);
 }
