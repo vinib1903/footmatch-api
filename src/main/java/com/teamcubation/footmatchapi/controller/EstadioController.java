@@ -3,8 +3,10 @@ package com.teamcubation.footmatchapi.controller;
 import com.teamcubation.footmatchapi.dto.request.EstadioRequestDTO;
 import com.teamcubation.footmatchapi.dto.response.EstadioResponseDTO;
 import com.teamcubation.footmatchapi.service.EstadioService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,9 +20,9 @@ public class EstadioController {
     private final EstadioService estadioService;
 
     @PostMapping
-    public ResponseEntity<EstadioResponseDTO> createEstadio(@RequestBody EstadioRequestDTO estadioRequestDTO) {
+    public ResponseEntity<EstadioResponseDTO> createEstadio(@RequestBody @Valid EstadioRequestDTO estadioRequestDTO) {
         EstadioResponseDTO estadio = estadioService.criarEstadio(estadioRequestDTO);
-        return ResponseEntity.ok(estadio);
+        return ResponseEntity.status(HttpStatus.CREATED).body(estadio);
     }
 
     @GetMapping
@@ -39,15 +41,15 @@ public class EstadioController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EstadioResponseDTO> updateEstadio(@PathVariable Long id, @RequestBody EstadioRequestDTO estadioRequestDTO) {
+    public ResponseEntity<EstadioResponseDTO> updateEstadio(@PathVariable Long id, @RequestBody @Valid EstadioRequestDTO estadioRequestDTO) {
         EstadioResponseDTO estadio = estadioService.atualizarEstadio(id, estadioRequestDTO);
         return ResponseEntity.ok(estadio);
     }
 
-    @DeleteMapping("/{id}")
+    /*@DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEstadio(@PathVariable Long id) {
         estadioService.deletarEstadio(id);
         return ResponseEntity.noContent().build();
-    }
+    }*/
 }
 

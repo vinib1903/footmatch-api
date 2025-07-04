@@ -5,6 +5,7 @@ import com.teamcubation.footmatchapi.dto.request.ClubeRequestDTO;
 import com.teamcubation.footmatchapi.dto.response.ClubeResponseDTO;
 import com.teamcubation.footmatchapi.mapper.ClubeMapper;
 import com.teamcubation.footmatchapi.service.ClubeService;
+import jakarta.validation.Valid;
 import lombok.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,8 +23,8 @@ public class ClubeController {
     private final ClubeService clubeService;
 
     @PostMapping
-    public ResponseEntity<ClubeResponseDTO> createClube(@RequestBody ClubeRequestDTO clubeRequestDTO) {
-        ClubeResponseDTO clube = clubeService.criarClube(clubeRequestDTO);
+    public ResponseEntity<ClubeResponseDTO> createClube(@RequestBody @Valid ClubeRequestDTO dto) {
+        ClubeResponseDTO clube = clubeService.criarClube(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(clube);
     }
 
@@ -44,8 +45,8 @@ public class ClubeController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ClubeResponseDTO> updateClube(@PathVariable Long id, @RequestBody ClubeRequestDTO clubeRequestDTO) {
-        ClubeResponseDTO clube = clubeService.atualizarClube(id, clubeRequestDTO);
+    public ResponseEntity<ClubeResponseDTO> updateClube(@PathVariable Long id, @RequestBody @Valid ClubeRequestDTO dto) {
+        ClubeResponseDTO clube = clubeService.atualizarClube(id, dto);
         return ResponseEntity.ok(clube);
     }
 

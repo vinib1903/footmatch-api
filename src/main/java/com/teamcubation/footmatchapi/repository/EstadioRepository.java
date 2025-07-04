@@ -9,5 +9,5 @@ import java.util.Optional;
 
 public interface EstadioRepository extends JpaRepository<Estadio, Long> {
 
-    Optional<Estadio> findByNome(@NotBlank(message = "O nome do estádio é obrigatório.") @Size(min = 3, message = "O nome deve conter ao menos 3 caracteres.") String nome);
+    Optional<Estadio> findByNome(String nome);
 }

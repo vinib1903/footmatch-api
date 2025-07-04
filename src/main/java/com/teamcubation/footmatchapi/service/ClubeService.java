@@ -28,10 +28,6 @@ public class ClubeService {
 
     public ClubeResponseDTO criarClube(ClubeRequestDTO dto) {
 
-        if (dto.getNome() == null || dto.getNome().trim().length() < 2) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nome deve conter ao menos 2 caracteres.");
-        }
-
         if (!Arrays.stream(SiglaEstado.values()).anyMatch(estado -> estado.name().equals(dto.getSiglaEstado()))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Estado inválido.");
         }
@@ -46,9 +42,9 @@ public class ClubeService {
         }
 
         Clube clube = clubeMapper.toEntity(dto);
-        Clube salvo = clubeRepository.save(clube);
+        clubeRepository.save(clube);
 
-        return clubeMapper.toDto(salvo);
+        return clubeMapper.toDto(clube);
     }
 
     public Page<ClubeResponseDTO> obterClubes(String nome, String siglaEstado, Boolean ativo, Pageable pageable) {
@@ -75,10 +71,6 @@ public class ClubeService {
 
         Clube clube = clubeRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube não encontrado"));
-
-        if (dto.getNome() == null || dto.getNome().trim().length() < 2) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nome deve conter ao menos 2 caracteres.");
-        }
 
         if (!Arrays.stream(SiglaEstado.values()).anyMatch(estado -> estado.name().equals(dto.getSiglaEstado()))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Estado inválido.");

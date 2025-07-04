@@ -26,9 +26,9 @@ public class EstadioService {
 
     public EstadioResponseDTO criarEstadio(EstadioRequestDTO estadioRequestDTO) {
 
-        if (estadioRequestDTO.getNome() == null || estadioRequestDTO.getNome().trim().length() < 3) {
+        /*if (estadioRequestDTO.getNome() == null || estadioRequestDTO.getNome().trim().length() < 3) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "O nome do estádio deve ter pelo menos 3 letras.");
-        }
+        }*/
 
         Optional<Estadio> estadioExistente = estadioRepository.findByNome (estadioRequestDTO.getNome());
         if (estadioExistente.isPresent()){
