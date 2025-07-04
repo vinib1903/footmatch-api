@@ -17,7 +17,7 @@ public class ClubeRequestDTO {
     @Pattern(regexp = "^[A-Z]{2}$", message = "Estado deve conter duas letras maiúsculas")
     private String siglaEstado;
 
-    @NotBlank(message = "A data de criação é obrigatória.")
+    @NotNull(message = "A data de criação é obrigatória.")
     @PastOrPresent(message = "A data de criação não pode ser futura.")
     private LocalDate dataCriacao;
 
