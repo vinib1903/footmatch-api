@@ -17,7 +17,7 @@ public interface ClubeRepository extends JpaRepository<Clube, Long> {
            "(:nome IS NULL OR LOWER(c.nome) LIKE LOWER(CONCAT('%', :nome, '%'))) AND " +
            "(:siglaEstado IS NULL OR c.siglaEstado = :siglaEstado) AND " +
            "(:ativo IS NULL OR c.ativo = :ativo)")
-    Page<Clube> findClubesComFiltros(@Param("nome") String nome,
+    Page<Clube> findClubesWichFilters(@Param("nome") String nome,
                                      @Param("siglaEstado") SiglaEstado siglaEstado,
                                      @Param("ativo") Boolean ativo,
                                      Pageable pageable);

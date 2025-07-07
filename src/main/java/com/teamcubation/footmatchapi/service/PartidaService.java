@@ -14,7 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
@@ -98,7 +97,7 @@ public class PartidaService {
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Estádio não encontrado."));
         }
 
-        return partidaRepository.findPartidasComFiltros(clube, estadio, pageable)
+        return partidaRepository.findPartidasWithFilters(clube, estadio, pageable)
                 .map(partidaMapper::toDto);
     }
 

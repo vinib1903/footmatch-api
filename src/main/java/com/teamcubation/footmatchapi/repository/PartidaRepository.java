@@ -18,13 +18,13 @@ public interface PartidaRepository extends JpaRepository<Partida, Long> {
     @Query("SELECT COUNT(p) > 0 FROM Partida p WHERE " +
            "(p.mandante = :clube OR p.visitante = :clube) AND " +
            "p.dataHora >= :dataLimite")
-    boolean existePartidaPosteriorData(@Param("clube") Clube clube,
+    boolean existsPartidaAfterDate(@Param("clube") Clube clube,
                                       @Param("dataLimite") LocalDateTime dataLimite);
 
     @Query("SELECT p FROM Partida p WHERE " +
            "(:clube IS NULL OR p.mandante = :clube OR p.visitante = :clube) AND " +
            "(:estadio IS NULL OR p.estadio = :estadio)")
-    Page<Partida> findPartidasComFiltros(@Param("clube") Clube clube,
+    Page<Partida> findPartidasWithFilters(@Param("clube") Clube clube,
                                                     @Param("estadio") Estadio estadio,
                                                     Pageable pageable);
 

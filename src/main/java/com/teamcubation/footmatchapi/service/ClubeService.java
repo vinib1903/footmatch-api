@@ -57,7 +57,7 @@ public class ClubeService {
             }
         }
 
-        return clubeRepository.findClubesComFiltros(nome, estado, ativo, pageable)
+        return clubeRepository.findClubesWichFilters(nome, estado, ativo, pageable)
                 .map(clubeMapper::toDto);
     }
 
@@ -87,7 +87,7 @@ public class ClubeService {
 
         if (!dto.getDataCriacao().isEqual(clube.getDataCriacao())) {
             var dataLimite = dto.getDataCriacao().plusDays(1).atTime(LocalTime.MIN);
-            boolean existePartidaDepois = partidaRepository.existePartidaPosteriorData(clube, dataLimite);
+            boolean existePartidaDepois = partidaRepository.existsPartidaAfterDate(clube, dataLimite);
             if (existePartidaDepois) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Não é possível definir data de criação posterior a partidas já registradas para o clube.");
             }

@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-// TODO padronizar rotas das controllers
 @RequestMapping("api/v1/estadios")
 @RequiredArgsConstructor
 public class EstadioController {
@@ -25,7 +24,7 @@ public class EstadioController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<EstadioResponseDTO>> listarEstadios(
+    public ResponseEntity<Page<EstadioResponseDTO>> searchEstadios(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "asc") String order) {
