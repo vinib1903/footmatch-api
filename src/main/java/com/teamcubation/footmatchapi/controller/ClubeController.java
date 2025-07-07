@@ -1,9 +1,7 @@
 package com.teamcubation.footmatchapi.controller;
 
-import com.teamcubation.footmatchapi.domain.entities.Clube;
 import com.teamcubation.footmatchapi.dto.request.ClubeRequestDTO;
 import com.teamcubation.footmatchapi.dto.response.ClubeResponseDTO;
-import com.teamcubation.footmatchapi.mapper.ClubeMapper;
 import com.teamcubation.footmatchapi.service.ClubeService;
 import jakarta.validation.Valid;
 import lombok.*;
@@ -14,10 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
-@RequestMapping("/api/clubes")
+@RequestMapping("/api/v1/clubes")
 @RequiredArgsConstructor
 public class ClubeController {
     private final ClubeService clubeService;

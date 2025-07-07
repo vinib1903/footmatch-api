@@ -71,7 +71,14 @@ public class PartidaService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Estádio já possui partida neste dia.");
         }
 
-        Partida partida = partidaMapper.toEntity(dto);
+        Partida partida = Partida.builder()
+                .mandante(mandante)
+                .visitante(visitante)
+                .estadio(estadio)
+                .dataHora(dto.getDataHora())
+                .golsMandante(dto.getGolsMandante())
+                .golsVisitante(dto.getGolsVisitante())
+                .build();
         partidaRepository.save(partida);
 
         return partidaMapper.toDto(partida);

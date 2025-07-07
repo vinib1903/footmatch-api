@@ -10,9 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
+// TODO padronizar rotas das controllers
 @RequestMapping("api/v1/estadios")
 @RequiredArgsConstructor
 public class EstadioController {
