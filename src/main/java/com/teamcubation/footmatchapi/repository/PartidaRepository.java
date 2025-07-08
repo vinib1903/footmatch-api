@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public interface PartidaRepository extends JpaRepository<Partida, Long> {
 
@@ -39,4 +40,8 @@ public interface PartidaRepository extends JpaRepository<Partida, Long> {
             "p.estadio = :estadio AND DATE(p.dataHora) = :data")
     boolean existsByEstadioAndData(@Param("estadio") Estadio estadio,
                                    @Param("data") LocalDate data);
+
+    @Query("SELECT p FROM Partida p WHERE " +
+            "p.mandante = :clube OR p.visitante = :clube")
+    List<Partida> FindAllByClube(@Param("clube") Clube clube);
 }

@@ -2,6 +2,7 @@ package com.teamcubation.footmatchapi.controller;
 
 import com.teamcubation.footmatchapi.dto.request.ClubeRequestDTO;
 import com.teamcubation.footmatchapi.dto.response.ClubeResponseDTO;
+import com.teamcubation.footmatchapi.dto.response.ClubeRetrospectoResponseDTO;
 import com.teamcubation.footmatchapi.service.ClubeService;
 import jakarta.validation.Valid;
 import lombok.*;
@@ -39,6 +40,12 @@ public class ClubeController {
     public ResponseEntity<ClubeResponseDTO> getClubeById(@PathVariable Long id) {
         ClubeResponseDTO clube = clubeService.obterClubePorId(id);
         return ResponseEntity.ok(clube);
+    }
+
+    @GetMapping("/{id}/retrospecto")
+    public ResponseEntity<ClubeRetrospectoResponseDTO> getClubeRetrospect (@PathVariable Long id) {
+        ClubeRetrospectoResponseDTO clubeRestrospecto = clubeService.obterRetrospecto(id);
+        return ResponseEntity.ok(clubeRestrospecto);
     }
 
     @PutMapping("/{id}")

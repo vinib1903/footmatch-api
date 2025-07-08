@@ -1,9 +1,11 @@
 package com.teamcubation.footmatchapi.service;
 
 import com.teamcubation.footmatchapi.domain.entities.Clube;
+import com.teamcubation.footmatchapi.domain.entities.Partida;
 import com.teamcubation.footmatchapi.domain.enums.SiglaEstado;
 import com.teamcubation.footmatchapi.dto.request.ClubeRequestDTO;
 import com.teamcubation.footmatchapi.dto.response.ClubeResponseDTO;
+import com.teamcubation.footmatchapi.dto.response.ClubeRetrospectoResponseDTO;
 import com.teamcubation.footmatchapi.mapper.ClubeMapper;
 import com.teamcubation.footmatchapi.repository.ClubeRepository;
 import com.teamcubation.footmatchapi.repository.PartidaRepository;
@@ -16,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -107,5 +110,43 @@ public class ClubeService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube não encontrado"));
         clube.setAtivo(false);
         clubeRepository.save(clube);
+    }
+
+    public ClubeRetrospectoResponseDTO obterRetrospecto(Long id) {
+
+        Clube clube = clubeRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube não encontrado"));
+
+        List<Partida> partidas = partidaRepository.FindAllByClube(clube);
+
+        int vitorias = 0, empates = 0, derrotas = 0, golsMarcados = 0, golsSofridos = 0;
+
+        for (Partida p : partidas) {
+            boolean mandante = p.getMandante().getId().equals(clube.getId());
+            int golsPro = mandante ? p.getGolsMandante() : p.getGolsVisitante();
+            int golsContra = mandante ? p.getGolsVisitante() : p.getGolsMandante();
+
+            golsMarcados += golsPro;
+            golsSofridos += golsContra;
+
+            if (golsPro > golsContra) {
+                vitorias++;
+            } else if (golsPro < golsContra) {
+                derrotas++;
+            } else {
+                empates++;
+            }
+        }
+
+        int totalPartidas = partidas.size();
+
+        return ClubeRetrospectoResponseDTO.builder()
+                .partidas(totalPartidas)
+                .vitorias(vitorias)
+                .empates(empates)
+                .derrotas(derrotas)
+                .golsMarcados(golsMarcados)
+                .golsSofridos(golsSofridos)
+                .build();
     }
 }
