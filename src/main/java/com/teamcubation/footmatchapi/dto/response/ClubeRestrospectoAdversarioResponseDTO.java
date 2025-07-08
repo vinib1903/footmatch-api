@@ -1,13 +1,12 @@
 package com.teamcubation.footmatchapi.dto.response;
 
-import com.teamcubation.footmatchapi.domain.enums.SiglaEstado;
 import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ClubeRestrospectoAdversariosResponseDTO {
+public class ClubeRestrospectoAdversarioResponseDTO {
 
     //private Long adversarioId;
     private String adversarioNome;

@@ -2,8 +2,9 @@ package com.teamcubation.footmatchapi.controller;
 
 import com.teamcubation.footmatchapi.dto.request.ClubeRequestDTO;
 import com.teamcubation.footmatchapi.dto.response.ClubeResponseDTO;
-import com.teamcubation.footmatchapi.dto.response.ClubeRestrospectoAdversariosResponseDTO;
+import com.teamcubation.footmatchapi.dto.response.ClubeRestrospectoAdversarioResponseDTO;
 import com.teamcubation.footmatchapi.dto.response.ClubeRetrospectoResponseDTO;
+import com.teamcubation.footmatchapi.dto.response.ConfrontoDiretoResponseDTO;
 import com.teamcubation.footmatchapi.service.ClubeService;
 import jakarta.validation.Valid;
 import lombok.*;
@@ -14,6 +15,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
+
+//TODO: criar service e controller para retrospecto
 
 @RestController
 @RequestMapping("/api/v1/clubes")
@@ -50,10 +55,17 @@ public class ClubeController {
     }
 
     @GetMapping("/{id}/retrospecto-adversarios")
-    public ResponseEntity<Page<ClubeRestrospectoAdversariosResponseDTO>> getClubeRetrospectAdversarys(@PathVariable Long id,
-            @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
-        Page<ClubeRestrospectoAdversariosResponseDTO> page = clubeService.obterRestrospectoAdversarios(id, pageable);
+    public ResponseEntity<Page<ClubeRestrospectoAdversarioResponseDTO>> getClubeRetrospectAdversarys(@PathVariable Long id,
+                                                                                                     @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
+        Page<ClubeRestrospectoAdversarioResponseDTO> page = clubeService.obterRestrospectoAdversarios(id, pageable);
         return ResponseEntity.ok(page);
+    }
+
+    @GetMapping("/{clubeId}/confrontos-diretos/{adversarioId}")
+    public ResponseEntity<ConfrontoDiretoResponseDTO> obterConfrontosDiretos(
+            @PathVariable Long clubeId, @PathVariable Long adversarioId) {
+        ConfrontoDiretoResponseDTO result = clubeService.obterConfrontoDireto(clubeId, adversarioId);
+        return ResponseEntity.ok(result);
     }
 
     @PutMapping("/{id}")

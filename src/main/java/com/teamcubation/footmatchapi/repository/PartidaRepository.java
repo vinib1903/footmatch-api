@@ -43,5 +43,11 @@ public interface PartidaRepository extends JpaRepository<Partida, Long> {
 
     @Query("SELECT p FROM Partida p WHERE " +
             "p.mandante = :clube OR p.visitante = :clube")
-    List<Partida> FindAllByClube(@Param("clube") Clube clube);
+    List<Partida> findAllByClube(@Param("clube") Clube clube);
+
+    @Query("SELECT p FROM Partida p WHERE " +
+            "(p.mandante = :clube OR p.visitante = :clube) AND " +
+            "(p.mandante = :adversario OR p.visitante = :adversario)")
+    List<Partida> findAllByClubes(@Param("clube") Clube clube,
+                                  @Param("adversario") Clube adversario);
 }

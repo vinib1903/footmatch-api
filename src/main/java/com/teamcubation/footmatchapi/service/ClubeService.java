@@ -4,24 +4,22 @@ import com.teamcubation.footmatchapi.domain.entities.Clube;
 import com.teamcubation.footmatchapi.domain.entities.Partida;
 import com.teamcubation.footmatchapi.domain.enums.SiglaEstado;
 import com.teamcubation.footmatchapi.dto.request.ClubeRequestDTO;
-import com.teamcubation.footmatchapi.dto.response.ClubeResponseDTO;
-import com.teamcubation.footmatchapi.dto.response.ClubeRestrospectoAdversariosResponseDTO;
-import com.teamcubation.footmatchapi.dto.response.ClubeRetrospectoResponseDTO;
+import com.teamcubation.footmatchapi.dto.response.*;
 import com.teamcubation.footmatchapi.mapper.ClubeMapper;
+import com.teamcubation.footmatchapi.mapper.PartidaMapper;
 import com.teamcubation.footmatchapi.repository.ClubeRepository;
 import com.teamcubation.footmatchapi.repository.PartidaRepository;
-import jakarta.persistence.criteria.Order;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +28,7 @@ public class ClubeService {
     private final ClubeRepository clubeRepository;
     private final PartidaRepository partidaRepository;
     private final ClubeMapper clubeMapper;
+    private final PartidaMapper partidaMapper;
 
     //TODO: Verificar retorno (concatenar na mesma linha nome e estadio assim como fiz no obterRestrospectoAdversarios, padronizar outros metodos)
     public ClubeResponseDTO criarClube(ClubeRequestDTO dto) {
@@ -120,7 +119,7 @@ public class ClubeService {
         Clube clube = clubeRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube não encontrado"));
 
-        List<Partida> partidas = partidaRepository.FindAllByClube(clube);
+        List<Partida> partidas = partidaRepository.findAllByClube(clube);
 
         int vitorias = 0, empates = 0, derrotas = 0, golsMarcados = 0, golsSofridos = 0;
 
@@ -153,20 +152,20 @@ public class ClubeService {
                 .build();
     }
 
-    public Page<ClubeRestrospectoAdversariosResponseDTO> obterRestrospectoAdversarios(Long id, Pageable pageable) {
+    public Page<ClubeRestrospectoAdversarioResponseDTO> obterRestrospectoAdversarios(Long id, Pageable pageable) {
         Clube clube = clubeRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube não encontrado"));
 
-        List<Partida> partidas = partidaRepository.FindAllByClube(clube);
+        List<Partida> partidas = partidaRepository.findAllByClube(clube);
 
-        Map<Long, ClubeRestrospectoAdversariosResponseDTO> map = new HashMap<>();
+        Map<Long, ClubeRestrospectoAdversarioResponseDTO> map = new HashMap<>();
 
         for (Partida p : partidas) {
             boolean mandante = p.getMandante().getId().equals(clube.getId());
             Clube adversario = mandante ? p.getVisitante() : p.getMandante();
             Long adversarioId = adversario.getId();
 
-            map.computeIfAbsent(adversarioId, idKey -> ClubeRestrospectoAdversariosResponseDTO.builder()
+            map.computeIfAbsent(adversarioId, idKey -> ClubeRestrospectoAdversarioResponseDTO.builder()
                     //.adversarioId(adversarioId)
                     .adversarioNome(adversario.getNome() + "-" + adversario.getSiglaEstado())
                     //.adversarioSiglaEstado(adversario.getSiglaEstado())
@@ -178,7 +177,7 @@ public class ClubeService {
                     .golsSofridos(0)
                     .build());
 
-            ClubeRestrospectoAdversariosResponseDTO dto = map.get(adversarioId);
+            ClubeRestrospectoAdversarioResponseDTO dto = map.get(adversarioId);
 
             int golsPro = mandante ? p.getGolsMandante() : p.getGolsVisitante();
             int golsContra = mandante ? p.getGolsVisitante() : p.getGolsMandante();
@@ -196,13 +195,74 @@ public class ClubeService {
             }
         }
 
-        List<ClubeRestrospectoAdversariosResponseDTO> lista = new ArrayList<>(map.values());
+        List<ClubeRestrospectoAdversarioResponseDTO> lista = new ArrayList<>(map.values());
 
         int start = (int) pageable.getOffset();
         int end = Math.min(start + pageable.getPageSize(), lista.size());
-        List<ClubeRestrospectoAdversariosResponseDTO> pageContent = (start > end) ? List.of() : lista.subList(start, end);
+        List<ClubeRestrospectoAdversarioResponseDTO> pageContent = (start > end) ? List.of() : lista.subList(start, end);
 
         return new PageImpl<>(pageContent, pageable, lista.size());
+    }
+
+    //TODO: Verificar otimizacoes do metodo e padronizacao
+    public ConfrontoDiretoResponseDTO obterConfrontoDireto(Long clubeId, Long adversarioId) {
+        Clube clube = clubeRepository.findById(clubeId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube com id " + clubeId + " não encontrado"));
+        Clube adversario = clubeRepository.findById(adversarioId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube com id " + adversarioId + " não encontrado"));
+
+        List<Partida> partidas = partidaRepository.findAllByClubes(clube, adversario);
+
+        int vitoriasClube = 0, empates = 0, golsProClube = 0;
+        int vitoriasAdversario = 0, golsProAdversario = 0;
+
+        for (Partida p : partidas) {
+            boolean clubeEhMandante = p.getMandante().getId().equals(clube.getId());
+
+            int golsClube = clubeEhMandante ? p.getGolsMandante() : p.getGolsVisitante();
+            int golsAdversario = clubeEhMandante ? p.getGolsVisitante() : p.getGolsMandante();
+
+            golsProClube += golsClube;
+            golsProAdversario += golsAdversario;
+
+            if (golsClube > golsAdversario) {
+                vitoriasClube++;
+            } else if (golsAdversario > golsClube) {
+                vitoriasAdversario++;
+            } else {
+                empates++;
+            }
+        }
+
+        ClubeRestrospectoAdversarioResponseDTO retrospectoClube = ClubeRestrospectoAdversarioResponseDTO.builder()
+                .adversarioNome(adversario.getNome() + " - " + adversario.getSiglaEstado())
+                .partidas(partidas.size())
+                .vitorias(vitoriasClube)
+                .empates(empates)
+                .derrotas(vitoriasAdversario)
+                .golsMarcados(golsProClube)
+                .golsSofridos(golsProAdversario)
+                .build();
+
+        ClubeRestrospectoAdversarioResponseDTO retrospectoAdversario = ClubeRestrospectoAdversarioResponseDTO.builder()
+                .adversarioNome(clube.getNome() + " - " + clube.getSiglaEstado())
+                .partidas(partidas.size())
+                .vitorias(vitoriasAdversario)
+                .empates(empates)
+                .derrotas(vitoriasClube)
+                .golsMarcados(golsProAdversario)
+                .golsSofridos(golsProClube)
+                .build();
+
+        List<PartidaResponseDTO> partidaDTOs = partidas.stream()
+                .map(partidaMapper::toDto)
+                .collect(Collectors.toList());
+
+        return ConfrontoDiretoResponseDTO.builder()
+                .clube(retrospectoClube)
+                .adversario(retrospectoAdversario)
+                .partidas(partidaDTOs)
+                .build();
     }
 }
 
