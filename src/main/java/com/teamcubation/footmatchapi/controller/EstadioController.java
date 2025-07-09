@@ -43,11 +43,5 @@ public class EstadioController {
         EstadioResponseDTO estadio = estadioService.atualizarEstadio(id, estadioRequestDTO);
         return ResponseEntity.ok(estadio);
     }
-
-    /*@DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEstadio(@PathVariable Long id) {
-        estadioService.deletarEstadio(id);
-        return ResponseEntity.noContent().build();
-    }*/
 }
 

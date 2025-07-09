@@ -50,4 +50,7 @@ public interface PartidaRepository extends JpaRepository<Partida, Long> {
             "(p.mandante = :adversario OR p.visitante = :adversario)")
     List<Partida> findAllByClubes(@Param("clube") Clube clube,
                                   @Param("adversario") Clube adversario);
+
+    @Query("SELECT p FROM Partida p WHERE p.estadio = :estadio AND DATE(p.dataHora) = :data")
+    List<Partida> findAllByEstadioAndData(@Param("estadio") Estadio estadio, @Param("data") LocalDate data);
 }

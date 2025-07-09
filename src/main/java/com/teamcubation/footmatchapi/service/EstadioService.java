@@ -25,14 +25,7 @@ public class EstadioService {
 
     public EstadioResponseDTO criarEstadio(EstadioRequestDTO estadioRequestDTO) {
 
-        /*if (estadioRequestDTO.getNome() == null || estadioRequestDTO.getNome().trim().length() < 3) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "O nome do estádio deve ter pelo menos 3 letras.");
-        }*/
-
-        Optional<Estadio> estadioExistente = estadioRepository.findByNome (estadioRequestDTO.getNome());
-        if (estadioExistente.isPresent()){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um estádio com esse nome.");
-        }
+        validarNomeExistente(estadioRequestDTO.getNome(), null);
 
         Estadio estadio = estadioMapper.toEntity(estadioRequestDTO);
         Estadio salvo = estadioRepository.save(estadio);
@@ -57,24 +50,18 @@ public class EstadioService {
         Estadio estadio = estadioRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Estádio não encontrado."));
 
-        if (estadioRequestDTO.getNome() == null || estadioRequestDTO.getNome().trim().length() < 3) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "O nome do estádio deve ter pelo menos 3 letras.");
-        }
-
-        Optional<Estadio> estadioExistente = estadioRepository.findByNome(estadioRequestDTO.getNome());
-        if (estadioExistente.isPresent() && !estadioExistente.get().getId().equals(id)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um estádio com esse nome.");
-        }
+        validarNomeExistente(estadioRequestDTO.getNome(), id);
 
         estadio.setNome(estadioRequestDTO.getNome());
         Estadio salvo = estadioRepository.save(estadio);
         return estadioMapper.toDto(salvo);
     }
 
-    public void deletarEstadio(Long id) {
-        Estadio estadio = estadioRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Estádio não encontrado."));
-
-        estadioRepository.delete(estadio);
+    private void validarNomeExistente(String nome, Long id) {
+        Optional<Estadio> estadioExistente = estadioRepository.findByNome(nome);
+        if (estadioExistente.isPresent() && !estadioExistente.get().getId().equals(id)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um estádio com este nome.");
+        }
     }
+
 }

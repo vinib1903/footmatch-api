@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -33,18 +34,11 @@ public class ClubeService {
     //TODO: Verificar retorno (concatenar na mesma linha nome e estadio assim como fiz no obterRestrospectoAdversarios, padronizar outros metodos)
     public ClubeResponseDTO criarClube(ClubeRequestDTO dto) {
 
-        if (!Arrays.stream(SiglaEstado.values()).anyMatch(estado -> estado.name().equals(dto.getSiglaEstado()))) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Estado inválido.");
-        }
+        validarSiglaEstado(dto.getSiglaEstado());
 
-        if (dto.getDataCriacao().isAfter(java.time.LocalDate.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data de criação não pode ser no futuro.");
-        }
+        validarDataCriacaoFutura(dto.getDataCriacao());
 
-        Optional<Clube> clubeExistente = clubeRepository.findByNomeAndSiglaEstado(dto.getNome(), SiglaEstado.valueOf(dto.getSiglaEstado()));
-        if (clubeExistente.isPresent()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um clube com este nome no estado informado.");
-        }
+        validarNomeClubeExistenteNoEstado(dto.getNome(), SiglaEstado.valueOf(dto.getSiglaEstado()), null);
 
         Clube clube = clubeMapper.toEntity(dto);
         clubeRepository.save(clube);
@@ -54,13 +48,10 @@ public class ClubeService {
 
     public Page<ClubeResponseDTO> obterClubes(String nome, String siglaEstado, Boolean ativo, Pageable pageable) {
         SiglaEstado estado = null;
-        if (siglaEstado != null) {
-            try {
-                estado = SiglaEstado.valueOf(siglaEstado);
-            } catch (IllegalArgumentException e) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Estado inválido.");
+            if (siglaEstado != null) {
+                validarSiglaEstado(siglaEstado);
+                estado = SiglaEstado.valueOf(siglaEstado.toUpperCase());
             }
-        }
 
         return clubeRepository.findClubesWichFilters(nome, estado, ativo, pageable)
                 .map(clubeMapper::toDto);
@@ -77,23 +68,16 @@ public class ClubeService {
         Clube clube = clubeRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube não encontrado"));
 
-        if (!Arrays.stream(SiglaEstado.values()).anyMatch(estado -> estado.name().equals(dto.getSiglaEstado()))) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Estado inválido.");
-        }
+        validarSiglaEstado(dto.getSiglaEstado());
 
-        if (dto.getDataCriacao().isAfter(java.time.LocalDate.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data de criação não pode ser no futuro.");
-        }
+        validarDataCriacaoFutura(dto.getDataCriacao());
 
-        Optional<Clube> clubeExistente = clubeRepository.findByNomeAndSiglaEstado(dto.getNome(), SiglaEstado.valueOf(dto.getSiglaEstado()));
-        if (clubeExistente.isPresent() && !clubeExistente.get().getId().equals(id)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um clube com este nome no estado informado.");
-        }
+        validarNomeClubeExistenteNoEstado(dto.getNome(), SiglaEstado.valueOf(dto.getSiglaEstado()), id);
 
         if (!dto.getDataCriacao().isEqual(clube.getDataCriacao())) {
-            var dataLimite = dto.getDataCriacao().plusDays(1).atTime(LocalTime.MIN);
-            boolean existePartidaDepois = partidaRepository.existsPartidaAfterDate(clube, dataLimite);
-            if (existePartidaDepois) {
+            Optional<Partida> partidaMaisAntiga = partidaRepository.findAllByClube(clube).stream()
+                    .min(Comparator.comparing(Partida::getDataHora));
+            if (partidaMaisAntiga.isPresent() && dto.getDataCriacao().isAfter(partidaMaisAntiga.get().getDataHora().toLocalDate())) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Não é possível definir data de criação posterior a partidas já registradas para o clube.");
             }
         }
@@ -113,6 +97,27 @@ public class ClubeService {
         clube.setAtivo(false);
         clubeRepository.save(clube);
     }
+
+    private void validarSiglaEstado(String siglaEstado) {
+        if (Arrays.stream(SiglaEstado.values()).noneMatch(e -> e.name().equalsIgnoreCase(siglaEstado))) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Estado inválido.");
+        }
+    }
+
+    private void validarDataCriacaoFutura(LocalDate dataCriacao) {
+        if (dataCriacao.isAfter(LocalDate.now()))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data de criação não pode ser no futuro.");
+
+    }
+
+    private void validarNomeClubeExistenteNoEstado(String nome, SiglaEstado siglaEstado, Long id) {
+        Optional<Clube> clubeExistente = clubeRepository.findByNomeAndSiglaEstado(nome, siglaEstado);
+        if (clubeExistente.isPresent() && !clubeExistente.get().getId().equals(id)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um clube com este nome no estado informado.");
+        }
+    }
+
+
 
 }
 
