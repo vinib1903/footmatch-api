@@ -121,10 +121,15 @@ public class RetrospectoService {
 
     //TODO: Verificar otimizacoes do metodo e padronizacao
     public ConfrontoDiretoResponseDTO obterConfrontoDireto(Long clubeId, Long adversarioId) {
+
         Clube clube = clubeRepository.findById(clubeId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube com id " + clubeId + " não encontrado"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube não encontrado"));
         Clube adversario = clubeRepository.findById(adversarioId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube com id " + adversarioId + " não encontrado"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Adversário não encontrado"));
+
+        if (clube.equals(adversario)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Os clubes devem ser diferentes");
+        }
 
         List<Partida> partidas = partidaRepository.findAllByClubes(clube, adversario);
 
