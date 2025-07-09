@@ -15,15 +15,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
-
-//TODO: criar service e controller para retrospecto
-
 @RestController
 @RequestMapping("/api/v1/clubes")
 @RequiredArgsConstructor
 public class ClubeController {
+
     private final ClubeService clubeService;
 
     @PostMapping
@@ -46,26 +42,6 @@ public class ClubeController {
     public ResponseEntity<ClubeResponseDTO> getClubeById(@PathVariable Long id) {
         ClubeResponseDTO clube = clubeService.obterClubePorId(id);
         return ResponseEntity.ok(clube);
-    }
-
-    @GetMapping("/{id}/retrospecto")
-    public ResponseEntity<ClubeRetrospectoResponseDTO> getClubeRetrospect (@PathVariable Long id) {
-        ClubeRetrospectoResponseDTO clubeRestrospecto = clubeService.obterRetrospecto(id);
-        return ResponseEntity.ok(clubeRestrospecto);
-    }
-
-    @GetMapping("/{id}/retrospecto-adversarios")
-    public ResponseEntity<Page<ClubeRestrospectoAdversarioResponseDTO>> getClubeRetrospectAdversarys(@PathVariable Long id,
-                                                                                                     @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
-        Page<ClubeRestrospectoAdversarioResponseDTO> page = clubeService.obterRestrospectoAdversarios(id, pageable);
-        return ResponseEntity.ok(page);
-    }
-
-    @GetMapping("/{clubeId}/confrontos-diretos/{adversarioId}")
-    public ResponseEntity<ConfrontoDiretoResponseDTO> obterConfrontosDiretos(
-            @PathVariable Long clubeId, @PathVariable Long adversarioId) {
-        ConfrontoDiretoResponseDTO result = clubeService.obterConfrontoDireto(clubeId, adversarioId);
-        return ResponseEntity.ok(result);
     }
 
     @PutMapping("/{id}")
