@@ -8,9 +8,7 @@ import lombok.*;
 @Builder
 public class ClubeRestrospectoAdversarioResponseDTO {
 
-    //private Long adversarioId;
     private String adversarioNome;
-    //private SiglaEstado adversarioSiglaEstado;
     private int partidas;
     private int vitorias;
     private int empates;

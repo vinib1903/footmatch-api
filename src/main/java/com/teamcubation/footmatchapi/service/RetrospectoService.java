@@ -1,10 +1,8 @@
 package com.teamcubation.footmatchapi.service;
+
 import com.teamcubation.footmatchapi.domain.entities.Clube;
 import com.teamcubation.footmatchapi.domain.entities.Partida;
-import com.teamcubation.footmatchapi.dto.response.ClubeRestrospectoAdversarioResponseDTO;
-import com.teamcubation.footmatchapi.dto.response.ClubeRetrospectoResponseDTO;
-import com.teamcubation.footmatchapi.dto.response.ConfrontoDiretoResponseDTO;
-import com.teamcubation.footmatchapi.dto.response.PartidaResponseDTO;
+import com.teamcubation.footmatchapi.dto.response.*;
 import com.teamcubation.footmatchapi.mapper.PartidaMapper;
 import com.teamcubation.footmatchapi.repository.ClubeRepository;
 import com.teamcubation.footmatchapi.repository.PartidaRepository;
@@ -15,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,9 +38,9 @@ public class RetrospectoService {
         int vitorias = 0, empates = 0, derrotas = 0, golsMarcados = 0, golsSofridos = 0;
 
         for (Partida p : partidas) {
-            boolean mandante = p.getMandante().getId().equals(clube.getId());
-            int golsPro = mandante ? p.getGolsMandante() : p.getGolsVisitante();
-            int golsContra = mandante ? p.getGolsVisitante() : p.getGolsMandante();
+            boolean clubeMandante = p.getMandante().getId().equals(clube.getId());
+            int golsPro = clubeMandante ? p.getGolsMandante() : p.getGolsVisitante();
+            int golsContra = clubeMandante ? p.getGolsVisitante() : p.getGolsMandante();
 
             golsMarcados += golsPro;
             golsSofridos += golsContra;
@@ -55,10 +54,8 @@ public class RetrospectoService {
             }
         }
 
-        int totalPartidas = partidas.size();
-
         return ClubeRetrospectoResponseDTO.builder()
-                .partidas(totalPartidas)
+                .partidas(partidas.size())
                 .vitorias(vitorias)
                 .empates(empates)
                 .derrotas(derrotas)
@@ -73,17 +70,15 @@ public class RetrospectoService {
 
         List<Partida> partidas = partidaRepository.findAllByClube(clube);
 
-        Map<Long, ClubeRestrospectoAdversarioResponseDTO> map = new HashMap<>();
+        Map<Long, ClubeRestrospectoAdversarioResponseDTO> adversariosMap = new HashMap<>();
 
         for (Partida p : partidas) {
-            boolean mandante = p.getMandante().getId().equals(clube.getId());
-            Clube adversario = mandante ? p.getVisitante() : p.getMandante();
+            boolean clubeMandante = p.getMandante().getId().equals(clube.getId());
+            Clube adversario = clubeMandante ? p.getVisitante() : p.getMandante();
             Long adversarioId = adversario.getId();
 
-            map.computeIfAbsent(adversarioId, idKey -> ClubeRestrospectoAdversarioResponseDTO.builder()
-                    //.adversarioId(adversarioId)
+            adversariosMap.computeIfAbsent(adversarioId, idKey -> ClubeRestrospectoAdversarioResponseDTO.builder()
                     .adversarioNome(adversario.getNome() + "-" + adversario.getSiglaEstado())
-                    //.adversarioSiglaEstado(adversario.getSiglaEstado())
                     .partidas(0)
                     .vitorias(0)
                     .empates(0)
@@ -92,10 +87,10 @@ public class RetrospectoService {
                     .golsSofridos(0)
                     .build());
 
-            ClubeRestrospectoAdversarioResponseDTO dto = map.get(adversarioId);
+            ClubeRestrospectoAdversarioResponseDTO dto = adversariosMap.get(adversarioId);
 
-            int golsPro = mandante ? p.getGolsMandante() : p.getGolsVisitante();
-            int golsContra = mandante ? p.getGolsVisitante() : p.getGolsMandante();
+            int golsPro = clubeMandante ? p.getGolsMandante() : p.getGolsVisitante();
+            int golsContra = clubeMandante ? p.getGolsVisitante() : p.getGolsMandante();
 
             dto.setPartidas(dto.getPartidas() + 1);
             dto.setGolsMarcados(dto.getGolsMarcados() + golsPro);
@@ -110,37 +105,34 @@ public class RetrospectoService {
             }
         }
 
-        List<ClubeRestrospectoAdversarioResponseDTO> lista = new ArrayList<>(map.values());
+        List<ClubeRestrospectoAdversarioResponseDTO> lista = new ArrayList<>(adversariosMap.values());
 
         int start = (int) pageable.getOffset();
         int end = Math.min(start + pageable.getPageSize(), lista.size());
-        List<ClubeRestrospectoAdversarioResponseDTO> pageContent = (start > end) ? List.of() : lista.subList(start, end);
+        List<ClubeRestrospectoAdversarioResponseDTO> pageContent = (start >= lista.size()) ? List.of() : lista.subList(start, end);
 
         return new PageImpl<>(pageContent, pageable, lista.size());
     }
 
-    //TODO: Verificar otimizacoes do metodo e padronizacao
     public ConfrontoDiretoResponseDTO obterConfrontoDireto(Long clubeId, Long adversarioId) {
+        if (clubeId.equals(adversarioId)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Os clubes devem ser diferentes");
+        }
 
         Clube clube = clubeRepository.findById(clubeId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube não encontrado"));
         Clube adversario = clubeRepository.findById(adversarioId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Adversário não encontrado"));
 
-        if (clube.equals(adversario)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Os clubes devem ser diferentes");
-        }
-
         List<Partida> partidas = partidaRepository.findAllByClubes(clube, adversario);
 
-        int vitoriasClube = 0, empates = 0, golsProClube = 0;
-        int vitoriasAdversario = 0, golsProAdversario = 0;
+        int vitoriasClube = 0, empates = 0, golsProClube = 0, vitoriasAdversario = 0, golsProAdversario = 0;
 
         for (Partida p : partidas) {
-            boolean clubeEhMandante = p.getMandante().getId().equals(clube.getId());
 
-            int golsClube = clubeEhMandante ? p.getGolsMandante() : p.getGolsVisitante();
-            int golsAdversario = clubeEhMandante ? p.getGolsVisitante() : p.getGolsMandante();
+            boolean clubeMandante = p.getMandante().getId().equals(clube.getId());
+            int golsClube = clubeMandante ? p.getGolsMandante() : p.getGolsVisitante();
+            int golsAdversario = clubeMandante ? p.getGolsVisitante() : p.getGolsMandante();
 
             golsProClube += golsClube;
             golsProAdversario += golsAdversario;
@@ -183,5 +175,72 @@ public class RetrospectoService {
                 .adversario(retrospectoAdversario)
                 .partidas(partidaDTOs)
                 .build();
+    }
+
+    public Page<RankingResponseDTO> obterRanking(String criterio, Pageable pageable) {
+
+        List<Clube> clubes = clubeRepository.findAll();
+        List<RankingResponseDTO> ranking = new ArrayList<>();
+
+        for (Clube clube : clubes) {
+
+            List<Partida> partidasJogadas = partidaRepository.findAllByClube(clube);
+            int vitorias = 0, empates = 0, golsMarcados = 0, partidas = partidasJogadas.size(), pontos = 0;
+
+            for (Partida p : partidasJogadas) {
+                boolean clubeMandante = p.getMandante().getId().equals(clube.getId());
+                int golsPro = clubeMandante ? p.getGolsMandante() : p.getGolsVisitante();
+                int golsContra = clubeMandante ? p.getGolsVisitante() : p.getGolsMandante();
+
+                golsMarcados += golsPro;
+                if (golsPro > golsContra) {
+                    vitorias++;
+                } else if (golsPro == golsContra) {
+                    empates++;
+                }
+
+
+            }
+            pontos = (vitorias * 3) + empates;
+            ranking.add(RankingResponseDTO.builder()
+                    .nome(clube.getNome() + "-" + clube.getSiglaEstado())
+                    .partidas(partidas)
+                    .vitorias(vitorias)
+                    .empates(empates)
+                    .golsMarcados(golsMarcados)
+                    .pontos(pontos)
+                    .build());
+        }
+
+        switch (criterio) {
+            case "vitorias":
+                ranking = ranking.stream().filter(r -> r.getVitorias() > 0)
+                        .sorted((a, b) -> Integer.compare(b.getVitorias(), a.getVitorias()))
+                        .collect(Collectors.toList());
+                break;
+            case "gols":
+                ranking = ranking.stream().filter(r -> r.getGolsMarcados() > 0)
+                        .sorted((a, b) -> Integer.compare(b.getGolsMarcados(), a.getGolsMarcados()))
+                        .collect(Collectors.toList());
+                break;
+            case "partidas":
+                ranking = ranking.stream().filter(r -> r.getPartidas() > 0)
+                        .sorted((a, b) -> Integer.compare(b.getPartidas(), a.getPartidas()))
+                        .collect(Collectors.toList());
+                break;
+            case "pontos":
+            default:
+                ranking = ranking.stream().filter(r -> r.getPontos() > 0)
+                        .sorted((a, b) -> Integer.compare(b.getPontos(), a.getPontos()))
+                        .collect(Collectors.toList());
+                break;
+        }
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), ranking.size());
+        List<RankingResponseDTO> pageContent = (start >= ranking.size()) ? List.of() : ranking.subList(start, end);
+
+        return new PageImpl<>(pageContent, pageable, ranking.size());
+
     }
 }
