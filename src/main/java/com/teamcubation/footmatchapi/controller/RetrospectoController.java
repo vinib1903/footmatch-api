@@ -43,7 +43,6 @@ public class RetrospectoController {
         return ResponseEntity.ok(result);
     }
 
-    //ToDo: verificar pois nao esta retornando corretamnete todos os dados
     @GetMapping("/ranking")
     public ResponseEntity<Page<RankingResponseDTO>> getRanking(
             @RequestParam(defaultValue = "pontos") String criterio,
