@@ -57,7 +57,7 @@ public class EstadioService {
         return estadioMapper.toDto(salvo);
     }
 
-    private void validarNomeExistente(String nome, Long id) {
+    private void validarNomeExistente(String nome, Long id) throws ResponseStatusException {
         Optional<Estadio> estadioExistente = estadioRepository.findByNome(nome);
         if (estadioExistente.isPresent() && !estadioExistente.get().getId().equals(id)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um estádio com este nome.");

@@ -99,20 +99,19 @@ public class ClubeService {
         clubeRepository.save(clube);
     }
 
-    private void validarSiglaEstado(String siglaEstado) {
+    private void validarSiglaEstado(String siglaEstado) throws ResponseStatusException {
         if (Arrays.stream(SiglaEstado.values()).noneMatch(e -> e.name().equalsIgnoreCase(siglaEstado))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Estado inválido.");
         }
     }
 
-    //TODO: Adicionar throws nos metodos de validacao como boa pratica
     private void validarDataCriacaoFutura(LocalDate dataCriacao) throws ResponseStatusException {
         if (dataCriacao.isAfter(LocalDate.now()))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data de criação não pode ser no futuro.");
 
     }
 
-    private void validarNomeClubeExistenteNoEstado(String nome, SiglaEstado siglaEstado, Long id) {
+    private void validarNomeClubeExistenteNoEstado(String nome, SiglaEstado siglaEstado, Long id) throws ResponseStatusException {
         Optional<Clube> clubeExistente = clubeRepository.findByNomeAndSiglaEstado(nome, siglaEstado);
         if (clubeExistente.isPresent() && !clubeExistente.get().getId().equals(id)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um clube com este nome no estado informado.");

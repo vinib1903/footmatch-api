@@ -115,9 +115,6 @@ public class RetrospectoService {
     }
 
     public ConfrontoDiretoResponseDTO obterConfrontoDireto(Long clubeId, Long adversarioId, String papel) {
-        if (clubeId.equals(adversarioId)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Os clubes devem ser diferentes");
-        }
 
         Clube clube = clubeRepository.findById(clubeId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube não encontrado"));
