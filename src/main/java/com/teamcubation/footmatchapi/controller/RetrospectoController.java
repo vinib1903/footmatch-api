@@ -20,22 +20,26 @@ public class RetrospectoController {
     private final RetrospectoService retrospectoService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<ClubeRetrospectoResponseDTO> getClubeRetrospect(@PathVariable Long id) {
-        ClubeRetrospectoResponseDTO clubeRestrospecto = retrospectoService.obterRetrospecto(id);
+    public ResponseEntity<ClubeRetrospectoResponseDTO> getClubeRetrospect(@PathVariable Long id,
+                                                                          @RequestParam(required = false) String papel) {
+        ClubeRetrospectoResponseDTO clubeRestrospecto = retrospectoService.obterRetrospecto(id, papel);
         return ResponseEntity.ok(clubeRestrospecto);
     }
 
     @GetMapping("/{id}/contra-adversarios")
     public ResponseEntity<Page<ClubeRestrospectoAdversarioResponseDTO>> getClubeRetrospectVersusAdversarys(@PathVariable Long id,
+                                                                                                           @RequestParam(required = false) String papel,
                                                                                                            @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
-        Page<ClubeRestrospectoAdversarioResponseDTO> page = retrospectoService.obterRestrospectoAdversarios(id, pageable);
+        Page<ClubeRestrospectoAdversarioResponseDTO> page = retrospectoService.obterRestrospectoAdversarios(id, papel, pageable);
         return ResponseEntity.ok(page);
     }
 
     @GetMapping("/{clubeId}/confrontos-diretos/{adversarioId}")
     public ResponseEntity<ConfrontoDiretoResponseDTO> getConfrontosDiretos(
-            @PathVariable Long clubeId, @PathVariable Long adversarioId) {
-        ConfrontoDiretoResponseDTO result = retrospectoService.obterConfrontoDireto(clubeId, adversarioId);
+            @PathVariable Long clubeId,
+            @PathVariable Long adversarioId,
+            @RequestParam(required = false) String papel) {
+        ConfrontoDiretoResponseDTO result = retrospectoService.obterConfrontoDireto(clubeId, adversarioId, papel);
         return ResponseEntity.ok(result);
     }
 

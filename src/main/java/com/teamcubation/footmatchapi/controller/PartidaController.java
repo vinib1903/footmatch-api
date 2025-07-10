@@ -34,8 +34,9 @@ public class PartidaController {
             @RequestParam(required = false) Long clubeId,
             @RequestParam(required = false) Long estadioId,
             @RequestParam(required = false) Boolean goleada,
+            @RequestParam(required = false) String papel,
             @PageableDefault(size = 10, sort = "dataHora") Pageable pageable) {
-        Page<PartidaResponseDTO> page = partidaService.obterPartidas(clubeId, estadioId, goleada, pageable);
+        Page<PartidaResponseDTO> page = partidaService.obterPartidas(clubeId, estadioId, goleada, papel, pageable);
         return ResponseEntity.ok(page);
     }
 

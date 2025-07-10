@@ -23,12 +23,16 @@ public interface PartidaRepository extends JpaRepository<Partida, Long> {
                                       @Param("dataLimite") LocalDateTime dataLimite);
 
     @Query("SELECT p FROM Partida p WHERE " +
-            "(:clube IS NULL OR p.mandante = :clube OR p.visitante = :clube) AND " +
+            "(:clube IS NULL OR " +
+            "(:papel = 'mandante' AND p.mandante = :clube) OR " +
+            "(:papel = 'visitante' AND p.visitante = :clube) OR " +
+            "(:papel IS NULL AND (p.mandante = :clube OR p.visitante = :clube))) AND " +
             "(:estadio IS NULL OR p.estadio = :estadio) AND " +
             "(:goleada = TRUE AND ABS(p.golsMandante - p.golsVisitante) >= 3 OR :goleada IS NULL OR :goleada = FALSE)")
     Page<Partida> findPartidasWithFilters(@Param("clube") Clube clube,
                                           @Param("estadio") Estadio estadio,
                                           @Param("goleada") Boolean goleada,
+                                          @Param("papel") String papel,
                                           Pageable pageable);
 
     @Query("SELECT COUNT(p) > 0 FROM Partida p WHERE " +

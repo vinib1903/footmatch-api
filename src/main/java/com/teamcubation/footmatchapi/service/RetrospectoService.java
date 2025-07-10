@@ -28,12 +28,12 @@ public class RetrospectoService {
     private final PartidaRepository partidaRepository;
     private final PartidaMapper partidaMapper;
 
-    public ClubeRetrospectoResponseDTO obterRetrospecto(Long id) {
+    public ClubeRetrospectoResponseDTO obterRetrospecto(Long id, String papel) {
 
         Clube clube = clubeRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube não encontrado"));
 
-        List<Partida> partidas = partidaRepository.findAllByClube(clube);
+        List<Partida> partidas = filtrarPorPapel(partidaRepository.findAllByClube(clube), clube, papel);
 
         int vitorias = 0, empates = 0, derrotas = 0, golsMarcados = 0, golsSofridos = 0;
 
@@ -64,11 +64,11 @@ public class RetrospectoService {
                 .build();
     }
 
-    public Page<ClubeRestrospectoAdversarioResponseDTO> obterRestrospectoAdversarios(Long id, Pageable pageable) {
+    public Page<ClubeRestrospectoAdversarioResponseDTO> obterRestrospectoAdversarios(Long id, String papel, Pageable pageable) {
         Clube clube = clubeRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube não encontrado"));
 
-        List<Partida> partidas = partidaRepository.findAllByClube(clube);
+        List<Partida> partidas = filtrarPorPapel(partidaRepository.findAllByClube(clube), clube, papel);
 
         Map<Long, ClubeRestrospectoAdversarioResponseDTO> adversariosMap = new HashMap<>();
 
@@ -114,7 +114,7 @@ public class RetrospectoService {
         return new PageImpl<>(pageContent, pageable, lista.size());
     }
 
-    public ConfrontoDiretoResponseDTO obterConfrontoDireto(Long clubeId, Long adversarioId) {
+    public ConfrontoDiretoResponseDTO obterConfrontoDireto(Long clubeId, Long adversarioId, String papel) {
         if (clubeId.equals(adversarioId)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Os clubes devem ser diferentes");
         }
@@ -124,7 +124,7 @@ public class RetrospectoService {
         Clube adversario = clubeRepository.findById(adversarioId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Adversário não encontrado"));
 
-        List<Partida> partidas = partidaRepository.findAllByClubes(clube, adversario);
+        List<Partida> partidas = filtrarPorPapel(partidaRepository.findAllByClubes(clube, adversario), clube, papel);
 
         int vitoriasClube = 0, empates = 0, golsProClube = 0, vitoriasAdversario = 0, golsProAdversario = 0;
 
@@ -242,5 +242,18 @@ public class RetrospectoService {
 
         return new PageImpl<>(pageContent, pageable, ranking.size());
 
+    }
+
+    private List<Partida> filtrarPorPapel(List<Partida> partidas, Clube clube, String papel) {
+        if ("mandante".equalsIgnoreCase(papel)) {
+            return partidas.stream()
+                    .filter(p -> p.getMandante().getId().equals(clube.getId()))
+                    .collect(Collectors.toList());
+        } else if ("visitante".equalsIgnoreCase(papel)) {
+            return partidas.stream()
+                    .filter(p -> p.getVisitante().getId().equals(clube.getId()))
+                    .collect(Collectors.toList());
+        }
+        return partidas;
     }
 }
