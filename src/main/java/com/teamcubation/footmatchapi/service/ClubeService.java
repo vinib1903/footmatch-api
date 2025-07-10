@@ -31,8 +31,6 @@ public class ClubeService {
     private final ClubeMapper clubeMapper;
     private final PartidaMapper partidaMapper;
 
-    //TODO: Verificar retorno (concatenar na mesma linha nome e estadio assim como fiz no obterRestrospectoAdversarios, padronizar outros metodos)
-    //TODO: Tornar metodos assincronos
     public ClubeResponseDTO criarClube(ClubeRequestDTO dto) {
 
         validarSiglaEstado(dto.getSiglaEstado());
