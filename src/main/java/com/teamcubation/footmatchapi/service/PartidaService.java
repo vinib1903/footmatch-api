@@ -59,11 +59,11 @@ public class PartidaService {
         return partidaMapper.toDto(partida);
     }
 
-    public Page<PartidaResponseDTO> obterPartidas(Long clubeId, Long estadioId, Pageable pageable) {
+    public Page<PartidaResponseDTO> obterPartidas(Long clubeId, Long estadioId, Boolean goleada, Pageable pageable) {
         Clube clube = clubeId != null ? validarExistencia(clubeRepository.findById(clubeId), "Clube") : null;
         Estadio estadio = estadioId != null ? validarExistencia(estadioRepository.findById(estadioId), "Estadio") : null;
 
-        return partidaRepository.findPartidasWithFilters(clube, estadio, pageable)
+        return partidaRepository.findPartidasWithFilters(clube, estadio, goleada, pageable)
                 .map(partidaMapper::toDto);
     }
 
