@@ -32,6 +32,7 @@ public class ClubeService {
     private final PartidaMapper partidaMapper;
 
     //TODO: Verificar retorno (concatenar na mesma linha nome e estadio assim como fiz no obterRestrospectoAdversarios, padronizar outros metodos)
+    //TODO: Tornar metodos assincronos
     public ClubeResponseDTO criarClube(ClubeRequestDTO dto) {
 
         validarSiglaEstado(dto.getSiglaEstado());
@@ -104,7 +105,8 @@ public class ClubeService {
         }
     }
 
-    private void validarDataCriacaoFutura(LocalDate dataCriacao) {
+    //TODO: Adicionar throws nos metodos de validacao como boa pratica
+    private void validarDataCriacaoFutura(LocalDate dataCriacao) throws ResponseStatusException {
         if (dataCriacao.isAfter(LocalDate.now()))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data de criação não pode ser no futuro.");
 
