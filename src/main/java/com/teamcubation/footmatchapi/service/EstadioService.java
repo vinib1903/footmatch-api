@@ -7,13 +7,10 @@ import com.teamcubation.footmatchapi.mapper.EstadioMapper;
 import com.teamcubation.footmatchapi.repository.EstadioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.util.Optional;
 
 @Service
@@ -28,18 +25,18 @@ public class EstadioService {
         validarNomeExistente(estadioRequestDTO.getNome(), null);
 
         Estadio estadio = estadioMapper.toEntity(estadioRequestDTO);
-        Estadio salvo = estadioRepository.save(estadio);
-        return estadioMapper.toDto(salvo);
+        estadioRepository.save(estadio);
+
+        return estadioMapper.toDto(estadio);
     }
 
-    public Page<EstadioResponseDTO> obterEstadios(int page, int size, String order) {
-        Sort sort = order.equalsIgnoreCase("desc") ? Sort.by("nome").descending() : Sort.by("nome").ascending();
-        Pageable pageable = PageRequest.of(page, size, sort);
-        Page<Estadio> estadios = estadioRepository.findAll(pageable);
-        return estadios.map(estadioMapper::toDto);
+    public Page<EstadioResponseDTO> obterEstadios(Pageable pageable) {
+
+        return estadioRepository.findAll(pageable).map(estadioMapper::toDto);
     }
 
     public EstadioResponseDTO obterEstadioPorId(Long id) {
+
         Estadio estadio = estadioRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Estádio não encontrado."));
         return estadioMapper.toDto(estadio);
@@ -53,12 +50,15 @@ public class EstadioService {
         validarNomeExistente(estadioRequestDTO.getNome(), id);
 
         estadio.setNome(estadioRequestDTO.getNome());
+
         Estadio salvo = estadioRepository.save(estadio);
         return estadioMapper.toDto(salvo);
     }
 
     private void validarNomeExistente(String nome, Long id) throws ResponseStatusException {
+
         Optional<Estadio> estadioExistente = estadioRepository.findByNome(nome);
+
         if (estadioExistente.isPresent() && !estadioExistente.get().getId().equals(id)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um estádio com este nome.");
         }

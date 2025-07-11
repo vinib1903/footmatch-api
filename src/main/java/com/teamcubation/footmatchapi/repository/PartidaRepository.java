@@ -3,13 +3,11 @@ package com.teamcubation.footmatchapi.repository;
 import com.teamcubation.footmatchapi.domain.entities.Clube;
 import com.teamcubation.footmatchapi.domain.entities.Estadio;
 import com.teamcubation.footmatchapi.domain.entities.Partida;
-import com.teamcubation.footmatchapi.dto.response.PartidaResponseDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,8 +27,8 @@ public interface PartidaRepository extends JpaRepository<Partida, Long> {
             "(:papel IS NULL AND (p.mandante = :clube OR p.visitante = :clube))) AND " +
             "(:estadio IS NULL OR p.estadio = :estadio) AND " +
             "(:goleada = TRUE AND ABS(p.golsMandante - p.golsVisitante) >= 3 OR :goleada IS NULL OR :goleada = FALSE)")
-    Page<Partida> findPartidasWithFilters(@Param("clube") Clube clube,
-                                          @Param("estadio") Estadio estadio,
+    Page<Partida> findPartidasWithFilters(@Param("clube") String clube,
+                                          @Param("estadio") String estadio,
                                           @Param("goleada") Boolean goleada,
                                           @Param("papel") String papel,
                                           Pageable pageable);

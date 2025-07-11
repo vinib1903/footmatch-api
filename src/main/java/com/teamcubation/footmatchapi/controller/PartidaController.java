@@ -1,7 +1,5 @@
 package com.teamcubation.footmatchapi.controller;
 
-import com.teamcubation.footmatchapi.domain.entities.Clube;
-import com.teamcubation.footmatchapi.domain.entities.Estadio;
 import com.teamcubation.footmatchapi.dto.request.PartidaRequestDTO;
 import com.teamcubation.footmatchapi.dto.response.PartidaResponseDTO;
 import com.teamcubation.footmatchapi.service.PartidaService;
@@ -9,12 +7,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/partidas")
@@ -24,19 +21,20 @@ public class PartidaController {
     private final PartidaService partidaService;
 
     @PostMapping
-    public ResponseEntity<PartidaResponseDTO> createPartida(@RequestBody @Valid PartidaRequestDTO dto) {
+    public ResponseEntity<PartidaResponseDTO> createPartida(
+            @RequestBody @Valid PartidaRequestDTO dto) {
         PartidaResponseDTO partida = partidaService.criarPartida(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(partida);
     }
 
     @GetMapping
     public ResponseEntity<Page<PartidaResponseDTO>> searchPartidas(
-            @RequestParam(required = false) Long clubeId,
-            @RequestParam(required = false) Long estadioId,
+            @RequestParam(required = false) String clube,
+            @RequestParam(required = false) String estadio,
             @RequestParam(required = false) Boolean goleada,
             @RequestParam(required = false) String papel,
-            @PageableDefault(size = 10, sort = "dataHora") Pageable pageable) {
-        Page<PartidaResponseDTO> page = partidaService.obterPartidas(clubeId, estadioId, goleada, papel, pageable);
+            @PageableDefault(size = 10, sort = "dataHora", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<PartidaResponseDTO> page = partidaService.obterPartidas(clube, estadio, goleada, papel, pageable);
         return ResponseEntity.ok(page);
     }
 
@@ -47,8 +45,8 @@ public class PartidaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PartidaResponseDTO> updatePartida(@PathVariable Long id, @RequestBody @Valid PartidaRequestDTO partidaRequestDTO) {
-        PartidaResponseDTO partida = partidaService.atualizarPartida(id, partidaRequestDTO);
+    public ResponseEntity<PartidaResponseDTO> updatePartida(@PathVariable Long id, @RequestBody @Valid PartidaRequestDTO dto) {
+        PartidaResponseDTO partida = partidaService.atualizarPartida(id, dto);
         return ResponseEntity.ok(partida);
     }
 
