@@ -25,6 +25,7 @@ public class EstadioService {
         validarNomeExistente(estadioRequestDTO.getNome(), null);
 
         Estadio estadio = estadioMapper.toEntity(estadioRequestDTO);
+
         estadioRepository.save(estadio);
 
         return estadioMapper.toDto(estadio);
@@ -37,22 +38,28 @@ public class EstadioService {
 
     public EstadioResponseDTO obterEstadioPorId(Long id) {
 
-        Estadio estadio = estadioRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Estádio não encontrado."));
+        Estadio estadio = validarExistenciaEstadio(id);
+
         return estadioMapper.toDto(estadio);
     }
 
     public EstadioResponseDTO atualizarEstadio(Long id, EstadioRequestDTO estadioRequestDTO) {
 
-        Estadio estadio = estadioRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Estádio não encontrado."));
+        Estadio estadio = validarExistenciaEstadio(id);
 
         validarNomeExistente(estadioRequestDTO.getNome(), id);
 
         estadio.setNome(estadioRequestDTO.getNome());
 
         Estadio salvo = estadioRepository.save(estadio);
+
         return estadioMapper.toDto(salvo);
+    }
+
+    public Estadio validarExistenciaEstadio(Long id) {
+
+        return estadioRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Estádio nao encontrado."));
     }
 
     private void validarNomeExistente(String nome, Long id) throws ResponseStatusException {
