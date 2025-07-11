@@ -15,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -59,9 +58,7 @@ public class PartidaService {
         return partidaMapper.toDto(partida);
     }
 
-    public Page<PartidaResponseDTO> obterPartidas(Long clubeId, Long estadioId, Boolean goleada, String papel, Pageable pageable) {
-        Clube clube = clubeId != null ? validarExistencia(clubeRepository.findById(clubeId), "Clube") : null;
-        Estadio estadio = estadioId != null ? validarExistencia(estadioRepository.findById(estadioId), "Estadio") : null;
+    public Page<PartidaResponseDTO> obterPartidas(String clube, String estadio, Boolean goleada, String papel, Pageable pageable) {
 
         return partidaRepository.findPartidasWithFilters(clube, estadio, goleada, papel, pageable)
                 .map(partidaMapper::toDto);
@@ -75,19 +72,27 @@ public class PartidaService {
     }
 
     public PartidaResponseDTO atualizarPartida(Long id, PartidaRequestDTO dto) {
+
         Partida partida = partidaRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Partida não encontrada."));
 
         Clube mandante = validarExistencia(clubeRepository.findById(dto.getMandanteId()), "Clube");
+
         Clube visitante = validarExistencia(clubeRepository.findById(dto.getVisitanteId()), "Clube");
-        validarClubesAtivos(mandante, visitante);
-        validarClubesDiferentes(dto.getMandanteId(), dto.getVisitanteId());
-        validarDataPartidaAnteriorCriacaoClube(mandante, visitante, dto.getDataHora().toLocalDate());
-        validarDataCriacaoFutura(dto.getDataHora());
-        validarPartidasProximas(mandante, visitante, dto.getDataHora(), partida.getId());
-        validarGolsNegativos(dto.getGolsMandante(), dto.getGolsVisitante());
 
         Estadio estadio = validarExistencia(estadioRepository.findById(dto.getEstadioId()), "Estádio");
+
+        validarClubesAtivos(mandante, visitante);
+
+        validarClubesDiferentes(dto.getMandanteId(), dto.getVisitanteId());
+
+        validarDataPartidaAnteriorCriacaoClube(mandante, visitante, dto.getDataHora().toLocalDate());
+
+        validarDataCriacaoFutura(dto.getDataHora());
+
+        validarPartidasProximas(mandante, visitante, dto.getDataHora(), partida.getId());
+
+        validarGolsNegativos(dto.getGolsMandante(), dto.getGolsVisitante());
 
         validarEstadioOcupado(estadio, dto.getDataHora().toLocalDate(), partida.getId());
 
@@ -103,6 +108,7 @@ public class PartidaService {
     }
 
     public void deletarPartida(Long id) {
+
         Partida partida = partidaRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Partida não encontrada."));
 
@@ -110,12 +116,14 @@ public class PartidaService {
     }
 
     private void validarDataPartidaAnteriorCriacaoClube(Clube mandante, Clube visitante, LocalDate dataPartida) throws ResponseStatusException {
+
         if (dataPartida.isBefore(mandante.getDataCriacao()) || dataPartida.isBefore(visitante.getDataCriacao())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Data anterior à criação de um dos clubes.");
         }
     }
 
     private void validarPartidasProximas(Clube mandante, Clube visitante, LocalDateTime dataHora, Long partidaId) throws ResponseStatusException {
+
         LocalDateTime inicio = dataHora.minusHours(48);
         LocalDateTime fim = dataHora.plusHours(48);
 
@@ -137,36 +145,43 @@ public class PartidaService {
     }
 
     private void validarDataCriacaoFutura(LocalDateTime dataHora) throws ResponseStatusException {
+
         if (dataHora.isAfter(LocalDateTime.now()))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data de criação não pode ser no futuro.");
 
     }
 
     private void validarGolsNegativos(Integer golsMandante, Integer golsVisitante) throws ResponseStatusException {
+
         if (golsMandante < 0 || golsVisitante < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Gols não podem ser negativos.");
         }
     }
 
     private void validarClubesAtivos(Clube mandante, Clube visitante) throws ResponseStatusException {
+
         if (!mandante.getAtivo() || !visitante.getAtivo()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Clube inativo.");
         }
     }
 
     private <T> T validarExistencia(Optional<T> optional, String nome) throws ResponseStatusException {
+
         return optional.orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, nome + " não encontrado."));
     }
 
     private void validarClubesDiferentes(Long mandanteId, Long visitanteId) throws ResponseStatusException {
+
         if (mandanteId == visitanteId) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Clubes devem ser diferentes.");
         }
     }
 
     private void validarEstadioOcupado(Estadio estadio, LocalDate data, Long partidaId) throws ResponseStatusException {
+
         List<Partida> partidasNoDia = partidaRepository.findAllByEstadioAndData(estadio, data);
+
         boolean ocupado = partidasNoDia.stream()
                 .anyMatch(p -> partidaId == null || !p.getId().equals(partidaId));
         if (ocupado) {

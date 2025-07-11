@@ -6,21 +6,16 @@ import com.teamcubation.footmatchapi.domain.enums.SiglaEstado;
 import com.teamcubation.footmatchapi.dto.request.ClubeRequestDTO;
 import com.teamcubation.footmatchapi.dto.response.*;
 import com.teamcubation.footmatchapi.mapper.ClubeMapper;
-import com.teamcubation.footmatchapi.mapper.PartidaMapper;
 import com.teamcubation.footmatchapi.repository.ClubeRepository;
 import com.teamcubation.footmatchapi.repository.PartidaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,14 +24,11 @@ public class ClubeService {
     private final ClubeRepository clubeRepository;
     private final PartidaRepository partidaRepository;
     private final ClubeMapper clubeMapper;
-    private final PartidaMapper partidaMapper;
 
     public ClubeResponseDTO criarClube(ClubeRequestDTO dto) {
 
         validarSiglaEstado(dto.getSiglaEstado());
-
         validarDataCriacaoFutura(dto.getDataCriacao());
-
         validarNomeClubeExistenteNoEstado(dto.getNome(), SiglaEstado.valueOf(dto.getSiglaEstado()), null);
 
         Clube clube = clubeMapper.toEntity(dto);
@@ -46,17 +38,13 @@ public class ClubeService {
     }
 
     public Page<ClubeResponseDTO> obterClubes(String nome, String siglaEstado, Boolean ativo, Pageable pageable) {
-        SiglaEstado estado = null;
-            if (siglaEstado != null) {
-                validarSiglaEstado(siglaEstado);
-                estado = SiglaEstado.valueOf(siglaEstado.toUpperCase());
-            }
 
-        return clubeRepository.findClubesWichFilters(nome, estado, ativo, pageable)
+        return clubeRepository.findClubesWichFilters(nome, siglaEstado, ativo, pageable)
                 .map(clubeMapper::toDto);
     }
 
     public ClubeResponseDTO obterClubePorId(Long id) {
+
         Clube clube = clubeRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube não encontrado"));
         return clubeMapper.toDto(clube);
@@ -91,26 +79,33 @@ public class ClubeService {
     }
 
     public void inativarClube(Long id) {
+
         Clube clube = clubeRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube não encontrado"));
+
         clube.setAtivo(false);
+
         clubeRepository.save(clube);
     }
 
     private void validarSiglaEstado(String siglaEstado) throws ResponseStatusException {
+
         if (Arrays.stream(SiglaEstado.values()).noneMatch(e -> e.name().equalsIgnoreCase(siglaEstado))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Estado inválido.");
         }
     }
 
     private void validarDataCriacaoFutura(LocalDate dataCriacao) throws ResponseStatusException {
+
         if (dataCriacao.isAfter(LocalDate.now()))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data de criação não pode ser no futuro.");
 
     }
 
     private void validarNomeClubeExistenteNoEstado(String nome, SiglaEstado siglaEstado, Long id) throws ResponseStatusException {
+
         Optional<Clube> clubeExistente = clubeRepository.findByNomeAndSiglaEstado(nome, siglaEstado);
+
         if (clubeExistente.isPresent() && !clubeExistente.get().getId().equals(id)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um clube com este nome no estado informado.");
         }

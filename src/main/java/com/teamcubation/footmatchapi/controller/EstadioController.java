@@ -6,6 +6,8 @@ import com.teamcubation.footmatchapi.service.EstadioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,18 +20,17 @@ public class EstadioController {
     private final EstadioService estadioService;
 
     @PostMapping
-    public ResponseEntity<EstadioResponseDTO> createEstadio(@RequestBody @Valid EstadioRequestDTO estadioRequestDTO) {
-        EstadioResponseDTO estadio = estadioService.criarEstadio(estadioRequestDTO);
+    public ResponseEntity<EstadioResponseDTO> createEstadio(
+            @RequestBody @Valid EstadioRequestDTO dto) {
+        EstadioResponseDTO estadio = estadioService.criarEstadio(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(estadio);
     }
 
     @GetMapping
     public ResponseEntity<Page<EstadioResponseDTO>> searchEstadios(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "asc") String order) {
-        Page<EstadioResponseDTO> estadios = estadioService.obterEstadios(page, size, order);
-        return ResponseEntity.ok(estadios);
+            @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
+        Page<EstadioResponseDTO> page = estadioService.obterEstadios(pageable);
+        return ResponseEntity.ok(page);
     }
 
     @GetMapping("/{id}")
@@ -39,8 +40,8 @@ public class EstadioController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EstadioResponseDTO> updateEstadio(@PathVariable Long id, @RequestBody @Valid EstadioRequestDTO estadioRequestDTO) {
-        EstadioResponseDTO estadio = estadioService.atualizarEstadio(id, estadioRequestDTO);
+    public ResponseEntity<EstadioResponseDTO> updateEstadio(@PathVariable Long id, @RequestBody @Valid EstadioRequestDTO dto) {
+        EstadioResponseDTO estadio = estadioService.atualizarEstadio(id, dto);
         return ResponseEntity.ok(estadio);
     }
 }

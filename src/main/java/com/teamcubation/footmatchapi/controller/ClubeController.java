@@ -2,9 +2,6 @@ package com.teamcubation.footmatchapi.controller;
 
 import com.teamcubation.footmatchapi.dto.request.ClubeRequestDTO;
 import com.teamcubation.footmatchapi.dto.response.ClubeResponseDTO;
-import com.teamcubation.footmatchapi.dto.response.ClubeRestrospectoAdversarioResponseDTO;
-import com.teamcubation.footmatchapi.dto.response.ClubeRetrospectoResponseDTO;
-import com.teamcubation.footmatchapi.dto.response.ConfrontoDiretoResponseDTO;
 import com.teamcubation.footmatchapi.service.ClubeService;
 import jakarta.validation.Valid;
 import lombok.*;
@@ -23,7 +20,8 @@ public class ClubeController {
     private final ClubeService clubeService;
 
     @PostMapping
-    public ResponseEntity<ClubeResponseDTO> createClube(@RequestBody @Valid ClubeRequestDTO dto) {
+    public ResponseEntity<ClubeResponseDTO> createClube(
+            @RequestBody @Valid ClubeRequestDTO dto) {
         ClubeResponseDTO clube = clubeService.criarClube(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(clube);
     }
@@ -49,7 +47,6 @@ public class ClubeController {
         ClubeResponseDTO clube = clubeService.atualizarClube(id, dto);
         return ResponseEntity.ok(clube);
     }
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> disableClube(@PathVariable Long id) {
