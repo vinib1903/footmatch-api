@@ -101,6 +101,8 @@ public class EstadioServiceTest {
         Validator validator = factory.getValidator();
         Set<ConstraintViolation<EstadioRequestDTO>> violations = validator.validate(dto);
 
+        log.info("Violations: {}", violations);
+
         assertFalse(violations.isEmpty());
         assertTrue(violations.stream().anyMatch(v -> v.getMessage().contains("O nome deve conter ao menos 3 caracteres.")));
     }

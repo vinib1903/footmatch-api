@@ -50,8 +50,19 @@ public class ClubeServiceTest {
                 .ativo(true)
                 .build();
 
-        Clube clube = Clube.builder().id(1L).nome(dto.getNome()).siglaEstado(SiglaEstado.valueOf(dto.getSiglaEstado())).dataCriacao(dto.getDataCriacao()).ativo(dto.getAtivo()).build();
-        ClubeResponseDTO response = ClubeResponseDTO.builder().id(1L).nome(clube.getNome()).siglaEstado(clube.getSiglaEstado().toString()).dataCriacao(clube.getDataCriacao()).ativo(clube.getAtivo()).build();
+        Clube clube = Clube.builder().id(1L)
+                .nome(dto.getNome())
+                .siglaEstado(SiglaEstado.valueOf(dto.getSiglaEstado()))
+                .dataCriacao(dto.getDataCriacao())
+                .ativo(dto.getAtivo())
+                .build();
+
+        ClubeResponseDTO response = ClubeResponseDTO.builder()
+                .id(1L).nome(clube.getNome())
+                .siglaEstado(clube.getSiglaEstado().toString())
+                .dataCriacao(clube.getDataCriacao())
+                .ativo(clube.getAtivo())
+                .build();
 
         when(clubeMapper.toEntity(dto)).thenReturn(clube);
         when(clubeRepository.save(clube)).thenReturn(clube);
@@ -100,6 +111,7 @@ public class ClubeServiceTest {
 
     @Test
     void testCreateClubWhenNameAlreadyExists() {
+
         ClubeRequestDTO dto = ClubeRequestDTO.builder()
                 .nome("Grêmio")
                 .siglaEstado("RS")
@@ -107,7 +119,13 @@ public class ClubeServiceTest {
                 .ativo(true)
                 .build();
 
-        Clube clube = Clube.builder().id(7L).nome(dto.getNome()).siglaEstado(SiglaEstado.valueOf(dto.getSiglaEstado())).dataCriacao(LocalDate.of(1983, 12, 15)).ativo(false).build();
+        Clube clube = Clube.builder()
+                .id(7L)
+                .nome(dto.getNome())
+                .siglaEstado(SiglaEstado.valueOf(dto.getSiglaEstado()))
+                .dataCriacao(LocalDate.of(1983, 12, 15))
+                .ativo(false)
+                .build();
 
         when(clubeRepository.findByNomeAndSiglaEstado(dto.getNome(), SiglaEstado.valueOf(dto.getSiglaEstado()))).thenReturn(Optional.of(clube));
 
@@ -121,19 +139,101 @@ public class ClubeServiceTest {
     @Test
     void testGetAllClubsWhenOrderByNameDesc() {
 
-        Clube clube1 = Clube.builder().id(1L).nome("Grêmio").siglaEstado(SiglaEstado.valueOf("RS")).dataCriacao(LocalDate.of(1903, 9, 15)).ativo(true).build();
-        Clube clube2 = Clube.builder().id(2L).nome("Flamengo").siglaEstado(SiglaEstado.valueOf("RJ")).dataCriacao(LocalDate.of(1903, 9, 15)).ativo(true).build();
-        Clube clube3 = Clube.builder().id(3L).nome("Palmeiras").siglaEstado(SiglaEstado.valueOf("SP")).dataCriacao(LocalDate.of(1903, 9, 15)).ativo(true).build();
-        Clube clube4 = Clube.builder().id(4L).nome("Santos").siglaEstado(SiglaEstado.valueOf("SP")).dataCriacao(LocalDate.of(1903, 9, 15)).ativo(true).build();
-        Clube clube5 = Clube.builder().id(5L).nome("Corinthians").siglaEstado(SiglaEstado.valueOf("SP")).dataCriacao(LocalDate.of(1903, 9, 15)).ativo(true).build();
-        Clube clube6 = Clube.builder().id(6L).nome("Bahia").siglaEstado(SiglaEstado.valueOf("BA")).dataCriacao(LocalDate.of(1903, 9, 15)).ativo(true).build();
+        Clube clube1 = Clube.builder()
+                .id(1L)
+                .nome("Grêmio")
+                .siglaEstado(SiglaEstado.valueOf("RS"))
+                .dataCriacao(LocalDate.of(1903, 9, 15))
+                .ativo(true)
+                .build();
 
-        ClubeResponseDTO dto1 = ClubeResponseDTO.builder().id(1L).nome(clube1.getNome()).siglaEstado(clube1.getSiglaEstado().toString()).dataCriacao(clube1.getDataCriacao()).ativo(clube1.getAtivo()).build();
-        ClubeResponseDTO dto2 = ClubeResponseDTO.builder().id(2L).nome(clube2.getNome()).siglaEstado(clube2.getSiglaEstado().toString()).dataCriacao(clube2.getDataCriacao()).ativo(clube2.getAtivo()).build();
-        ClubeResponseDTO dto3 = ClubeResponseDTO.builder().id(3L).nome(clube3.getNome()).siglaEstado(clube3.getSiglaEstado().toString()).dataCriacao(clube3.getDataCriacao()).ativo(clube3.getAtivo()).build();
-        ClubeResponseDTO dto4 = ClubeResponseDTO.builder().id(4L).nome(clube4.getNome()).siglaEstado(clube4.getSiglaEstado().toString()).dataCriacao(clube4.getDataCriacao()).ativo(clube4.getAtivo()).build();
-        ClubeResponseDTO dto5 = ClubeResponseDTO.builder().id(5L).nome(clube5.getNome()).siglaEstado(clube5.getSiglaEstado().toString()).dataCriacao(clube5.getDataCriacao()).ativo(clube5.getAtivo()).build();
-        ClubeResponseDTO dto6 = ClubeResponseDTO.builder().id(6L).nome(clube6.getNome()).siglaEstado(clube6.getSiglaEstado().toString()).dataCriacao(clube6.getDataCriacao()).ativo(clube6.getAtivo()).build();
+        Clube clube2 = Clube.builder()
+                .id(2L)
+                .nome("Flamengo")
+                .siglaEstado(SiglaEstado.valueOf("RJ"))
+                .dataCriacao(LocalDate.of(1903, 9, 15))
+                .ativo(true)
+                .build();
+
+        Clube clube3 = Clube.builder()
+                .id(3L)
+                .nome("Palmeiras")
+                .siglaEstado(SiglaEstado.valueOf("SP"))
+                .dataCriacao(LocalDate.of(1903, 9, 15))
+                .ativo(true)
+                .build();
+
+        Clube clube4 = Clube.builder()
+                .id(4L)
+                .nome("Santos")
+                .siglaEstado(SiglaEstado.valueOf("SP"))
+                .dataCriacao(LocalDate.of(1903, 9, 15))
+                .ativo(true)
+                .build();
+
+        Clube clube5 = Clube.builder()
+                .id(5L)
+                .nome("Corinthians")
+                .siglaEstado(SiglaEstado.valueOf("SP"))
+                .dataCriacao(LocalDate.of(1903, 9, 15))
+                .ativo(true)
+                .build();
+
+        Clube clube6 = Clube.builder()
+                .id(6L)
+                .nome("Bahia")
+                .siglaEstado(SiglaEstado.valueOf("BA"))
+                .dataCriacao(LocalDate.of(1903, 9, 15))
+                .ativo(true)
+                .build();
+
+        ClubeResponseDTO dto1 = ClubeResponseDTO.builder()
+                .id(1L)
+                .nome(clube1.getNome())
+                .siglaEstado(clube1.getSiglaEstado().toString())
+                .dataCriacao(clube1.getDataCriacao())
+                .ativo(clube1.getAtivo())
+                .build();
+
+        ClubeResponseDTO dto2 = ClubeResponseDTO.builder()
+                .id(2L)
+                .nome(clube2.getNome())
+                .siglaEstado(clube2.getSiglaEstado().toString())
+                .dataCriacao(clube2.getDataCriacao())
+                .ativo(clube2.getAtivo())
+                .build();
+
+        ClubeResponseDTO dto3 = ClubeResponseDTO.builder()
+                .id(3L)
+                .nome(clube3.getNome())
+                .siglaEstado(clube3.getSiglaEstado().toString())
+                .dataCriacao(clube3.getDataCriacao())
+                .ativo(clube3.getAtivo())
+                .build();
+
+        ClubeResponseDTO dto4 = ClubeResponseDTO.builder()
+                .id(4L)
+                .nome(clube4.getNome())
+                .siglaEstado(clube4.getSiglaEstado().toString())
+                .dataCriacao(clube4.getDataCriacao())
+                .ativo(clube4.getAtivo())
+                .build();
+
+        ClubeResponseDTO dto5 = ClubeResponseDTO.builder()
+                .id(5L)
+                .nome(clube5.getNome())
+                .siglaEstado(clube5.getSiglaEstado().toString())
+                .dataCriacao(clube5.getDataCriacao())
+                .ativo(clube5.getAtivo())
+                .build();
+
+        ClubeResponseDTO dto6 = ClubeResponseDTO.builder()
+                .id(6L)
+                .nome(clube6.getNome())
+                .siglaEstado(clube6.getSiglaEstado().toString())
+                .dataCriacao(clube6.getDataCriacao())
+                .ativo(clube6.getAtivo())
+                .build();
 
         List<Clube> clubes = List.of(clube1, clube2, clube3, clube4, clube5, clube6)
                 .stream()
@@ -164,8 +264,21 @@ public class ClubeServiceTest {
     @Test
     void testGetClubByIdWhenDataIsValid() {
 
-        Clube clube = Clube.builder().id(1L).nome("Grêmio").siglaEstado(SiglaEstado.valueOf("RS")).dataCriacao(LocalDate.of(1903, 9, 15)).ativo(true).build();
-        ClubeResponseDTO dto = ClubeResponseDTO.builder().id(1L).nome(clube.getNome()).siglaEstado(clube.getSiglaEstado().toString()).dataCriacao(clube.getDataCriacao()).ativo(clube.getAtivo()).build();
+        Clube clube = Clube.builder()
+                .id(1L)
+                .nome("Grêmio")
+                .siglaEstado(SiglaEstado.valueOf("RS"))
+                .dataCriacao(LocalDate.of(1903, 9, 15))
+                .ativo(true)
+                .build();
+
+        ClubeResponseDTO dto = ClubeResponseDTO.builder()
+                .id(1L)
+                .nome(clube.getNome())
+                .siglaEstado(clube.getSiglaEstado().toString())
+                .dataCriacao(clube.getDataCriacao())
+                .ativo(clube.getAtivo())
+                .build();
 
         when(clubeRepository.findById(1L)).thenReturn(Optional.of(clube));
         when(clubeMapper.toDto(clube)).thenReturn(dto);
@@ -194,7 +307,13 @@ public class ClubeServiceTest {
     @Test
     void testUpdateClubWhenDataIsValid() {
 
-        Clube clube = Clube.builder().id(1L).nome("Grêmio").siglaEstado(SiglaEstado.valueOf("RS")).dataCriacao(LocalDate.of(1903, 9, 15)).ativo(true).build();
+        Clube clube = Clube.builder()
+                .id(1L)
+                .nome("Grêmio")
+                .siglaEstado(SiglaEstado.valueOf("RS"))
+                .dataCriacao(LocalDate.of(1903, 9, 15))
+                .ativo(true)
+                .build();
 
         ClubeRequestDTO dto = ClubeRequestDTO.builder()
                 .nome("Grêmio FBPA")
@@ -203,7 +322,13 @@ public class ClubeServiceTest {
                 .ativo(true)
                 .build();
 
-        ClubeResponseDTO responseDto = ClubeResponseDTO.builder().id(1L).nome(clube.getNome()).siglaEstado(clube.getSiglaEstado().toString()).dataCriacao(clube.getDataCriacao()).ativo(clube.getAtivo()).build();
+        ClubeResponseDTO responseDto = ClubeResponseDTO.builder()
+                .id(1L)
+                .nome(clube.getNome())
+                .siglaEstado(clube.getSiglaEstado().toString())
+                .dataCriacao(clube.getDataCriacao())
+                .ativo(clube.getAtivo())
+                .build();
 
         when(clubeRepository.findById(1L)).thenReturn(Optional.of(clube));
         when(clubeRepository.findByNomeAndSiglaEstado(dto.getNome(), SiglaEstado.valueOf(dto.getSiglaEstado()))).thenReturn(Optional.empty());
@@ -221,7 +346,12 @@ public class ClubeServiceTest {
     @Test
     void testUpdateClubWhenCreationIsAfterMatchAlreadyExists() {
 
-        Clube clube = Clube.builder().id(1L).nome("Grêmio").siglaEstado(SiglaEstado.valueOf("RS")).dataCriacao(LocalDate.of(1903, 9, 15)).ativo(true).build();
+        Clube clube = Clube.builder()
+                .id(1L).nome("Grêmio")
+                .siglaEstado(SiglaEstado.valueOf("RS"))
+                .dataCriacao(LocalDate.of(1903, 9, 15))
+                .ativo(true)
+                .build();
 
         ClubeRequestDTO dto = ClubeRequestDTO.builder()
                 .nome("Grêmio FBPA")
@@ -248,7 +378,13 @@ public class ClubeServiceTest {
     @Test
     void testUpdateClubWhenDataIsInvalid() {
 
-        Clube clube = Clube.builder().id(1L).nome("Grêmio").siglaEstado(SiglaEstado.valueOf("RS")).dataCriacao(LocalDate.of(1903, 9, 15)).ativo(true).build();
+        Clube clube = Clube.builder()
+                .id(1L)
+                .nome("Grêmio")
+                .siglaEstado(SiglaEstado.valueOf("RS"))
+                .dataCriacao(LocalDate.of(1903, 9, 15))
+                .ativo(true)
+                .build();
 
         ClubeRequestDTO dto = ClubeRequestDTO.builder()
                 .nome("Grêmio FBPA")
@@ -269,7 +405,13 @@ public class ClubeServiceTest {
     @Test
     void testDisableClubWhenDataIsValid() {
 
-        Clube clube = Clube.builder().id(1L).nome("Grêmio").siglaEstado(SiglaEstado.valueOf("RS")).dataCriacao(LocalDate.of(1903, 9, 15)).ativo(true).build();
+        Clube clube = Clube.builder()
+                .id(1L)
+                .nome("Grêmio")
+                .siglaEstado(SiglaEstado.valueOf("RS"))
+                .dataCriacao(LocalDate.of(1903, 9, 15))
+                .ativo(true)
+                .build();
 
         when(clubeRepository.findById(1L)).thenReturn(Optional.of(clube));
         when(clubeRepository.save(clube)).thenReturn(clube);
