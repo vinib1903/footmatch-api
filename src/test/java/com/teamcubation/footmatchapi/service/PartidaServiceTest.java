@@ -16,14 +16,20 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import java.util.List;
+import java.util.Optional;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static java.util.Collections.emptyList;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @Slf4j
@@ -115,14 +121,29 @@ public class PartidaServiceTest {
                 .golsVisitante(dto.getGolsVisitante())
                 .build();
 
-        when(clubeService.validarExistenciaClube(1L)).thenReturn(mandante);
-        when(clubeService.validarExistenciaClube(2L)).thenReturn(visitante);
-        when(estadioService.validarExistenciaEstadio(1L)).thenReturn(estadio);
-        when(partidaRepository.findAllByClube(mandante)).thenReturn(emptyList());
-        when(partidaRepository.findAllByClube(visitante)).thenReturn(emptyList());
-        when(partidaRepository.findAllByEstadioAndData(estadio, dto.getDataHora().toLocalDate())).thenReturn(emptyList());
-        when(partidaRepository.save(any(Partida.class))).thenReturn(partida);
-        when(partidaMapper.toDto(any(Partida.class))).thenReturn(response);
+        when(clubeService.validarExistenciaClube(1L))
+                .thenReturn(mandante);
+
+        when(clubeService.validarExistenciaClube(2L))
+                .thenReturn(visitante);
+
+        when(estadioService.validarExistenciaEstadio(1L))
+                .thenReturn(estadio);
+
+        when(partidaRepository.findAllByClube(mandante))
+                .thenReturn(emptyList());
+
+        when(partidaRepository.findAllByClube(visitante))
+                .thenReturn(emptyList());
+
+        when(partidaRepository.findAllByEstadioAndData(estadio, dto.getDataHora().toLocalDate()))
+                .thenReturn(emptyList());
+
+        when(partidaRepository.save(any(Partida.class)))
+                .thenReturn(partida);
+
+        when(partidaMapper.toDto(any(Partida.class)))
+                .thenReturn(response);
 
         PartidaResponseDTO result = partidaService.criarPartida(dto);
 
@@ -136,5 +157,404 @@ public class PartidaServiceTest {
         assertEquals(response, result);
     }
 
+    @Test
+    void testCreateMatchWhenClubIsInative() {
 
+        Clube mandante = Clube.builder()
+                .id(1L)
+                .nome("Grêmio")
+                .siglaEstado(SiglaEstado.RS)
+                .dataCriacao(LocalDate.of(1903, 9, 15))
+                .ativo(false)
+                .build();
+
+        Clube visitante = Clube.builder()
+                .id(2L)
+                .nome("Palmeiras")
+                .siglaEstado(SiglaEstado.SP)
+                .dataCriacao(LocalDate.of(1914, 8, 26))
+                .ativo(true)
+                .build();
+
+        Estadio estadio = Estadio.builder()
+                .id(1L)
+                .nome("Palestra Itália")
+                .build();
+
+        PartidaRequestDTO dto = PartidaRequestDTO.builder()
+                .mandanteId(1L)
+                .visitanteId(2L)
+                .estadioId(1L)
+                .dataHora(LocalDateTime.of(2022, 12, 18, 20, 0))
+                .golsMandante(3)
+                .golsVisitante(1)
+                .build();
+
+        when(clubeService.validarExistenciaClube(1L))
+                .thenReturn(mandante);
+
+        when(clubeService.validarExistenciaClube(2L))
+                .thenReturn(visitante);
+
+        when(estadioService.validarExistenciaEstadio(1L))
+                .thenReturn(estadio);
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> partidaService.criarPartida(dto));
+
+        log.info("Exception: {}", ex.getMessage());
+
+        assertEquals(org.springframework.http.HttpStatus.CONFLICT, ex.getStatusCode());
+        assertEquals("Clube inativo.", ex.getReason());
+    }
+
+    @Test
+    void testCreateMatchWhenStadiumIsOccupied() {
+
+        Clube mandante = Clube.builder()
+                .id(1L)
+                .nome("Grêmio")
+                .siglaEstado(SiglaEstado.RS)
+                .dataCriacao(LocalDate.of(1903, 9, 15))
+                .ativo(true)
+                .build();
+
+        Clube visitante = Clube.builder()
+                .id(2L)
+                .nome("Palmeiras")
+                .siglaEstado(SiglaEstado.SP)
+                .dataCriacao(LocalDate.of(1914, 8, 26))
+                .ativo(true)
+                .build();
+
+        Estadio estadio = Estadio.builder()
+                .id(1L)
+                .nome("Palestra Itália")
+                .build();
+
+        PartidaRequestDTO dto = PartidaRequestDTO.builder()
+                .mandanteId(1L)
+                .visitanteId(2L)
+                .estadioId(1L)
+                .dataHora(LocalDateTime.of(2022, 12, 18, 20, 0))
+                .golsMandante(3)
+                .golsVisitante(1)
+                .build();
+
+        Partida partidaExistente = Partida.builder()
+                .id(7L)
+                .mandante(mandante)
+                .visitante(visitante)
+                .estadio(estadio)
+                .dataHora(LocalDateTime.of(2022, 12, 18, 18, 0))
+                .golsMandante(0)
+                .golsVisitante(0)
+                .build();
+
+        when(clubeService.validarExistenciaClube(1L))
+                .thenReturn(mandante);
+
+        when(clubeService.validarExistenciaClube(2L))
+                .thenReturn(visitante);
+
+        when(estadioService.validarExistenciaEstadio(1L))
+                .thenReturn(estadio);
+
+        when(partidaRepository.findAllByClube(mandante))
+                .thenReturn(emptyList());
+
+        when(partidaRepository.findAllByClube(visitante))
+                .thenReturn(emptyList());
+
+        when(partidaRepository.findAllByEstadioAndData(estadio, LocalDate.of(2022, 12, 18)))
+                .thenReturn(java.util.Collections.singletonList(partidaExistente));
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> partidaService.criarPartida(dto));
+        assertEquals(org.springframework.http.HttpStatus.CONFLICT, ex.getStatusCode());
+        assertEquals("Estádio já possui partida neste dia.", ex.getReason());
+    }
+
+    @Test
+    void testGetAllMatchesFilterByClubGremio() {
+
+        Clube gremio = Clube.builder()
+                .id(1L)
+                .nome("Grêmio")
+                .siglaEstado(SiglaEstado.RS)
+                .dataCriacao(LocalDate.of(1903, 9, 15))
+                .ativo(true)
+                .build();
+
+        Clube palmeiras = Clube.builder()
+                .id(2L)
+                .nome("Palmeiras")
+                .siglaEstado(SiglaEstado.SP)
+                .dataCriacao(LocalDate.of(1914, 8, 26))
+                .ativo(true)
+                .build();
+
+        Clube fluminense = Clube.builder()
+                .id(3L)
+                .nome("Fluminense")
+                .siglaEstado(SiglaEstado.RJ)
+                .dataCriacao(LocalDate.of(1903, 9, 15))
+                .ativo(true)
+                .build();
+
+        Estadio estadio = Estadio.builder()
+                .id(1L)
+                .nome("Palestra Itália")
+                .build();
+
+        Partida partida1 = Partida.builder()
+                .id(1L)
+                .mandante(fluminense)
+                .visitante(palmeiras)
+                .estadio(estadio)
+                .dataHora(LocalDateTime.of(2022, 12, 18, 20, 0))
+                .golsMandante(3)
+                .golsVisitante(5)
+                .build();
+
+        Partida partida2 = Partida.builder()
+                .id(2L)
+                .mandante(fluminense)
+                .visitante(gremio)
+                .estadio(estadio)
+                .dataHora(LocalDateTime.of(2022, 12, 15, 20, 0))
+                .golsMandante(3)
+                .golsVisitante(6)
+                .build();
+
+        Partida partida3 = Partida.builder()
+                .id(3L)
+                .mandante(gremio)
+                .visitante(palmeiras)
+                .estadio(estadio)
+                .dataHora(LocalDateTime.of(2022, 12, 16, 20, 0))
+                .golsMandante(3)
+                .golsVisitante(2)
+                .build();
+
+        List<Partida> partidasGremio = List.of(partida2, partida3);
+
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Partida> page = new PageImpl<>(partidasGremio, pageable, partidasGremio.size());
+
+        PartidaResponseDTO dto2 = PartidaResponseDTO.builder().id(2L).build();
+        PartidaResponseDTO dto3 = PartidaResponseDTO.builder().id(3L).build();
+
+        when(partidaRepository.findPartidasWithFilters("Grêmio", null, null, null, pageable))
+                .thenReturn(page);
+
+        when(partidaMapper.toDto(partida2))
+                .thenReturn(dto2);
+
+        when(partidaMapper.toDto(partida3))
+                .thenReturn(dto3);
+
+        Page<PartidaResponseDTO> partidas = partidaService.obterPartidas("Grêmio", null, null, null, pageable);
+
+        log.info(partidas.getContent().toString());
+
+        assertEquals(2, partidas.getContent().size());
+        assertEquals(2L, partidas.getContent().get(0).getId());
+        assertEquals(3L, partidas.getContent().get(1).getId());
+    }
+
+    @Test
+    void testGetMatchByValidId() {
+
+        Partida partida = Partida.builder()
+                .id(1L)
+                .mandante(Clube.builder().id(1L).build())
+                .visitante(Clube.builder().id(2L).build())
+                .estadio(Estadio.builder().id(1L).build())
+                .dataHora(LocalDateTime.of(2022, 12, 18, 20, 0))
+                .golsMandante(3)
+                .golsVisitante(5)
+                .build();
+
+        PartidaResponseDTO dto = PartidaResponseDTO.builder()
+                .id(1L)
+                .mandante(ClubeResponseDTO.builder().id(1L).build())
+                .visitante(ClubeResponseDTO.builder().id(2L).build())
+                .estadio(EstadioResponseDTO.builder().id(1L).build())
+                .dataHora(LocalDateTime.of(2022, 12, 18, 20, 0))
+                .golsMandante(3)
+                .golsVisitante(5)
+                .build();
+
+        when(partidaRepository.findById(1L))
+                .thenReturn(Optional.of(partida));
+
+        when(partidaMapper.toDto(partida))
+                .thenReturn(dto);
+
+        PartidaResponseDTO result = partidaService.obterPartidaPorId(1L);
+
+        log.info(result.toString());
+
+        assertEquals(1L, dto.getId());
+        assertEquals(3, dto.getGolsMandante());
+        assertEquals(5, dto.getGolsVisitante());
+    }
+
+    @Test
+    void testGetMatchByInvalidId() {
+
+        when(partidaRepository.findById(1L))
+                .thenReturn(Optional.empty());
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> partidaService.obterPartidaPorId(1L));
+
+        log.info("Exception: {}", ex.getMessage());
+
+        assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
+    }
+
+    @Test
+    void testUpdateMatchWhenDataIsValid() {
+
+        Partida partida = Partida.builder()
+                .id(1L)
+                .mandante(Clube.builder().id(1L).build())
+                .visitante(Clube.builder().id(2L).build())
+                .estadio(Estadio.builder().id(1L).build())
+                .dataHora(LocalDateTime.of(2022, 12, 18, 20, 0))
+                .golsMandante(3)
+                .golsVisitante(5)
+                .build();
+
+        PartidaRequestDTO requestDto = PartidaRequestDTO.builder()
+                .mandanteId(1L)
+                .visitanteId(2L)
+                .estadioId(1L)
+                .dataHora(LocalDateTime.of(2022, 12, 18, 20, 0))
+                .golsMandante(3)
+                .golsVisitante(5)
+                .build();
+
+        PartidaResponseDTO responseDto = PartidaResponseDTO.builder()
+                .id(1L)
+                .mandante(ClubeResponseDTO.builder().id(1L).build())
+                .visitante(ClubeResponseDTO.builder().id(2L).build())
+                .estadio(EstadioResponseDTO.builder().id(1L).build())
+                .dataHora(LocalDateTime.of(2022, 12, 18, 20, 0))
+                .golsMandante(3)
+                .golsVisitante(5)
+                .build();
+
+        when(partidaRepository.findById(1L))
+                .thenReturn(Optional.of(partida));
+
+        when(clubeService.validarExistenciaClube(1L))
+                .thenReturn(Clube.builder()
+                        .id(1L)
+                        .dataCriacao(LocalDate.of(1903, 9, 15))
+                        .ativo(true)
+                        .build());
+
+        when(clubeService.validarExistenciaClube(2L))
+                .thenReturn(Clube.builder()
+                        .id(2L)
+                        .dataCriacao(LocalDate.of(1914, 8, 26))
+                        .ativo(true)
+                        .build());
+
+        when(estadioService.validarExistenciaEstadio(1L))
+                .thenReturn(Estadio.builder().id(1L).build());
+
+        when(partidaRepository.findAllByClube(any(Clube.class)))
+                .thenReturn(emptyList());
+
+        when(partidaRepository.findAllByEstadioAndData(any(Estadio.class), any(LocalDate.class)))
+                .thenReturn(emptyList());
+
+        when(partidaRepository.save(any(Partida.class)))
+                .thenReturn(partida);
+
+        when(partidaMapper.toDto(any(Partida.class)))
+                .thenReturn(responseDto);
+
+        PartidaResponseDTO result = partidaService.atualizarPartida(1L, requestDto);
+
+        log.info(result.toString());
+
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+        assertEquals(1L, result.getMandante().getId());
+        assertEquals(2L, result.getVisitante().getId());
+        assertEquals(1L, result.getEstadio().getId());
+        assertEquals(3, result.getGolsMandante());
+        assertEquals(5, result.getGolsVisitante());
+        assertEquals(responseDto, result);
+    }
+
+    @Test
+    void testUpdateMatchWhenEqualsClubs() {
+
+        Clube clube = Clube.builder()
+                .id(1L)
+                .nome("Grêmio")
+                .siglaEstado(SiglaEstado.RS)
+                .dataCriacao(LocalDate.of(1903, 9, 15))
+                .ativo(true)
+                .build();
+
+        Partida partida = Partida.builder()
+                .id(1L)
+                .mandante(clube)
+                .visitante(clube)
+                .estadio(Estadio.builder().id(1L).build())
+                .dataHora(LocalDateTime.of(2022, 12, 18, 20, 0))
+                .golsMandante(0)
+                .golsVisitante(0)
+                .build();
+
+        PartidaRequestDTO requestDto = PartidaRequestDTO.builder()
+                .mandanteId(1L)
+                .visitanteId(1L)
+                .estadioId(1L)
+                .dataHora(LocalDateTime.of(2022, 12, 18, 20, 0))
+                .golsMandante(0)
+                .golsVisitante(0)
+                .build();
+
+        when(partidaRepository.findById(1L)).thenReturn(Optional.of(partida));
+        when(clubeService.validarExistenciaClube(1L)).thenReturn(clube);
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> partidaService.atualizarPartida(1L, requestDto));
+
+        log.info("Exception: {}", ex.getMessage());
+
+        assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
+    }
+
+    @Test
+    void testDeleteMatchWhenDataIsValid() {
+
+        Partida partida = Partida.builder()
+                .id(1L)
+                .build();
+
+        when(partidaRepository.findById(1L))
+                .thenReturn(Optional.of(partida));
+
+        partidaService.deletarPartida(1L);
+
+        verify(partidaRepository, times(1)).delete(partida);
+    }
+
+    @Test
+    void testDeleteMatchWhenDataIsInvalid() {
+
+        when(partidaRepository.findById(1L))
+                .thenReturn(Optional.empty());
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> partidaService.deletarPartida(1L));
+
+        log.info("Exception: {}", ex.getMessage());
+
+        assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
+    }
 }

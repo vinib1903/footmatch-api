@@ -20,7 +20,6 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -63,9 +62,14 @@ public class ClubeServiceTest {
                 .ativo(clube.getAtivo())
                 .build();
 
-        when(clubeMapper.toEntity(dto)).thenReturn(clube);
-        when(clubeRepository.save(clube)).thenReturn(clube);
-        when(clubeMapper.toDto(clube)).thenReturn(response);
+        when(clubeMapper.toEntity(dto))
+                .thenReturn(clube);
+
+        when(clubeRepository.save(clube))
+                .thenReturn(clube);
+
+        when(clubeMapper.toDto(clube))
+                .thenReturn(response);
 
         ClubeResponseDTO result = clubeService.criarClube(dto);
 
@@ -126,7 +130,8 @@ public class ClubeServiceTest {
                 .ativo(false)
                 .build();
 
-        when(clubeRepository.findByNomeAndSiglaEstado(dto.getNome(), SiglaEstado.valueOf(dto.getSiglaEstado()))).thenReturn(Optional.of(clube));
+        when(clubeRepository.findByNomeAndSiglaEstado(dto.getNome(), SiglaEstado.valueOf(dto.getSiglaEstado())))
+                .thenReturn(Optional.of(clube));
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> clubeService.criarClube(dto));
 
@@ -242,13 +247,26 @@ public class ClubeServiceTest {
         Pageable pageable = PageRequest.of(0, 10, Sort.by("nome").descending());
         Page<Clube> page = new PageImpl<>(clubes, pageable, clubes.size());
 
-        when(clubeRepository.findClubesWichFilters(null,null,null, pageable)).thenReturn(page);
-        when(clubeMapper.toDto(clube1)).thenReturn(dto1);
-        when(clubeMapper.toDto(clube2)).thenReturn(dto2);
-        when(clubeMapper.toDto(clube3)).thenReturn(dto3);
-        when(clubeMapper.toDto(clube4)).thenReturn(dto4);
-        when(clubeMapper.toDto(clube5)).thenReturn(dto5);
-        when(clubeMapper.toDto(clube6)).thenReturn(dto6);
+        when(clubeRepository.findClubesWichFilters(null,null,null, pageable))
+                .thenReturn(page);
+
+        when(clubeMapper.toDto(clube1))
+                .thenReturn(dto1);
+
+        when(clubeMapper.toDto(clube2))
+                .thenReturn(dto2);
+
+        when(clubeMapper.toDto(clube3))
+                .thenReturn(dto3);
+
+        when(clubeMapper.toDto(clube4))
+                .thenReturn(dto4);
+
+        when(clubeMapper.toDto(clube5))
+                .thenReturn(dto5);
+
+        when(clubeMapper.toDto(clube6))
+                .thenReturn(dto6);
 
         Page<ClubeResponseDTO> result = clubeService.obterClubes(null, null, null, pageable);
 
@@ -279,8 +297,11 @@ public class ClubeServiceTest {
                 .ativo(clube.getAtivo())
                 .build();
 
-        when(clubeRepository.findById(1L)).thenReturn(Optional.of(clube));
-        when(clubeMapper.toDto(clube)).thenReturn(dto);
+        when(clubeRepository.findById(1L))
+                .thenReturn(Optional.of(clube));
+
+        when(clubeMapper.toDto(clube))
+                .thenReturn(dto);
 
         ClubeResponseDTO result = clubeService.obterClubePorId(1L);
 
@@ -294,7 +315,8 @@ public class ClubeServiceTest {
     @Test
     void testGetClubByIdWhenDataIsInvalid() {
 
-        when(clubeRepository.findById(1L)).thenReturn(Optional.empty());
+        when(clubeRepository.findById(1L))
+                .thenReturn(Optional.empty());
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> clubeService.obterClubePorId(1L));
 
@@ -329,10 +351,17 @@ public class ClubeServiceTest {
                 .ativo(clube.getAtivo())
                 .build();
 
-        when(clubeRepository.findById(1L)).thenReturn(Optional.of(clube));
-        when(clubeRepository.findByNomeAndSiglaEstado(dto.getNome(), SiglaEstado.valueOf(dto.getSiglaEstado()))).thenReturn(Optional.empty());
-        when(clubeRepository.save(clube)).thenReturn(clube);
-        when(clubeMapper.toDto(clube)).thenReturn(responseDto);
+        when(clubeRepository.findById(1L))
+                .thenReturn(Optional.of(clube));
+
+        when(clubeRepository.findByNomeAndSiglaEstado(dto.getNome(), SiglaEstado.valueOf(dto.getSiglaEstado())))
+                .thenReturn(Optional.empty());
+
+        when(clubeRepository.save(clube))
+                .thenReturn(clube);
+
+        when(clubeMapper.toDto(clube))
+                .thenReturn(responseDto);
 
         ClubeResponseDTO result = clubeService.atualizarClube(1L, dto);
 
@@ -361,10 +390,17 @@ public class ClubeServiceTest {
 
         Partida partida = mock(Partida.class);
 
-        when(partida.getDataHora()).thenReturn(LocalDate.of(2021, 9, 15).atStartOfDay());
-        when(clubeRepository.findById(1L)).thenReturn(Optional.of(clube));
-        when(clubeRepository.findByNomeAndSiglaEstado(dto.getNome(), SiglaEstado.valueOf(dto.getSiglaEstado()))).thenReturn(Optional.empty());
-        when(partidaService.obterPartidasDoClube(1L)).thenReturn(List.of(partida));
+        when(partida.getDataHora())
+                .thenReturn(LocalDate.of(2021, 9, 15).atStartOfDay());
+
+        when(clubeRepository.findById(1L))
+                .thenReturn(Optional.of(clube));
+
+        when(clubeRepository.findByNomeAndSiglaEstado(dto.getNome(), SiglaEstado.valueOf(dto.getSiglaEstado())))
+                .thenReturn(Optional.empty());
+
+        when(partidaService.obterPartidasDoClube(1L))
+                .thenReturn(List.of(partida));
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> clubeService.atualizarClube(1L, dto));
 
@@ -392,7 +428,8 @@ public class ClubeServiceTest {
                 .ativo(false)
                 .build();
 
-        when(clubeRepository.findById(1L)).thenReturn(Optional.of(clube));
+        when(clubeRepository.findById(1L))
+                .thenReturn(Optional.of(clube));
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> clubeService.atualizarClube(1L, dto));
 
@@ -412,8 +449,11 @@ public class ClubeServiceTest {
                 .ativo(true)
                 .build();
 
-        when(clubeRepository.findById(1L)).thenReturn(Optional.of(clube));
-        when(clubeRepository.save(clube)).thenReturn(clube);
+        when(clubeRepository.findById(1L))
+                .thenReturn(Optional.of(clube));
+
+        when(clubeRepository.save(clube))
+                .thenReturn(clube);
 
         clubeService.inativarClube(1L);
 
@@ -423,7 +463,8 @@ public class ClubeServiceTest {
     @Test
     void testDisableClubWhenDataIsInvalid() {
 
-        when(clubeRepository.findById(1L)).thenReturn(Optional.empty());
+        when(clubeRepository.findById(1L))
+                .thenReturn(Optional.empty());
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> clubeService.inativarClube(1L));
 

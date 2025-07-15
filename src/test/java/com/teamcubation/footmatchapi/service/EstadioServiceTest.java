@@ -54,9 +54,14 @@ public class EstadioServiceTest {
                 .nome(estadio.getNome())
                 .build();
 
-        when(estadioMapper.toDto(estadio)).thenReturn(response);
-        when(estadioMapper.toEntity(dto)).thenReturn(estadio);
-        when(estadioRepository.save(estadio)).thenReturn(estadio);
+        when(estadioMapper.toDto(estadio))
+                .thenReturn(response);
+
+        when(estadioMapper.toEntity(dto))
+                .thenReturn(estadio);
+
+        when(estadioRepository.save(estadio))
+                .thenReturn(estadio);
 
         EstadioResponseDTO result = estadioService.criarEstadio(dto);
 
@@ -78,7 +83,8 @@ public class EstadioServiceTest {
                 .nome(dto.getNome())
                 .build();
 
-        when(estadioRepository.findByNome(dto.getNome())).thenReturn(Optional.of(estadio));
+        when(estadioRepository.findByNome(dto.getNome()))
+                .thenReturn(Optional.of(estadio));
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> estadioService.criarEstadio(dto));
 
@@ -156,10 +162,17 @@ public class EstadioServiceTest {
         Page<Estadio> page = new PageImpl<>(estadios, pageable, estadios.size());
 
         when(estadioRepository.findAll(pageable)).thenReturn(page);
-        when(estadioMapper.toDto(estadio1)).thenReturn(dto1);
-        when(estadioMapper.toDto(estadio2)).thenReturn(dto2);
-        when(estadioMapper.toDto(estadio3)).thenReturn(dto3);
-        when(estadioMapper.toDto(estadio4)).thenReturn(dto4);
+        when(estadioMapper.toDto(estadio1))
+                .thenReturn(dto1);
+
+        when(estadioMapper.toDto(estadio2))
+                .thenReturn(dto2);
+
+        when(estadioMapper.toDto(estadio3))
+                .thenReturn(dto3);
+
+        when(estadioMapper.toDto(estadio4))
+                .thenReturn(dto4);
 
         Page<EstadioResponseDTO> result = estadioService.obterEstadios(pageable);
 
@@ -185,8 +198,11 @@ public class EstadioServiceTest {
                 .nome(estadio.getNome())
                 .build();
 
-        when(estadioRepository.findById(1L)).thenReturn(Optional.of(estadio));
-        when(estadioMapper.toDto(estadio)).thenReturn(dto);
+        when(estadioRepository.findById(1L))
+                .thenReturn(Optional.of(estadio));
+
+        when(estadioMapper.toDto(estadio))
+                .thenReturn(dto);
 
         EstadioResponseDTO result = estadioService.obterEstadioPorId(1L);
 
@@ -199,7 +215,8 @@ public class EstadioServiceTest {
     @Test
     void testGetStadiumByIdWhenDataIsInvalid() {
 
-        when(estadioRepository.findById(1L)).thenReturn(Optional.empty());
+        when(estadioRepository.findById(1L))
+                .thenReturn(Optional.empty());
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> estadioService.obterEstadioPorId(1L));
 
@@ -225,9 +242,14 @@ public class EstadioServiceTest {
                 .nome(estadio.getNome())
                 .build();
 
-        when(estadioRepository.findById(1L)).thenReturn(Optional.of(estadio));
-        when(estadioMapper.toDto(estadio)).thenReturn(response);
-        when(estadioRepository.save(estadio)).thenReturn(estadio);
+        when(estadioRepository.findById(1L))
+                .thenReturn(Optional.of(estadio));
+
+        when(estadioMapper.toDto(estadio))
+                .thenReturn(response);
+
+        when(estadioRepository.save(estadio))
+                .thenReturn(estadio);
 
         EstadioResponseDTO result = estadioService.atualizarEstadio(1L, dto);
 
@@ -238,6 +260,7 @@ public class EstadioServiceTest {
     }
 
     @Test
+    //TODO: ajustar variavel nao usada
     void testUpdateStadiumWhenEstadioIdIsInvalid() {
 
         Estadio estadio = Estadio.builder()
@@ -249,7 +272,8 @@ public class EstadioServiceTest {
                 .nome("Ol")
                 .build();
 
-        when(estadioRepository.findById(1L)).thenReturn(Optional.empty());
+        when(estadioRepository.findById(1L))
+                .thenReturn(Optional.empty());
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> estadioService.atualizarEstadio(1L, dto));
 
