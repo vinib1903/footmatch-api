@@ -7,6 +7,7 @@ import com.teamcubation.footmatchapi.dto.request.ClubeRequestDTO;
 import com.teamcubation.footmatchapi.dto.response.ClubeResponseDTO;
 import com.teamcubation.footmatchapi.mapper.ClubeMapper;
 import com.teamcubation.footmatchapi.repository.ClubeRepository;
+import com.teamcubation.footmatchapi.repository.PartidaRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,7 +32,7 @@ public class ClubeServiceTest {
     @Mock
     private ClubeRepository clubeRepository;
     @Mock
-    private PartidaService partidaService;
+    private PartidaRepository partidaRepository;
     @Mock
     private ClubeMapper clubeMapper;
 
@@ -399,7 +400,7 @@ public class ClubeServiceTest {
         when(clubeRepository.findByNomeAndSiglaEstado(dto.getNome(), SiglaEstado.valueOf(dto.getSiglaEstado())))
                 .thenReturn(Optional.empty());
 
-        when(partidaService.obterPartidasDoClube(1L))
+        when(partidaRepository.findAllByClube(clube))
                 .thenReturn(List.of(partida));
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> clubeService.atualizarClube(1L, dto));

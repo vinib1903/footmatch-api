@@ -4,6 +4,10 @@ import com.teamcubation.footmatchapi.domain.entities.Clube;
 import com.teamcubation.footmatchapi.domain.entities.Estadio;
 import com.teamcubation.footmatchapi.domain.entities.Partida;
 import com.teamcubation.footmatchapi.domain.enums.SiglaEstado;
+import com.teamcubation.footmatchapi.dto.response.ClubeResponseDTO;
+import com.teamcubation.footmatchapi.dto.response.EstadioResponseDTO;
+import com.teamcubation.footmatchapi.dto.response.PartidaResponseDTO;
+import com.teamcubation.footmatchapi.mapper.PartidaMapper;
 import com.teamcubation.footmatchapi.repository.ClubeRepository;
 import com.teamcubation.footmatchapi.repository.PartidaRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +34,8 @@ public class RestrospectoServiceTest {
     private PartidaRepository partidaRepository;
     @Mock
     private ClubeRepository clubeRepository;
+    @Mock
+    private PartidaMapper partidaMapper;
 
     @InjectMocks
     private RetrospectoService retrospectoService;
@@ -354,11 +360,55 @@ public class RestrospectoServiceTest {
                 .golsVisitante(3)
                 .build();
 
+        PartidaResponseDTO partida1Dto = PartidaResponseDTO.builder()
+                .id(1L)
+                .mandante(ClubeResponseDTO.builder().id(1L).build())
+                .visitante(ClubeResponseDTO.builder().id(2L).build())
+                .estadio(EstadioResponseDTO.builder().id(1L).build())
+                .dataHora(LocalDateTime.of(2022, 12, 18, 20, 0))
+                .golsMandante(3)
+                .golsVisitante(1)
+                .build();
+
+        PartidaResponseDTO partida2Dto = PartidaResponseDTO.builder()
+                .id(2L)
+                .mandante(ClubeResponseDTO.builder().id(2L).build())
+                .visitante(ClubeResponseDTO.builder().id(1L).build())
+                .estadio(EstadioResponseDTO.builder().id(1L).build())
+                .dataHora(LocalDateTime.of(2022, 12, 18, 20, 0))
+                .golsMandante(2)
+                .golsVisitante(1)
+                .build();
+
+        PartidaResponseDTO partida3Dto = PartidaResponseDTO.builder()
+                .id(3L)
+                .mandante(ClubeResponseDTO.builder().id(2L).build())
+                .visitante(ClubeResponseDTO.builder().id(1L).build())
+                .estadio(EstadioResponseDTO.builder().id(1L).build())
+                .dataHora(LocalDateTime.of(2022, 12, 18, 20, 0))
+                .golsMandante(2)
+                .golsVisitante(2)
+                .build();
+
+        PartidaResponseDTO partida4Dto = PartidaResponseDTO.builder()
+                .id(4L)
+                .mandante(ClubeResponseDTO.builder().id(1L).build())
+                .visitante(ClubeResponseDTO.builder().id(2L).build())
+                .estadio(EstadioResponseDTO.builder().id(1L).build())
+                .dataHora(LocalDateTime.of(2022, 12, 18, 20, 0))
+                .golsMandante(4)
+                .golsVisitante(3)
+                .build();
+
         List<Partida> partidas = List.of(partida1, partida2, partida3, partida4);
 
         when(clubeRepository.findById(1L)).thenReturn(Optional.of(gremio));
         when(clubeRepository.findById(2L)).thenReturn(Optional.of(botafogo));
         when(partidaRepository.findAllByClubes(gremio, botafogo)).thenReturn(partidas);
+        when(partidaMapper.toDto(partida1)).thenReturn(partida1Dto);
+        when(partidaMapper.toDto(partida2)).thenReturn(partida2Dto);
+        when(partidaMapper.toDto(partida3)).thenReturn(partida3Dto);
+        when(partidaMapper.toDto(partida4)).thenReturn(partida4Dto);
 
         var result = retrospectoService.obterConfrontoDireto(1L, 2L, null);
 
