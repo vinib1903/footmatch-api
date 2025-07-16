@@ -7,6 +7,7 @@ import com.teamcubation.footmatchapi.dto.request.ClubeRequestDTO;
 import com.teamcubation.footmatchapi.dto.response.*;
 import com.teamcubation.footmatchapi.mapper.ClubeMapper;
 import com.teamcubation.footmatchapi.repository.ClubeRepository;
+import com.teamcubation.footmatchapi.repository.PartidaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +22,7 @@ import java.util.*;
 public class ClubeService {
 
     private final ClubeRepository clubeRepository;
-    private final PartidaService partidaService;
+    private final PartidaRepository partidaRepository;
     private final ClubeMapper clubeMapper;
 
     public ClubeResponseDTO criarClube(ClubeRequestDTO dto) {
@@ -64,7 +65,7 @@ public class ClubeService {
 
         //TODO: da pra melhorar
         if (!dto.getDataCriacao().isEqual(clube.getDataCriacao())) {
-            Optional<Partida> partidaMaisAntiga = partidaService.obterPartidasDoClube(clube.getId()).stream()
+            Optional<Partida> partidaMaisAntiga = partidaRepository.findAllByClube(clube).stream()
                     .min(Comparator.comparing(Partida::getDataHora));
             if (partidaMaisAntiga.isPresent() && dto.getDataCriacao().isAfter(partidaMaisAntiga.get().getDataHora().toLocalDate())) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Não é possível definir data de criação posterior a partidas já registradas para o clube.");
