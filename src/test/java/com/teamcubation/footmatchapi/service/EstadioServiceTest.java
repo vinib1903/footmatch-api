@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @Slf4j
@@ -69,6 +69,8 @@ public class EstadioServiceTest {
         log.info("Result: {}", result);
 
         assertEquals(response, result);
+
+        verify(estadioMapper, times(1)).toEntity(dto);
     }
 
     @Test
@@ -91,6 +93,8 @@ public class EstadioServiceTest {
         log.info("Exception: {}", ex.getMessage());
 
         assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
+
+        verify(estadioMapper, times(0)).toEntity(dto);
     }
 
     @Test
@@ -108,6 +112,8 @@ public class EstadioServiceTest {
 
         assertFalse(violations.isEmpty());
         assertTrue(violations.stream().anyMatch(v -> v.getMessage().contains("O nome deve conter ao menos 3 caracteres.")));
+
+        verify(estadioMapper, times(0)).toEntity(dto);
     }
 
     @Test
@@ -159,9 +165,10 @@ public class EstadioServiceTest {
                 .toList();
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("nome").ascending());
-        Page<Estadio> page = new PageImpl<>(estadios, pageable, estadios.size());
 
-        when(estadioRepository.findAll(pageable)).thenReturn(page);
+        when(estadioRepository.findAll(pageable))
+                .thenReturn(new PageImpl<>(estadios));
+
         when(estadioMapper.toDto(estadio1))
                 .thenReturn(dto1);
 
@@ -183,6 +190,11 @@ public class EstadioServiceTest {
         assertEquals(List.of(dto4, dto2, dto3, dto1), result.getContent());
         assertEquals("Olímpico", result.getContent().get(3).getNome());
         assertEquals("Alfredo Jaconi", result.getContent().get(0).getNome());
+
+        verify(estadioMapper, times(1)).toDto(estadio1);
+        verify(estadioMapper, times(1)).toDto(estadio2);
+        verify(estadioMapper, times(1)).toDto(estadio3);
+        verify(estadioMapper, times(1)).toDto(estadio4);
     }
 
     @Test
@@ -210,6 +222,8 @@ public class EstadioServiceTest {
         log.info("Result: {}", result);
 
         assertEquals(dto, result);
+
+        verify(estadioMapper, times(1)).toDto(estadio);
     }
 
     @Test
@@ -223,6 +237,8 @@ public class EstadioServiceTest {
         log.info("Exception: {}", ex.getMessage());
 
         assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
+
+        verify(estadioRepository, times(1)).findById(1L);
     }
 
     @Test
@@ -257,16 +273,13 @@ public class EstadioServiceTest {
         log.info("Result: {}", result);
 
         assertEquals(response, result);
+
+        verify(estadioMapper, times(1)).toDto(estadio);
+        verify(estadioRepository, times(1)).save(estadio);
     }
 
     @Test
-    //TODO: ajustar variavel nao usada
     void testUpdateStadiumWhenEstadioIdIsInvalid() {
-
-        Estadio estadio = Estadio.builder()
-                .id(1L)
-                .nome("Olímpico")
-                .build();
 
         EstadioRequestDTO dto = EstadioRequestDTO.builder()
                 .nome("Ol")
@@ -280,5 +293,7 @@ public class EstadioServiceTest {
         log.info("Exception: {}", ex.getMessage());
 
         assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
+
+        verify(estadioRepository, times(1)).findById(1L);
     }
 }

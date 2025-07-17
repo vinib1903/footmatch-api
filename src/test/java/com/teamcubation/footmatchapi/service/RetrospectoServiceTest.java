@@ -24,11 +24,11 @@ import java.util.List;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @Slf4j
-public class RestrospectoServiceTest {
+public class RetrospectoServiceTest {
 
     @Mock
     private PartidaRepository partidaRepository;
@@ -99,8 +99,11 @@ public class RestrospectoServiceTest {
 
         List<Partida> partidas = List.of(partida1, partida2, partida3);
 
-        when(clubeRepository.findById(1L)).thenReturn(Optional.of(gremio));
-        when(partidaRepository.findAllByClube(gremio)).thenReturn(partidas);
+        when(clubeRepository.findById(1L))
+                .thenReturn(Optional.of(gremio));
+
+        when(partidaRepository.findAllByClube(gremio))
+                .thenReturn(partidas);
 
         var result = retrospectoService.obterRetrospecto(1L, null);
 
@@ -110,6 +113,9 @@ public class RestrospectoServiceTest {
         assertEquals(0, result.getDerrotas());
         assertEquals(0, result.getGolsMarcados());
         assertEquals(0, result.getGolsSofridos());
+
+        verify(clubeRepository, times(1)).findById(1L);
+        verify(partidaRepository, times(1)).findAllByClube(gremio);
     }
 
     @Test
@@ -171,8 +177,11 @@ public class RestrospectoServiceTest {
 
         List<Partida> partidas = List.of(partida1, partida2, partida3);
 
-        when(clubeRepository.findById(1L)).thenReturn(Optional.of(gremio));
-        when(partidaRepository.findAllByClube(gremio)).thenReturn(partidas);
+        when(clubeRepository.findById(1L))
+                .thenReturn(Optional.of(gremio));
+
+        when(partidaRepository.findAllByClube(gremio))
+                .thenReturn(partidas);
 
         var result = retrospectoService.obterRetrospecto(1L, "mandante");
 
@@ -182,6 +191,9 @@ public class RestrospectoServiceTest {
         assertEquals(0, result.getDerrotas());
         assertEquals(2, result.getGolsMarcados());
         assertEquals(1, result.getGolsSofridos());
+
+        verify(clubeRepository, times(1)).findById(1L);
+        verify(partidaRepository, times(1)).findAllByClube(gremio);
     }
 
     @Test
@@ -273,8 +285,11 @@ public class RestrospectoServiceTest {
 
         Pageable pageable = PageRequest.of(0, 10);
 
-        when(clubeRepository.findById(1L)).thenReturn(Optional.of(gremio));
-        when(partidaRepository.findAllByClube(gremio)).thenReturn(partidas);
+        when(clubeRepository.findById(1L))
+                .thenReturn(Optional.of(gremio));
+
+        when(partidaRepository.findAllByClube(gremio))
+                .thenReturn(partidas);
 
         var result = retrospectoService.obterRestrospectoAdversarios(1L, null, pageable);
 
@@ -299,6 +314,9 @@ public class RestrospectoServiceTest {
         assertEquals(1, fluminenseResults.getDerrotas());
         assertEquals(1, fluminenseResults.getGolsMarcados());
         assertEquals(2, fluminenseResults.getGolsSofridos());
+
+        verify(clubeRepository, times(1)).findById(1L);
+        verify(partidaRepository, times(1)).findAllByClube(gremio);
     }
 
     @Test
@@ -402,13 +420,26 @@ public class RestrospectoServiceTest {
 
         List<Partida> partidas = List.of(partida1, partida2, partida3, partida4);
 
-        when(clubeRepository.findById(1L)).thenReturn(Optional.of(gremio));
-        when(clubeRepository.findById(2L)).thenReturn(Optional.of(botafogo));
-        when(partidaRepository.findAllByClubes(gremio, botafogo)).thenReturn(partidas);
-        when(partidaMapper.toDto(partida1)).thenReturn(partida1Dto);
-        when(partidaMapper.toDto(partida2)).thenReturn(partida2Dto);
-        when(partidaMapper.toDto(partida3)).thenReturn(partida3Dto);
-        when(partidaMapper.toDto(partida4)).thenReturn(partida4Dto);
+        when(clubeRepository.findById(1L))
+                .thenReturn(Optional.of(gremio));
+
+        when(clubeRepository.findById(2L))
+                .thenReturn(Optional.of(botafogo));
+
+        when(partidaRepository.findAllByClubes(gremio, botafogo))
+                .thenReturn(partidas);
+
+        when(partidaMapper.toDto(partida1))
+                .thenReturn(partida1Dto);
+
+        when(partidaMapper.toDto(partida2))
+                .thenReturn(partida2Dto);
+
+        when(partidaMapper.toDto(partida3))
+                .thenReturn(partida3Dto);
+
+        when(partidaMapper.toDto(partida4))
+                .thenReturn(partida4Dto);
 
         var result = retrospectoService.obterConfrontoDireto(1L, 2L, null);
 
@@ -424,6 +455,14 @@ public class RestrospectoServiceTest {
         assertEquals(8, result.adversario.getGolsMarcados());
         assertEquals(8, result.clube.getGolsSofridos());
         assertEquals(10, result.adversario.getGolsSofridos());
+
+        verify(clubeRepository, times(1)).findById(1L);
+        verify(clubeRepository, times(1)).findById(2L);
+        verify(partidaRepository, times(1)).findAllByClubes(gremio, botafogo);
+        verify(partidaMapper, times(1)).toDto(partida1);
+        verify(partidaMapper, times(1)).toDto(partida2);
+        verify(partidaMapper, times(1)).toDto(partida3);
+        verify(partidaMapper, times(1)).toDto(partida4);
     }
 
     @Test
@@ -516,11 +555,20 @@ public class RestrospectoServiceTest {
                 .golsVisitante(3)
                 .build();
 
-        when(clubeRepository.findAll()).thenReturn(List.of(gremio, botafogo, palmeiras, fluminense));
-        when(partidaRepository.findAllByClube(gremio)).thenReturn(List.of(partida1, partida2, partida3, partida5));
-        when(partidaRepository.findAllByClube(botafogo)).thenReturn(List.of(partida1,partida2, partida4));
-        when(partidaRepository.findAllByClube(palmeiras)).thenReturn(List.of(partida3, partida4));
-        when(partidaRepository.findAllByClube(fluminense)).thenReturn(List.of(partida5));
+        when(clubeRepository.findAll())
+                .thenReturn(List.of(gremio, botafogo, palmeiras, fluminense));
+
+        when(partidaRepository.findAllByClube(gremio))
+                .thenReturn(List.of(partida1, partida2, partida3, partida5));
+
+        when(partidaRepository.findAllByClube(botafogo))
+                .thenReturn(List.of(partida1,partida2, partida4));
+
+        when(partidaRepository.findAllByClube(palmeiras))
+                .thenReturn(List.of(partida3, partida4));
+
+        when(partidaRepository.findAllByClube(fluminense))
+                .thenReturn(List.of(partida5));
 
         Pageable pageable = PageRequest.of(0, 10);
 
@@ -528,6 +576,12 @@ public class RestrospectoServiceTest {
         assertTrue(result.getContent().get(0).getPontos() >= result.getContent().get(1).getPontos());
         assertTrue(result.getContent().get(1).getPontos() >= result.getContent().get(2).getPontos());
         assertEquals(7, result.getContent().get(0).getPontos());
+
+        verify(clubeRepository, times(1)).findAll();
+        verify(partidaRepository, times(1)).findAllByClube(gremio);
+        verify(partidaRepository, times(1)).findAllByClube(botafogo);
+        verify(partidaRepository, times(1)).findAllByClube(palmeiras);
+        verify(partidaRepository, times(1)).findAllByClube(fluminense);
     }
 }
 
