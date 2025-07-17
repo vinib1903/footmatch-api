@@ -155,6 +155,15 @@ public class PartidaServiceTest {
         assertEquals(3, result.getGolsMandante());
         assertEquals(1, result.getGolsVisitante());
         assertEquals(response, result);
+
+        verify(clubeService, times(1)).validarExistenciaClube(1L);
+        verify(clubeService, times(1)).validarExistenciaClube(2L);
+        verify(estadioService, times(1)).validarExistenciaEstadio(1L);
+        verify(partidaRepository, times(1)).findAllByClube(mandante);
+        verify(partidaRepository, times(1)).findAllByClube(visitante);
+        verify(partidaRepository, times(1)).findAllByEstadioAndData(estadio, dto.getDataHora().toLocalDate());
+        verify(partidaRepository, times(1)).save(any(Partida.class));
+        verify(partidaMapper, times(1)).toDto(any(Partida.class));
     }
 
     @Test
@@ -205,6 +214,10 @@ public class PartidaServiceTest {
 
         assertEquals(org.springframework.http.HttpStatus.CONFLICT, ex.getStatusCode());
         assertEquals("Clube inativo.", ex.getReason());
+
+        verify(clubeService, times(1)).validarExistenciaClube(1L);
+        verify(clubeService, times(1)).validarExistenciaClube(2L);
+        verify(estadioService, times(1)).validarExistenciaEstadio(1L);
     }
 
     @Test
@@ -269,8 +282,16 @@ public class PartidaServiceTest {
                 .thenReturn(java.util.Collections.singletonList(partidaExistente));
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> partidaService.criarPartida(dto));
+
         assertEquals(org.springframework.http.HttpStatus.CONFLICT, ex.getStatusCode());
         assertEquals("Estádio já possui partida neste dia.", ex.getReason());
+
+        verify(clubeService, times(1)).validarExistenciaClube(1L);
+        verify(clubeService, times(1)).validarExistenciaClube(2L);
+        verify(estadioService, times(1)).validarExistenciaEstadio(1L);
+        verify(partidaRepository, times(1)).findAllByClube(mandante);
+        verify(partidaRepository, times(1)).findAllByClube(visitante);
+        verify(partidaRepository, times(1)).findAllByEstadioAndData(estadio, LocalDate.of(2022, 12, 18));
     }
 
     @Test
@@ -305,16 +326,6 @@ public class PartidaServiceTest {
                 .nome("Palestra Itália")
                 .build();
 
-        Partida partida1 = Partida.builder()
-                .id(1L)
-                .mandante(fluminense)
-                .visitante(palmeiras)
-                .estadio(estadio)
-                .dataHora(LocalDateTime.of(2022, 12, 18, 20, 0))
-                .golsMandante(3)
-                .golsVisitante(5)
-                .build();
-
         Partida partida2 = Partida.builder()
                 .id(2L)
                 .mandante(fluminense)
@@ -338,13 +349,12 @@ public class PartidaServiceTest {
         List<Partida> partidasGremio = List.of(partida2, partida3);
 
         Pageable pageable = PageRequest.of(0, 10);
-        Page<Partida> page = new PageImpl<>(partidasGremio, pageable, partidasGremio.size());
 
         PartidaResponseDTO dto2 = PartidaResponseDTO.builder().id(2L).build();
         PartidaResponseDTO dto3 = PartidaResponseDTO.builder().id(3L).build();
 
         when(partidaRepository.findPartidasWithFilters("Grêmio", null, null, null, pageable))
-                .thenReturn(page);
+                .thenReturn(new PageImpl<>(partidasGremio));
 
         when(partidaMapper.toDto(partida2))
                 .thenReturn(dto2);
@@ -359,6 +369,8 @@ public class PartidaServiceTest {
         assertEquals(2, partidas.getContent().size());
         assertEquals(2L, partidas.getContent().get(0).getId());
         assertEquals(3L, partidas.getContent().get(1).getId());
+
+        verify(partidaRepository, times(1)).findPartidasWithFilters("Grêmio", null, null, null, pageable);
     }
 
     @Test
@@ -397,6 +409,9 @@ public class PartidaServiceTest {
         assertEquals(1L, dto.getId());
         assertEquals(3, dto.getGolsMandante());
         assertEquals(5, dto.getGolsVisitante());
+
+        verify(partidaRepository, times(1)).findById(1L);
+        verify(partidaMapper, times(1)).toDto(partida);
     }
 
     @Test
@@ -410,6 +425,8 @@ public class PartidaServiceTest {
         log.info("Exception: {}", ex.getMessage());
 
         assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
+
+        verify(partidaRepository, times(1)).findById(1L);
     }
 
     @Test
@@ -488,6 +505,8 @@ public class PartidaServiceTest {
         assertEquals(3, result.getGolsMandante());
         assertEquals(5, result.getGolsVisitante());
         assertEquals(responseDto, result);
+
+        verify(partidaRepository, times(2)).findAllByClube(any(Clube.class));
     }
 
     @Test
@@ -528,6 +547,8 @@ public class PartidaServiceTest {
         log.info("Exception: {}", ex.getMessage());
 
         assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
+
+        verify(partidaRepository, times(0)).findAllByClube(any(Clube.class));
     }
 
     @Test
@@ -556,5 +577,7 @@ public class PartidaServiceTest {
         log.info("Exception: {}", ex.getMessage());
 
         assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
+
+        verify(partidaRepository, times(1)).findById(1L);
     }
 }

@@ -7,6 +7,7 @@ import com.teamcubation.footmatchapi.dto.request.ClubeRequestDTO;
 import com.teamcubation.footmatchapi.dto.response.ClubeResponseDTO;
 import com.teamcubation.footmatchapi.mapper.ClubeMapper;
 import com.teamcubation.footmatchapi.repository.ClubeRepository;
+import com.teamcubation.footmatchapi.repository.PartidaRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,8 +22,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @Slf4j
@@ -31,7 +31,7 @@ public class ClubeServiceTest {
     @Mock
     private ClubeRepository clubeRepository;
     @Mock
-    private PartidaService partidaService;
+    private PartidaRepository partidaRepository;
     @Mock
     private ClubeMapper clubeMapper;
 
@@ -77,6 +77,8 @@ public class ClubeServiceTest {
         log.info("Result: {}", result);
 
         assertEquals(response, result);
+
+        verify(clubeRepository, times(1)).save(any(Clube.class));
     }
 
     @Test
@@ -94,6 +96,8 @@ public class ClubeServiceTest {
         log.info("Exception: {}", ex.getMessage());
 
         assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
+
+        verify(partidaRepository, times(0)).save(any(Partida.class));
     }
 
     @Test
@@ -110,6 +114,8 @@ public class ClubeServiceTest {
         log.info("Exception: {}", ex.getMessage());
 
         assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
+
+        verify(partidaRepository, times(0)).save(any(Partida.class));
     }
 
     @Test
@@ -138,6 +144,8 @@ public class ClubeServiceTest {
         log.info("Exception: {}", ex.getMessage());
 
         assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
+
+        verify(partidaRepository, times(0)).save(any(Partida.class));
     }
 
     @Test
@@ -245,10 +253,9 @@ public class ClubeServiceTest {
                 .toList();
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("nome").descending());
-        Page<Clube> page = new PageImpl<>(clubes, pageable, clubes.size());
 
         when(clubeRepository.findClubesWichFilters(null,null,null, pageable))
-                .thenReturn(page);
+                .thenReturn(new PageImpl<>(clubes, pageable, clubes.size()));
 
         when(clubeMapper.toDto(clube1))
                 .thenReturn(dto1);
@@ -276,6 +283,8 @@ public class ClubeServiceTest {
         assertEquals(List.of(dto4, dto3, dto1, dto2, dto5, dto6), result.getContent());
         assertEquals("Bahia", result.getContent().get(5).getNome());
         assertEquals("Grêmio", result.getContent().get(2).getNome());
+
+        verify(clubeRepository, times(1)).findClubesWichFilters(null, null, null, pageable);
     }
 
     @Test
@@ -310,6 +319,8 @@ public class ClubeServiceTest {
 
         assertEquals(dto, result);
 
+        verify(clubeRepository, times(1)).findById(1L);
+        verify(clubeMapper, times(1)).toDto(clube);
     }
 
     @Test
@@ -323,6 +334,8 @@ public class ClubeServiceTest {
         log.info("Exception: {}", ex.getMessage());
 
         assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
+
+        verify(clubeRepository, times(1)).findById(1L);
     }
 
     @Test
@@ -369,6 +382,8 @@ public class ClubeServiceTest {
         log.info("Result: {}", result);
 
         assertEquals(responseDto, result);
+
+        verify(clubeRepository, times(1)).findById(1L);
     }
 
     @Test
@@ -399,7 +414,7 @@ public class ClubeServiceTest {
         when(clubeRepository.findByNomeAndSiglaEstado(dto.getNome(), SiglaEstado.valueOf(dto.getSiglaEstado())))
                 .thenReturn(Optional.empty());
 
-        when(partidaService.obterPartidasDoClube(1L))
+        when(partidaRepository.findAllByClube(clube))
                 .thenReturn(List.of(partida));
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> clubeService.atualizarClube(1L, dto));
@@ -407,6 +422,10 @@ public class ClubeServiceTest {
         log.info("Exception: {}", ex.getMessage());
 
         assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
+
+        verify(clubeRepository, times(1)).findById(1L);
+        verify(clubeRepository, times(1)).findByNomeAndSiglaEstado(dto.getNome(), SiglaEstado.valueOf(dto.getSiglaEstado()));
+        verify(partidaRepository, times(1)).findAllByClube(clube);
 
     }
 
@@ -436,6 +455,8 @@ public class ClubeServiceTest {
         log.info("Exception: {}", ex.getMessage());
 
         assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
+
+        verify(clubeRepository, times(1)).findById(1L);
     }
 
     @Test
@@ -458,6 +479,8 @@ public class ClubeServiceTest {
         clubeService.inativarClube(1L);
 
         assertFalse(clube.getAtivo());
+
+        verify(clubeRepository, times(1)).findById(1L);
     }
 
     @Test
@@ -471,6 +494,8 @@ public class ClubeServiceTest {
         log.info("Exception: {}", ex.getMessage());
 
         assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
+
+        verify(clubeRepository, times(1)).findById(1L);
     }
 
 
