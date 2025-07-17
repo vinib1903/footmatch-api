@@ -17,7 +17,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+    import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -46,6 +46,7 @@ public class EstadioControllerTest {
         mockMvc.perform(post(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"nome\": \"Olímpico\"}"))
+                .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(content().json("{\"id\": 1, \"nome\": \"Olímpico\"}"));
 
@@ -58,6 +59,7 @@ public class EstadioControllerTest {
         mockMvc.perform(post(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"nome\": \"\"}"))
+                .andDo(print())
                 .andExpect(status().isBadRequest());
 
         verify(estadioService, never()).criarEstadio(any(EstadioRequestDTO.class));

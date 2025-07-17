@@ -52,8 +52,11 @@ public class ClubeControllerTest {
         mockMvc.perform(post(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"nome\": \"Grêmio\", \"siglaEstado\": \"RS\", \"dataCriacao\": \"1903-09-15\", \"ativo\": true}"))
+                .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(content().json("{\"id\": 1, \"nome\": \"Grêmio\", \"siglaEstado\": \"RS\", \"dataCriacao\": \"1903-09-15\", \"ativo\": true}"));
+
+        verify(clubeService, times(1)).criarClube(any(ClubeRequestDTO.class));
     }
 
     @Test
@@ -62,7 +65,10 @@ public class ClubeControllerTest {
         mockMvc.perform(post(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"nome\": \"Grêmio\", \"siglaEstado\": \"\", \"dataCriacao\": \"1903-09-15\", \"ativo\": true}"))
+                .andDo(print())
                 .andExpect(status().isBadRequest());
+
+        verify(clubeService, never()).criarClube(any(ClubeRequestDTO.class));
     }
 
     @Test
@@ -91,9 +97,12 @@ public class ClubeControllerTest {
 
         mockMvc.perform(get(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].nome").value("Grêmio"))
                 .andExpect(jsonPath("$.content[1].nome").value("Botafogo"));
+
+        verify(clubeService, times(1)).obterClubes(any(), any(), any(), any(Pageable.class));
     }
 
     @Test
@@ -110,13 +119,14 @@ public class ClubeControllerTest {
         when(clubeService.obterClubePorId(1L))
                 .thenReturn(gremio);
 
-        //todo: adicionar andDo(print()) nos testes
-        //todo: adicionar metodo verify nos testes aqui e nos services
         mockMvc.perform(get(BASE_URL + "/1")
                         .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.nome").value("Grêmio"));
+
+        verify(clubeService, times(1)).obterClubePorId(1L);
     }
 
     @Test
@@ -140,6 +150,8 @@ public class ClubeControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(content().json("{\"id\": 1, \"nome\": \"Grêmio F.B.P.A.\", \"siglaEstado\": \"RS\", \"dataCriacao\": \"1903-09-15\", \"ativo\": true}"));
+
+        verify(clubeService, times(1)).atualizarClube(eq(1L), any(ClubeRequestDTO.class));
     }
 
     @Test
@@ -147,11 +159,9 @@ public class ClubeControllerTest {
 
         mockMvc.perform(delete(BASE_URL + "/1")
                         .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
                 .andExpect(status().isNoContent());
 
-        verify(clubeService, times(1)).validarExistenciaClube(eq(1L));
         verify(clubeService, times(1)).inativarClube(eq(1L));
-
-
     }
 }
