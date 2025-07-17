@@ -22,8 +22,8 @@ import java.util.*;
 public class ClubeService {
 
     private final ClubeRepository clubeRepository;
-    private final PartidaRepository partidaRepository;
     private final ClubeMapper clubeMapper;
+    private final PartidaRepository partidaRepository;
 
     public ClubeResponseDTO criarClube(ClubeRequestDTO dto) {
 
