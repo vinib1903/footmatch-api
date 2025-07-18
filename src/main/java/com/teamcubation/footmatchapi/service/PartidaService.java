@@ -62,7 +62,11 @@ public class PartidaService {
         return partidaMapper.toDto(partida);
     }
 
-    public Page<PartidaResponseDTO> obterPartidas(String clube, String estadio, Boolean goleada, String papel, Pageable pageable) {
+    public Page<PartidaResponseDTO> obterPartidas(Long clubeId, Long estadioId, Boolean goleada, String papel, Pageable pageable) {
+
+        Clube clube = (clubeId != null) ?  clubeService.validarExistenciaClube(clubeId) : null;
+
+        Estadio estadio = (estadioId != null) ? estadioService.validarExistenciaEstadio(estadioId) : null;
 
         return partidaRepository.findPartidasWithFilters(clube, estadio, goleada, papel, pageable)
                 .map(partidaMapper::toDto);
@@ -116,12 +120,6 @@ public class PartidaService {
         Partida partida = validarExistenciaPartida(id);
 
         partidaRepository.delete(partida);
-    }
-
-    public List<Partida> obterPartidasDoClube(Long id) {
-
-        return partidaRepository.findAllByClube(clubeService.validarExistenciaClube(id));
-
     }
 
     private void validarDataPartidaAnteriorCriacaoClube(Clube mandante, Clube visitante, LocalDate dataPartida) {

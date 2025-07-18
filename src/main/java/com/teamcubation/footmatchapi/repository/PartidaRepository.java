@@ -14,12 +14,6 @@ import java.util.List;
 
 public interface PartidaRepository extends JpaRepository<Partida, Long> {
 
-    @Query("SELECT COUNT(p) > 0 FROM Partida p WHERE " +
-           "(p.mandante = :clube OR p.visitante = :clube) AND " +
-           "p.dataHora >= :dataLimite")
-    boolean existsPartidaAfterDate(@Param("clube") Clube clube,
-                                      @Param("dataLimite") LocalDateTime dataLimite);
-
     @Query("SELECT p FROM Partida p WHERE " +
             "(:clube IS NULL OR " +
             "(:papel = 'mandante' AND p.mandante = :clube) OR " +
@@ -27,23 +21,11 @@ public interface PartidaRepository extends JpaRepository<Partida, Long> {
             "(:papel IS NULL AND (p.mandante = :clube OR p.visitante = :clube))) AND " +
             "(:estadio IS NULL OR p.estadio = :estadio) AND " +
             "(:goleada = TRUE AND ABS(p.golsMandante - p.golsVisitante) >= 3 OR :goleada IS NULL OR :goleada = FALSE)")
-    Page<Partida> findPartidasWithFilters(@Param("clube") String clube,
-                                          @Param("estadio") String estadio,
+    Page<Partida> findPartidasWithFilters(@Param("clube") Clube clube,
+                                          @Param("estadio") Estadio estadio,
                                           @Param("goleada") Boolean goleada,
                                           @Param("papel") String papel,
                                           Pageable pageable);
-
-    @Query("SELECT COUNT(p) > 0 FROM Partida p WHERE " +
-            "(p.mandante = :clube OR p.visitante = :clube) AND " +
-            "p.dataHora BETWEEN :inicio AND :fim")
-    boolean existsByClubeAndDataHoraBetween(@Param("clube") Clube clube,
-                                            @Param("inicio") LocalDateTime inicio,
-                                            @Param("fim") LocalDateTime fim);
-
-    @Query("SELECT COUNT(p) > 0 FROM Partida p WHERE " +
-            "p.estadio = :estadio AND DATE(p.dataHora) = :data")
-    boolean existsByEstadioAndData(@Param("estadio") Estadio estadio,
-                                   @Param("data") LocalDate data);
 
     @Query("SELECT p FROM Partida p WHERE " +
             "p.mandante = :clube OR p.visitante = :clube")
