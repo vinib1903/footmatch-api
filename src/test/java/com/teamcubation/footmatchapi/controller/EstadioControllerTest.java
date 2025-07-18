@@ -13,11 +13,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
 import java.util.List;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-    import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -126,7 +128,6 @@ public class EstadioControllerTest {
     @Test
     void testUpdateStadium() throws Exception {
 
-        //todo: padronizar nomes de variavies com response e request
         EstadioResponseDTO response = EstadioResponseDTO.builder()
                 .id(7L)
                 .nome("Olímpico")

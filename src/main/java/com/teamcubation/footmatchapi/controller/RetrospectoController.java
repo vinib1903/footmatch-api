@@ -22,6 +22,7 @@ public class RetrospectoController {
     @GetMapping("/{id}")
     public ResponseEntity<ClubeRetrospectoResponseDTO> getClubeRetrospect(@PathVariable Long id,
                                                                           @RequestParam(required = false) String papel) {
+
         ClubeRetrospectoResponseDTO clubeRestrospecto = retrospectoService.obterRetrospecto(id, papel);
         return ResponseEntity.ok(clubeRestrospecto);
     }
@@ -30,6 +31,7 @@ public class RetrospectoController {
     public ResponseEntity<Page<ClubeRestrospectoAdversarioResponseDTO>> getClubeRetrospectVersusAdversarys(@PathVariable Long id,
                                                                                                            @RequestParam(required = false) String papel,
                                                                                                            @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
+
         Page<ClubeRestrospectoAdversarioResponseDTO> page = retrospectoService.obterRestrospectoAdversarios(id, papel, pageable);
         return ResponseEntity.ok(page);
     }
@@ -39,6 +41,7 @@ public class RetrospectoController {
             @PathVariable Long clubeId,
             @PathVariable Long adversarioId,
             @RequestParam(required = false) String papel) {
+
         ConfrontoDiretoResponseDTO result = retrospectoService.obterConfrontoDireto(clubeId, adversarioId, papel);
         return ResponseEntity.ok(result);
     }
@@ -47,8 +50,8 @@ public class RetrospectoController {
     public ResponseEntity<Page<RankingResponseDTO>> getRanking(
             @RequestParam(defaultValue = "pontos") String criterio,
             @PageableDefault(size = 10) Pageable pageable) {
+
         Page<RankingResponseDTO> page = retrospectoService.obterRanking(criterio, pageable);
         return ResponseEntity.ok(page);
-
     }
 }

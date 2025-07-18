@@ -22,6 +22,7 @@ public class ClubeController {
     @PostMapping
     public ResponseEntity<ClubeResponseDTO> createClube(
             @RequestBody @Valid ClubeRequestDTO dto) {
+
         ClubeResponseDTO clube = clubeService.criarClube(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(clube);
     }
@@ -32,24 +33,28 @@ public class ClubeController {
             @RequestParam(required = false) String siglaEstado,
             @RequestParam(required = false) Boolean ativo,
             @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
+
         Page<ClubeResponseDTO> page = clubeService.obterClubes(nome, siglaEstado, ativo, pageable);
         return ResponseEntity.ok(page);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ClubeResponseDTO> getClubeById(@PathVariable Long id) {
+
         ClubeResponseDTO clube = clubeService.obterClubePorId(id);
         return ResponseEntity.ok(clube);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ClubeResponseDTO> updateClube(@PathVariable Long id, @RequestBody @Valid ClubeRequestDTO dto) {
+
         ClubeResponseDTO clube = clubeService.atualizarClube(id, dto);
         return ResponseEntity.ok(clube);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> disableClube(@PathVariable Long id) {
+
         clubeService.inativarClube(id);
         return ResponseEntity.noContent().build();
     }

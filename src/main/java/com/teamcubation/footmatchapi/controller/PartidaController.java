@@ -23,6 +23,7 @@ public class PartidaController {
     @PostMapping
     public ResponseEntity<PartidaResponseDTO> createPartida(
             @RequestBody @Valid PartidaRequestDTO dto) {
+
         PartidaResponseDTO partida = partidaService.criarPartida(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(partida);
     }
@@ -34,24 +35,28 @@ public class PartidaController {
             @RequestParam(required = false) Boolean goleada,
             @RequestParam(required = false) String papel,
             @PageableDefault(size = 10, sort = "dataHora", direction = Sort.Direction.DESC) Pageable pageable) {
+
         Page<PartidaResponseDTO> page = partidaService.obterPartidas(clubeId, estadioId, goleada, papel, pageable);
         return ResponseEntity.ok(page);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<PartidaResponseDTO> getPartidaById(@PathVariable Long id) {
+
         PartidaResponseDTO partida = partidaService.obterPartidaPorId(id);
         return ResponseEntity.ok(partida);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<PartidaResponseDTO> updatePartida(@PathVariable Long id, @RequestBody @Valid PartidaRequestDTO dto) {
+
         PartidaResponseDTO partida = partidaService.atualizarPartida(id, dto);
         return ResponseEntity.ok(partida);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePartida(@PathVariable Long id) {
+
         partidaService.deletarPartida(id);
         return ResponseEntity.noContent().build();
     }
