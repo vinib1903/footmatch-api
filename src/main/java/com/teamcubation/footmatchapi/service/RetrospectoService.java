@@ -235,10 +235,10 @@ public class RetrospectoService {
 
         int start = (int) pageable.getOffset();
         int end = Math.min(start + pageable.getPageSize(), ranking.size());
+
         List<RankingResponseDTO> pageContent = (start >= ranking.size()) ? List.of() : ranking.subList(start, end);
 
         return new PageImpl<>(pageContent, pageable, ranking.size());
-
     }
 
     private List<Partida> filtrarPorPapel(List<Partida> partidas, Clube clube, String papel) {

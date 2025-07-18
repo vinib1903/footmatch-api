@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
 import java.time.LocalDate;
 import java.util.*;
 
@@ -63,7 +64,7 @@ public class ClubeService {
 
         validarNomeClubeExistenteNoEstado(dto.getNome(), SiglaEstado.valueOf(dto.getSiglaEstado()), id);
 
-        //TODO: da pra melhorar
+        //TODO: da pra melhorar?
         if (!dto.getDataCriacao().isEqual(clube.getDataCriacao())) {
             Optional<Partida> partidaMaisAntiga = partidaRepository.findAllByClube(clube).stream()
                     .min(Comparator.comparing(Partida::getDataHora));

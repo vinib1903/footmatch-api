@@ -17,10 +17,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
+
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -254,7 +256,7 @@ public class ClubeServiceTest {
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("nome").descending());
 
-        when(clubeRepository.findClubesWichFilters(null,null,null, pageable))
+        when(clubeRepository.findClubesWichFilters(null, null, null, pageable))
                 .thenReturn(new PageImpl<>(clubes, pageable, clubes.size()));
 
         when(clubeMapper.toDto(clube1))

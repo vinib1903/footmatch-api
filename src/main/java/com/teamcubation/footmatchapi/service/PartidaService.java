@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -64,7 +65,7 @@ public class PartidaService {
 
     public Page<PartidaResponseDTO> obterPartidas(Long clubeId, Long estadioId, Boolean goleada, String papel, Pageable pageable) {
 
-        Clube clube = (clubeId != null) ?  clubeService.validarExistenciaClube(clubeId) : null;
+        Clube clube = (clubeId != null) ? clubeService.validarExistenciaClube(clubeId) : null;
 
         Estadio estadio = (estadioId != null) ? estadioService.validarExistenciaEstadio(estadioId) : null;
 
@@ -191,6 +192,7 @@ public class PartidaService {
 
         boolean ocupado = partidasNoDia.stream()
                 .anyMatch(p -> partidaId == null || !p.getId().equals(partidaId));
+
         if (ocupado) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Estádio já possui partida neste dia.");
         }

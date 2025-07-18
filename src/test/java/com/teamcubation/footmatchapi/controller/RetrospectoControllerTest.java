@@ -95,8 +95,8 @@ public class RetrospectoControllerTest {
                 .thenReturn(new PageImpl<>(List.of(gremio, palmeiras), pageable, 2));
 
         mockMvc.perform(get(BASE_URL + "/1/contra-adversarios")
-                .param("papel", "")
-                .contentType(MediaType.APPLICATION_JSON))
+                        .param("papel", "")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].adversarioNome").value("Grêmio"))

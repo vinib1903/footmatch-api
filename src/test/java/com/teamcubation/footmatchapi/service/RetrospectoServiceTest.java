@@ -18,10 +18,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
@@ -320,7 +322,7 @@ public class RetrospectoServiceTest {
     }
 
     @Test
-    void testGetHeadToHead(){
+    void testGetHeadToHead() {
 
         Clube gremio = Clube.builder()
                 .id(1L)
@@ -562,7 +564,7 @@ public class RetrospectoServiceTest {
                 .thenReturn(List.of(partida1, partida2, partida3, partida5));
 
         when(partidaRepository.findAllByClube(botafogo))
-                .thenReturn(List.of(partida1,partida2, partida4));
+                .thenReturn(List.of(partida1, partida2, partida4));
 
         when(partidaRepository.findAllByClube(palmeiras))
                 .thenReturn(List.of(partida3, partida4));
