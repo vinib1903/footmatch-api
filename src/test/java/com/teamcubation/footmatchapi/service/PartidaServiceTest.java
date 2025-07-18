@@ -296,7 +296,6 @@ public class PartidaServiceTest {
 
     @Test
     void testGetAllMatchesFilterByClubGremio() {
-
         Clube gremio = Clube.builder()
                 .id(1L)
                 .nome("Grêmio")
@@ -353,7 +352,9 @@ public class PartidaServiceTest {
         PartidaResponseDTO dto2 = PartidaResponseDTO.builder().id(2L).build();
         PartidaResponseDTO dto3 = PartidaResponseDTO.builder().id(3L).build();
 
-        when(partidaRepository.findPartidasWithFilters("Grêmio", null, null, null, pageable))
+        when(clubeService.validarExistenciaClube(1L)).thenReturn(gremio);
+
+        when(partidaRepository.findPartidasWithFilters(eq(gremio), isNull(), isNull(), isNull(), eq(pageable)))
                 .thenReturn(new PageImpl<>(partidasGremio));
 
         when(partidaMapper.toDto(partida2))
@@ -362,7 +363,7 @@ public class PartidaServiceTest {
         when(partidaMapper.toDto(partida3))
                 .thenReturn(dto3);
 
-        Page<PartidaResponseDTO> partidas = partidaService.obterPartidas("Grêmio", null, null, null, pageable);
+        Page<PartidaResponseDTO> partidas = partidaService.obterPartidas(1L, null, null, null, pageable);
 
         log.info(partidas.getContent().toString());
 
@@ -370,7 +371,7 @@ public class PartidaServiceTest {
         assertEquals(2L, partidas.getContent().get(0).getId());
         assertEquals(3L, partidas.getContent().get(1).getId());
 
-        verify(partidaRepository, times(1)).findPartidasWithFilters("Grêmio", null, null, null, pageable);
+        verify(partidaRepository, times(1)).findPartidasWithFilters(eq(gremio), isNull(), isNull(), isNull(), eq(pageable));
     }
 
     @Test

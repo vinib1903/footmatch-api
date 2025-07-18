@@ -29,12 +29,12 @@ public class PartidaController {
 
     @GetMapping
     public ResponseEntity<Page<PartidaResponseDTO>> searchPartidas(
-            @RequestParam(required = false) String clube,
-            @RequestParam(required = false) String estadio,
+            @RequestParam(required = false, name = "clubeId") Long clubeId,
+            @RequestParam(required = false, name = "estadioId") Long estadioId,
             @RequestParam(required = false) Boolean goleada,
             @RequestParam(required = false) String papel,
             @PageableDefault(size = 10, sort = "dataHora", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<PartidaResponseDTO> page = partidaService.obterPartidas(clube, estadio, goleada, papel, pageable);
+        Page<PartidaResponseDTO> page = partidaService.obterPartidas(clubeId, estadioId, goleada, papel, pageable);
         return ResponseEntity.ok(page);
     }
 
