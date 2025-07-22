@@ -21,6 +21,7 @@ public class ClubeRequestDTO {
     @PastOrPresent(message = "A data de criação não pode ser futura.")
     private LocalDate dataCriacao;
 
+    @NotNull(message = "O status do clube é obrigatório.")
     private Boolean ativo;
 
 }

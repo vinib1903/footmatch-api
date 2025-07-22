@@ -19,7 +19,7 @@ public interface ClubeRepository extends JpaRepository<Clube, Long> {
             "(:siglaEstado IS NULL OR c.siglaEstado = :siglaEstado) AND " +
             "(:ativo IS NULL OR c.ativo = :ativo)")
     Page<Clube> findClubesWichFilters(@Param("nome") String nome,
-                                      @Param("siglaEstado") String siglaEstado,
+                                      @Param("siglaEstado") SiglaEstado siglaEstado,
                                       @Param("ativo") Boolean ativo,
                                       Pageable pageable);
 }

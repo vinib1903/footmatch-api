@@ -32,9 +32,9 @@ public class EstadioService {
         return estadioMapper.toDto(estadio);
     }
 
-    public Page<EstadioResponseDTO> obterEstadios(Pageable pageable) {
+    public Page<EstadioResponseDTO> obterEstadios(String nome, Pageable pageable) {
 
-        return estadioRepository.findAll(pageable).map(estadioMapper::toDto);
+        return estadioRepository.findStadiumsWichFilters(nome,pageable).map(estadioMapper::toDto);
     }
 
     public EstadioResponseDTO obterEstadioPorId(Long id) {

@@ -29,9 +29,10 @@ public class EstadioController {
 
     @GetMapping
     public ResponseEntity<Page<EstadioResponseDTO>> searchEstadios(
+            @RequestParam(required = false) String nome,
             @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
 
-        Page<EstadioResponseDTO> page = estadioService.obterEstadios(pageable);
+        Page<EstadioResponseDTO> page = estadioService.obterEstadios(nome,pageable);
         return ResponseEntity.ok(page);
     }
 
