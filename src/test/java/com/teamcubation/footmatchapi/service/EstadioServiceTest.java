@@ -166,9 +166,7 @@ public class EstadioServiceTest {
                 .sorted(Comparator.comparing(Estadio::getNome))
                 .toList();
 
-        Pageable pageable = PageRequest.of(0, 10, Sort.by("nome").ascending());
-
-        when(estadioRepository.findAll(pageable))
+        when(estadioRepository.findAll(any(Pageable.class)))
                 .thenReturn(new PageImpl<>(estadios));
 
         when(estadioMapper.toDto(estadio1))
@@ -183,7 +181,7 @@ public class EstadioServiceTest {
         when(estadioMapper.toDto(estadio4))
                 .thenReturn(dto4);
 
-        Page<EstadioResponseDTO> result = estadioService.obterEstadios(pageable);
+        Page<EstadioResponseDTO> result = estadioService.obterEstadios(any(String.class), any(Pageable.class));
 
         log.info("Result: {}", result);
 

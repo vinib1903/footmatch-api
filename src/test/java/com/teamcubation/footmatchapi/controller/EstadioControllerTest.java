@@ -87,7 +87,7 @@ public class EstadioControllerTest {
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("nome").ascending());
 
-        when(estadioService.obterEstadios(any(Pageable.class)))
+        when(estadioService.obterEstadios(any(String.class), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(olimpico, palestra, maracana), pageable, 3));
 
         mockMvc.perform(get(BASE_URL)
@@ -101,7 +101,7 @@ public class EstadioControllerTest {
                 .andExpect(jsonPath("$.content[2].id").value(3L))
                 .andExpect(jsonPath("$.content[2].nome").value("Maracanã"));
 
-        verify(estadioService, times(1)).obterEstadios(any(Pageable.class));
+        verify(estadioService, times(1)).obterEstadios(any(String.class), any(Pageable.class));
     }
 
     @Test

@@ -43,7 +43,13 @@ public class ClubeService {
 
     public Page<ClubeResponseDTO> obterClubes(String nome, String siglaEstado, Boolean ativo, Pageable pageable) {
 
-        return clubeRepository.findClubesWichFilters(nome, siglaEstado, ativo, pageable)
+        SiglaEstado estado = null;
+
+        if (siglaEstado != null) {
+            estado = SiglaEstado.valueOf(siglaEstado);
+        }
+
+        return clubeRepository.findClubesWichFilters(nome, estado, ativo, pageable)
                 .map(clubeMapper::toDto);
     }
 
