@@ -1,8 +1,12 @@
 package com.teamcubation.footmatchapi.service;
 
+import com.teamcubation.footmatchapi.domain.entities.Endereco;
 import com.teamcubation.footmatchapi.domain.entities.Estadio;
 import com.teamcubation.footmatchapi.dto.request.EstadioRequestDTO;
 import com.teamcubation.footmatchapi.dto.response.EstadioResponseDTO;
+import com.teamcubation.footmatchapi.dto.response.ViaCepResponseDTO;
+import com.teamcubation.footmatchapi.integration.ViacepClient;
+import com.teamcubation.footmatchapi.mapper.EnderecoMapper;
 import com.teamcubation.footmatchapi.mapper.EstadioMapper;
 import com.teamcubation.footmatchapi.repository.EstadioRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.util.Optional;
 
 @Service
@@ -20,12 +23,24 @@ public class EstadioService {
 
     public final EstadioRepository estadioRepository;
     private final EstadioMapper estadioMapper;
+    private final EnderecoMapper enderecoMapper;
+    private final ViacepClient viacepClient;
 
     public EstadioResponseDTO criarEstadio(EstadioRequestDTO estadioRequestDTO) {
 
         validarNomeExistente(estadioRequestDTO.getNome(), null);
 
+        validarCepExistente(estadioRequestDTO.getCep());
+
+        ViaCepResponseDTO viaCepResponse = viacepClient.buscarEnderecoPorCep(estadioRequestDTO.getCep());
+
+        Endereco endereco = enderecoMapper.fromViaCepResponse(viaCepResponse);
+
+        endereco.setCep(normalizarCep(viaCepResponse.getCep()));
+
         Estadio estadio = estadioMapper.toEntity(estadioRequestDTO);
+
+        estadio.setEndereco(endereco);
 
         estadioRepository.save(estadio);
 
@@ -50,6 +65,16 @@ public class EstadioService {
 
         validarNomeExistente(estadioRequestDTO.getNome(), id);
 
+        validarCepExistente(estadioRequestDTO.getCep());
+
+        ViaCepResponseDTO viaCepResponse = viacepClient.buscarEnderecoPorCep(estadioRequestDTO.getCep());
+
+        Endereco endereco = enderecoMapper.fromViaCepResponse(viaCepResponse);
+
+        endereco.setCep(normalizarCep(viaCepResponse.getCep()));
+
+        estadio.setEndereco(endereco);
+
         estadio.setNome(estadioRequestDTO.getNome());
 
         Estadio salvo = estadioRepository.save(estadio);
@@ -69,6 +94,22 @@ public class EstadioService {
 
         if (estadioExistente.isPresent() && !estadioExistente.get().getId().equals(id)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um estádio com este nome.");
+        }
+    }
+
+    private String normalizarCep(String cep) {
+
+        return cep.replaceAll("\\D", "");
+    }
+
+    private void validarCepExistente(String cep) {
+
+        String cepNormalizado = normalizarCep(cep);
+
+        Optional<Estadio> estadioExistente = estadioRepository.findByEndereco_Cep(cepNormalizado);
+
+        if (estadioExistente.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um estádio cadastrado neste CEP.");
         }
     }
 

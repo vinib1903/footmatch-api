@@ -19,4 +19,6 @@ public class Estadio {
     @Column(nullable = false)
     private String nome;
 
+    @Embedded
+    private Endereco endereco;
 }
