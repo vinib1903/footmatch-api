@@ -13,6 +13,8 @@ public interface EstadioRepository extends JpaRepository<Estadio, Long> {
 
     Optional<Estadio> findByNome(String nome);
 
+    Optional<Estadio> findByEndereco_Cep(String cep);
+
     @Query("SELECT e FROM Estadio e WHERE " +
             "(:nome IS NULL OR LOWER(e.nome) LIKE LOWER(CONCAT('%', :nome, '%')))")
     Page<Estadio> findStadiumsWichFilters(@Param("nome") String nome,

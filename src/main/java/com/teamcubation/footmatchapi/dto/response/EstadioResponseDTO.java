@@ -9,4 +9,5 @@ public class EstadioResponseDTO {
 
     private Long id;
     private String nome;
+    private EnderecoResponseDTO endereco;
 }
