@@ -1,5 +1,6 @@
 package com.teamcubation.footmatchapi.controller;
 
+import com.teamcubation.footmatchapi.controller.v1.PartidaController;
 import com.teamcubation.footmatchapi.dto.request.PartidaRequestDTO;
 import com.teamcubation.footmatchapi.dto.response.ClubeResponseDTO;
 import com.teamcubation.footmatchapi.dto.response.EstadioResponseDTO;
