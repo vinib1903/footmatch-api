@@ -5,6 +5,7 @@ import com.teamcubation.footmatchapi.domain.entities.Estadio;
 import com.teamcubation.footmatchapi.domain.entities.Partida;
 import com.teamcubation.footmatchapi.dto.request.PartidaRequestDTO;
 import com.teamcubation.footmatchapi.dto.response.PartidaResponseDTO;
+import com.teamcubation.footmatchapi.kafka.producer.PartidaProducer;
 import com.teamcubation.footmatchapi.mapper.PartidaMapper;
 import com.teamcubation.footmatchapi.repository.PartidaRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,13 @@ public class PartidaService {
     private final PartidaMapper partidaMapper;
     private final EstadioService estadioService;
     private final ClubeService clubeService;
+    private final PartidaProducer partidaProducer;
+
+
+    public void enviarPartidaParaFila(PartidaRequestDTO dto) {
+
+        partidaProducer.enviarPartida(dto);
+    }
 
     public PartidaResponseDTO criarPartida(PartidaRequestDTO dto) {
 
