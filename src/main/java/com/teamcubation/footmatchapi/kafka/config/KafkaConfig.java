@@ -60,8 +60,14 @@ public class KafkaConfig {
     }
 
     @Bean
-    public NewTopic partidasTopic() {
+    public NewTopic partidasCriacaoTopic() {
 
-        return new NewTopic("partidas-topic", 1, (short) 1);
+        return new NewTopic("partidas-criacao", 2, (short) 1);
+    }
+
+    @Bean
+    public NewTopic partidasAtualizacaoTopic() {
+
+        return new NewTopic("partidas-atualizacao", 2, (short) 1);
     }
 }

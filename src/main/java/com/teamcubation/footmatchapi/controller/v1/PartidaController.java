@@ -51,11 +51,14 @@ public class PartidaController {
         return ResponseEntity.ok(partida);
     }
 
+    @Deprecated
     @PutMapping("/{id}")
     public ResponseEntity<PartidaResponseDTO> updatePartida(@PathVariable Long id, @RequestBody @Valid PartidaRequestDTO dto) {
 
-        PartidaResponseDTO partida = partidaService.atualizarPartida(id, dto);
-        return ResponseEntity.ok(partida);
+        throw new ResponseStatusException(
+                HttpStatus.GONE,
+                "Este endpoint está depreciado. Utilize a versão v2 da API."
+        );
     }
 
     @DeleteMapping("/{id}")
