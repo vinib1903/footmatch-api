@@ -1,7 +1,5 @@
 package com.teamcubation.footmatchapi.kafka.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.teamcubation.footmatchapi.dto.request.PartidaRequestDTO;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -13,8 +11,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
+import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
+import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
+import org.springframework.util.backoff.FixedBackOff;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,27 +46,28 @@ public class KafkaCommonConfig {
         deserializer.addTrustedPackages("*");
         Map<String, Object> config = new HashMap<>();
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        config.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        config.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         return new DefaultKafkaConsumerFactory<>(config, new StringDeserializer(), deserializer);
     }
 
-    private <T> ConcurrentKafkaListenerContainerFactory<String, T> kafkaListenerContainerFactory(Class<T> clazz, String groupId) {
+    private <T> ConcurrentKafkaListenerContainerFactory<String, T> kafkaListenerContainerFactory(Class<T> clazz, String groupId, DefaultErrorHandler errorHandler) {
         ConcurrentKafkaListenerContainerFactory<String, T> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory(clazz, groupId));
+        factory.setCommonErrorHandler(errorHandler);
         return factory;
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, PartidaRequestDTO> partidaRequestKafkaListenerContainerFactory() {
-        return kafkaListenerContainerFactory(PartidaRequestDTO.class, "partida-group");
+    public DefaultErrorHandler errorHandler(KafkaTemplate<String, Object> template) {
+        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(template);
+        FixedBackOff backOff = new FixedBackOff(5000L, 5);
+        return new DefaultErrorHandler(recoverer, backOff);
     }
 
     @Bean
-    public ObjectMapper objectMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        return mapper;
+    public ConcurrentKafkaListenerContainerFactory<String, PartidaRequestDTO> partidaRequestKafkaListenerContainerFactory(DefaultErrorHandler errorHandler) {
+        return kafkaListenerContainerFactory(PartidaRequestDTO.class, "partida-group", errorHandler);
     }
 }
