@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class PartidaProducer {
 
-    private final KafkaTemplate<String, PartidaRequestDTO> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public void enviarPartidaCriacao(PartidaRequestDTO partida) {
 
@@ -20,7 +20,7 @@ public class PartidaProducer {
     }
 
     public void enviarPartidaAtualizacao(Long id, PartidaRequestDTO partida) {
-
+        
         log.info("Enviando partida com id {} para Kafka: {}", id, partida);
         kafkaTemplate.send("partidas-atualizacao", String.valueOf(id), partida);
     }
