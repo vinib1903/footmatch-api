@@ -5,6 +5,7 @@ import com.teamcubation.footmatchapi.service.PartidaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -51,6 +52,25 @@ public class PartidaConsumer {
             log.warn("Erro ao atualizar partida do Kafka: {}", ex.getMessage());
         } catch (Exception ex) {
             log.error("Erro inesperado ao atualizar partida do Kafka", ex);
+        }
+    }
+
+    @KafkaListener(
+            topics = "partidas-exclusao",
+            groupId = "partida-group",
+            containerFactory = "stringKafkaListenerContainerFactory"
+    )
+    public void consumirPartidaExclusao(@Header(KafkaHeaders.RECEIVED_KEY) String id) {
+        log.info("Consumidor de exclusão recebeu id: {}", id);
+        try {
+            partidaService.deletarPartida(Long.valueOf(id));
+            log.info("Partida consumida e excluída com sucesso: {}", id);
+        } catch (ResponseStatusException ex) {
+            log.warn("Erro ao excluir partida do Kafka (status={}): {}", ex.getStatusCode(), ex.getReason());
+        } catch (IllegalArgumentException ex) {
+            log.warn("Erro ao excluir partida do Kafka: {}", ex.getMessage());
+        } catch (Exception ex) {
+            log.error("Erro inesperado ao excluir partida do Kafka", ex);
         }
     }
 }

@@ -61,10 +61,13 @@ public class PartidaController {
         );
     }
 
+    @Deprecated
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePartida(@PathVariable Long id) {
 
-        partidaService.deletarPartida(id);
-        return ResponseEntity.noContent().build();
+        throw new ResponseStatusException(
+                HttpStatus.GONE,
+                "Este endpoint está depreciado. Utilize a versão v2 da API."
+        );
     }
 }

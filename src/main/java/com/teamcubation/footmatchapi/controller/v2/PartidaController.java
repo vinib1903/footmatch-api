@@ -26,4 +26,11 @@ public class PartidaController {
         partidaServiceKafka.enviarPartidaParaFilaAtualizacao(id, dto);
         return ResponseEntity.accepted().body("Partida enviada para processamento assíncrono (Kafka).");
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deletePartida(@PathVariable Long id) {
+
+        partidaServiceKafka.enviarPartidaParaFilaExclusao(id);
+        return ResponseEntity.accepted().body("Partida enviada para processamento assíncrono (Kafka).");
+    }
 }

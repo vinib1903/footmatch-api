@@ -58,6 +58,14 @@ public class KafkaCommonConfig {
         factory.setCommonErrorHandler(errorHandler);
         return factory;
     }
+    @Bean
+    public ConsumerFactory<String, String> stringConsumerFactory() {
+        Map<String, Object> config = new HashMap<>();
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        return new DefaultKafkaConsumerFactory<>(config);
+    }
 
     @Bean
     public DefaultErrorHandler errorHandler(KafkaTemplate<String, Object> template) {
@@ -69,5 +77,13 @@ public class KafkaCommonConfig {
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, PartidaRequestDTO> partidaRequestKafkaListenerContainerFactory(DefaultErrorHandler errorHandler) {
         return kafkaListenerContainerFactory(PartidaRequestDTO.class, "partida-group", errorHandler);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, String> stringKafkaListenerContainerFactory(DefaultErrorHandler errorHandler) {
+        ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(stringConsumerFactory());
+        factory.setCommonErrorHandler(errorHandler);
+        return factory;
     }
 }

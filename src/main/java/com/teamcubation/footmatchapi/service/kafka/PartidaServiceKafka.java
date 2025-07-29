@@ -20,4 +20,9 @@ public class PartidaServiceKafka {
 
         partidaProducer.enviarPartidaAtualizacao(id, dto);
     }
+
+    public  void enviarPartidaParaFilaExclusao(Long id) {
+
+        partidaProducer.enviarPartidaExclusao(id);
+    }
 }
