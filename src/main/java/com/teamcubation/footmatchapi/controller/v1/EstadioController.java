@@ -11,6 +11,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("api/v1/estadios")
@@ -23,8 +24,10 @@ public class EstadioController {
     public ResponseEntity<EstadioResponseDTO> createEstadio(
             @RequestBody @Valid EstadioRequestDTO dto) {
 
-        EstadioResponseDTO estadio = estadioService.criarEstadio(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(estadio);
+        throw new ResponseStatusException(
+                HttpStatus.GONE,
+                "Este endpoint está depreciado. Utilize a versão v2 da API."
+        );
     }
 
     @GetMapping
@@ -46,8 +49,10 @@ public class EstadioController {
     @PutMapping("/{id}")
     public ResponseEntity<EstadioResponseDTO> updateEstadio(@PathVariable Long id, @RequestBody @Valid EstadioRequestDTO dto) {
 
-        EstadioResponseDTO estadio = estadioService.atualizarEstadio(id, dto);
-        return ResponseEntity.ok(estadio);
+        throw new ResponseStatusException(
+                HttpStatus.GONE,
+                "Este endpoint está depreciado. Utilize a versão v2 da API."
+        );
     }
 }
 

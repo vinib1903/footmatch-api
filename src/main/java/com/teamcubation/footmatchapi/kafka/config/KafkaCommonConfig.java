@@ -1,6 +1,7 @@
 package com.teamcubation.footmatchapi.kafka.config;
 
 import com.teamcubation.footmatchapi.dto.request.ClubeRequestDTO;
+import com.teamcubation.footmatchapi.dto.request.EstadioRequestDTO;
 import com.teamcubation.footmatchapi.dto.request.PartidaRequestDTO;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -83,6 +84,11 @@ public class KafkaCommonConfig {
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, ClubeRequestDTO> clubeRequestKafkaListenerContainerFactory(DefaultErrorHandler errorHandler) {
         return kafkaListenerContainerFactory(ClubeRequestDTO.class, "clube-group", errorHandler);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, EstadioRequestDTO> estadioRequestKafkaListenerContainerFactory(DefaultErrorHandler errorHandler) {
+        return kafkaListenerContainerFactory(EstadioRequestDTO.class, "estadio-group", errorHandler);
     }
 
     @Bean

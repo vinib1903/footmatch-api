@@ -51,7 +51,7 @@ public class ClubeConsumer {
         } catch (IllegalArgumentException ex) {
             log.warn("Erro ao atualizar clube do Kafka: {}", ex.getMessage());
         } catch (Exception ex) {
-            log.error("Erro inesperado ao clube partida do Kafka", ex);
+            log.error("Erro inesperado ao clube do Kafka", ex);
         }
     }
 
