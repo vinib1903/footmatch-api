@@ -143,25 +143,25 @@ public class RetrospectoService {
             }
         }
 
-        ClubeRestrospectoAdversarioResponseDTO retrospectoClube = ClubeRestrospectoAdversarioResponseDTO.builder()
-                .adversarioNome(adversario.getNome() + " - " + adversario.getSiglaEstado())
-                .partidas(partidas.size())
-                .vitorias(vitoriasClube)
-                .empates(empates)
-                .derrotas(vitoriasAdversario)
-                .golsMarcados(golsProClube)
-                .golsSofridos(golsProAdversario)
-                .build();
+        ClubeRestrospectoAdversarioResponseDTO retrospectoClube = criarRetrospecto(
+                adversario.getNome() + " - " + adversario.getSiglaEstado(),
+                partidas.size(),
+                vitoriasClube,
+                empates,
+                vitoriasAdversario,
+                golsProClube,
+                golsProAdversario
+        );
 
-        ClubeRestrospectoAdversarioResponseDTO retrospectoAdversario = ClubeRestrospectoAdversarioResponseDTO.builder()
-                .adversarioNome(clube.getNome() + " - " + clube.getSiglaEstado())
-                .partidas(partidas.size())
-                .vitorias(vitoriasAdversario)
-                .empates(empates)
-                .derrotas(vitoriasClube)
-                .golsMarcados(golsProAdversario)
-                .golsSofridos(golsProClube)
-                .build();
+        ClubeRestrospectoAdversarioResponseDTO retrospectoAdversario = criarRetrospecto(
+                clube.getNome() + " - " + clube.getSiglaEstado(),
+                partidas.size(),
+                vitoriasAdversario,
+                empates,
+                vitoriasClube,
+                golsProAdversario,
+                golsProClube
+        );
 
         List<PartidaResponseDTO> partidaDTOs = partidas.stream()
                 .map(partidaMapper::toDto)
@@ -252,5 +252,25 @@ public class RetrospectoService {
                     .collect(Collectors.toList());
         }
         return partidas;
+    }
+
+    private ClubeRestrospectoAdversarioResponseDTO criarRetrospecto(
+            String adversarioNome,
+            int partidas,
+            int vitorias,
+            int empates,
+            int derrotas,
+            int golsMarcados,
+            int golsSofridos) {
+
+        return ClubeRestrospectoAdversarioResponseDTO.builder()
+                .adversarioNome(adversarioNome)
+                .partidas(partidas)
+                .vitorias(vitorias)
+                .empates(empates)
+                .derrotas(derrotas)
+                .golsMarcados(golsMarcados)
+                .golsSofridos(golsSofridos)
+                .build();
     }
 }

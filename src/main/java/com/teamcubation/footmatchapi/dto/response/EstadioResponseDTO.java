@@ -2,7 +2,7 @@ package com.teamcubation.footmatchapi.dto.response;
 
 import lombok.*;
 
-@Getter @Setter
+@Data
 @NoArgsConstructor @AllArgsConstructor
 @Builder
 public class EstadioResponseDTO {

@@ -7,7 +7,7 @@ import lombok.*;
 @Table(name = "estadios", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"nome"})
 })
-@Getter @Setter
+@Data
 @NoArgsConstructor @AllArgsConstructor
 @Builder
 public class Estadio {

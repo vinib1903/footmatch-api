@@ -4,7 +4,7 @@ import lombok.*;
 
 import java.util.List;
 
-@Getter @Setter
+@Data
 @NoArgsConstructor @AllArgsConstructor
 @Builder
 public class ErroResponseDTO {
