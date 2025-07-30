@@ -3,7 +3,7 @@ package com.teamcubation.footmatchapi.dto.request;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
-@Getter @Setter
+@Data
 @NoArgsConstructor @AllArgsConstructor
 @Builder
 public class EstadioRequestDTO {

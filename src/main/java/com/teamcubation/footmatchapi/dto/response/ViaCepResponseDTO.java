@@ -1,12 +1,8 @@
 package com.teamcubation.footmatchapi.dto.response;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
-@NoArgsConstructor
+@Data
 public class ViaCepResponseDTO {
 
     private String logradouro;

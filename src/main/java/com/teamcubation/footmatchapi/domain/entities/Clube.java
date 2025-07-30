@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Table(name = "clubes", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"nome", "siglaEstado"})
 })
-@Getter @Setter
+@Data
 @NoArgsConstructor @AllArgsConstructor
 @Builder
 public class Clube {
