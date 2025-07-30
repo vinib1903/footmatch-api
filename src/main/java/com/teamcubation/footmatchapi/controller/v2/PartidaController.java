@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController("v2")
+@RestController("partida-controller-v2")
 @RequestMapping("api/v2/partidas")
 @RequiredArgsConstructor
 public class PartidaController {

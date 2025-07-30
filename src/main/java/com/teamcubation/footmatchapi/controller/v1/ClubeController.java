@@ -11,6 +11,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/v1/clubes")
@@ -23,8 +24,10 @@ public class ClubeController {
     public ResponseEntity<ClubeResponseDTO> createClube(
             @RequestBody @Valid ClubeRequestDTO dto) {
 
-        ClubeResponseDTO clube = clubeService.criarClube(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(clube);
+        throw new ResponseStatusException(
+                HttpStatus.GONE,
+                "Este endpoint está depreciado. Utilize a versão v2 da API."
+        );
     }
 
     @GetMapping
@@ -48,14 +51,18 @@ public class ClubeController {
     @PutMapping("/{id}")
     public ResponseEntity<ClubeResponseDTO> updateClube(@PathVariable Long id, @RequestBody @Valid ClubeRequestDTO dto) {
 
-        ClubeResponseDTO clube = clubeService.atualizarClube(id, dto);
-        return ResponseEntity.ok(clube);
+        throw new ResponseStatusException(
+                HttpStatus.GONE,
+                "Este endpoint está depreciado. Utilize a versão v2 da API."
+        );
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> disableClube(@PathVariable Long id) {
 
-        clubeService.inativarClube(id);
-        return ResponseEntity.noContent().build();
+        throw new ResponseStatusException(
+                HttpStatus.GONE,
+                "Este endpoint está depreciado. Utilize a versão v2 da API."
+        );
     }
 }
