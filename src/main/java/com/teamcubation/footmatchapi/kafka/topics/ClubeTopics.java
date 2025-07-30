@@ -9,16 +9,19 @@ public class ClubeTopics {
 
     @Bean
     public NewTopic clubesCriacaoTopic() {
+
         return new NewTopic("clubes-criacao", 2, (short) 1);
     }
 
     @Bean
     public NewTopic clubesAtualizacaoTopic() {
+
         return new NewTopic("clubes-atualizacao", 2, (short) 1);
     }
 
     @Bean
     public NewTopic clubesExclusaoTopic() {
+
         return new NewTopic("clubes-exclusao", 2, (short) 1);
     }
 }

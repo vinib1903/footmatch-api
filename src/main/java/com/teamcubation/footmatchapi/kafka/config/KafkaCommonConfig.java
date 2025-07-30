@@ -60,6 +60,7 @@ public class KafkaCommonConfig {
         factory.setCommonErrorHandler(errorHandler);
         return factory;
     }
+
     @Bean
     public ConsumerFactory<String, String> stringConsumerFactory() {
         Map<String, Object> config = new HashMap<>();

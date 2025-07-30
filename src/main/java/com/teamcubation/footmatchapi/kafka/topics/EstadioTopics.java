@@ -9,11 +9,13 @@ public class EstadioTopics {
 
     @Bean
     public NewTopic estadiosCriacaoTopic() {
+
         return new NewTopic("estadios-criacao", 2, (short) 1);
     }
 
     @Bean
     public NewTopic estadiosAtualizacaoTopic() {
+
         return new NewTopic("estadios-atualizacao", 2, (short) 1);
     }
 }

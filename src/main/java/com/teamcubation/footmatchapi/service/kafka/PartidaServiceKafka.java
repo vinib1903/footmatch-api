@@ -16,12 +16,12 @@ public class PartidaServiceKafka {
         partidaProducer.enviarPartidaCriacao(dto);
     }
 
-    public void enviarPartidaParaFilaAtualizacao(Long id,PartidaRequestDTO dto) {
+    public void enviarPartidaParaFilaAtualizacao(Long id, PartidaRequestDTO dto) {
 
         partidaProducer.enviarPartidaAtualizacao(id, dto);
     }
 
-    public  void enviarPartidaParaFilaExclusao(Long id) {
+    public void enviarPartidaParaFilaExclusao(Long id) {
 
         partidaProducer.enviarPartidaExclusao(id);
     }

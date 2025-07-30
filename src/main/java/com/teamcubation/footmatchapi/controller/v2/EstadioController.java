@@ -16,6 +16,7 @@ public class EstadioController {
 
     @PostMapping
     public ResponseEntity<String> createEstadio(@RequestBody @Valid EstadioRequestDTO dto) {
+
         estadioServiceKafka.enviarEstadioParaFilaCriacao(dto);
         return ResponseEntity.accepted().body("Estadio enviado para processamento assíncrono (Kafka).");
     }

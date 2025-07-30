@@ -16,7 +16,7 @@ public class EstadioServiceKafka {
         estadioProducer.enviarEstadioCriacao(dto);
     }
 
-    public void enviarEstadioParaFilaAtualizacao(Long id,EstadioRequestDTO dto) {
+    public void enviarEstadioParaFilaAtualizacao(Long id, EstadioRequestDTO dto) {
 
         estadioProducer.enviarEstadioAtualizacao(id, dto);
     }

@@ -9,16 +9,19 @@ public class PartidaTopics {
 
     @Bean
     public NewTopic partidasCriacaoTopic() {
+
         return new NewTopic("partidas-criacao", 2, (short) 1);
     }
 
     @Bean
     public NewTopic partidasAtualizacaoTopic() {
+
         return new NewTopic("partidas-atualizacao", 2, (short) 1);
     }
 
     @Bean
     public NewTopic partidasExclusaoTopic() {
+
         return new NewTopic("partidas-exclusao", 2, (short) 1);
     }
 }

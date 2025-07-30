@@ -25,7 +25,7 @@ public class ClubeProducer {
         kafkaTemplate.send("clubes-atualizacao", String.valueOf(id), dto);
     }
 
-    public  void enviarClubeExclusao(Long id) {
+    public void enviarClubeExclusao(Long id) {
 
         log.info("Enviando clube com id {} para Kafka", id);
         kafkaTemplate.send("clubes-exclusao", String.valueOf(id), String.valueOf(id));

@@ -16,12 +16,12 @@ public class ClubeServiceKafka {
         clubeProducer.enviarClubeCriacao(dto);
     }
 
-    public void enviarClubeParaFilaAtualizacao(Long id,ClubeRequestDTO dto) {
+    public void enviarClubeParaFilaAtualizacao(Long id, ClubeRequestDTO dto) {
 
         clubeProducer.enviarClubeAtualizacao(id, dto);
     }
 
-    public  void enviarClubeParaFilaExclusao(Long id) {
+    public void enviarClubeParaFilaExclusao(Long id) {
 
         clubeProducer.enviarClubeExclusao(id);
     }

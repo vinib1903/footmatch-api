@@ -25,7 +25,7 @@ public class PartidaProducer {
         kafkaTemplate.send("partidas-atualizacao", String.valueOf(id), partida);
     }
 
-    public  void enviarPartidaExclusao(Long id) {
+    public void enviarPartidaExclusao(Long id) {
 
         log.info("Enviando partida com id {} para Kafka", id);
         kafkaTemplate.send("partidas-exclusao", String.valueOf(id), String.valueOf(id));

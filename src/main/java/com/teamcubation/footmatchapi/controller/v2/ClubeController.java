@@ -16,6 +16,7 @@ public class ClubeController {
 
     @PostMapping
     public ResponseEntity<String> createClube(@RequestBody @Valid ClubeRequestDTO dto) {
+
         clubeServiceKafka.enviarClubeParaFilaCriacao(dto);
         return ResponseEntity.accepted().body("Clube enviado para processamento assíncrono (Kafka).");
     }
