@@ -30,7 +30,7 @@ public class EstadioService {
 
         validarNomeExistente(estadioRequestDTO.getNome(), null);
 
-        validarCepExistente(estadioRequestDTO.getCep());
+        validarCepExistente(estadioRequestDTO.getCep(), null);
 
         ViaCepResponseDTO viaCepResponse = viacepClient.buscarEnderecoPorCep(estadioRequestDTO.getCep());
 
@@ -65,7 +65,7 @@ public class EstadioService {
 
         validarNomeExistente(estadioRequestDTO.getNome(), id);
 
-        validarCepExistente(estadioRequestDTO.getCep());
+        validarCepExistente(estadioRequestDTO.getCep(), id);
 
         ViaCepResponseDTO viaCepResponse = viacepClient.buscarEnderecoPorCep(estadioRequestDTO.getCep());
 
@@ -102,13 +102,13 @@ public class EstadioService {
         return cep.replaceAll("\\D", "");
     }
 
-    private void validarCepExistente(String cep) {
+    private void validarCepExistente(String cep, Long id) {
 
         String cepNormalizado = normalizarCep(cep);
-
         Optional<Estadio> estadioExistente = estadioRepository.findByEndereco_Cep(cepNormalizado);
 
-        if (estadioExistente.isPresent()) {
+        if (estadioExistente.isPresent()
+                && (id == null || !estadioExistente.get().getId().equals(id))) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um estádio cadastrado neste CEP.");
         }
     }
