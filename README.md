@@ -1,8 +1,8 @@
-# ⚽ Footmatch API
+# ⚽  Footmatch API
 
 Bem-vindo à Footmatch API, uma aplicação Spring Boot para gerenciar dados de partidas de futebol, incluindo clubes, estádios e estatísticas de confrontos.
 
-## 💻 Tecnologias Utilizadas
+## 💻  Tecnologias Utilizadas
 
 - **Java 21**
 - **Spring Boot 3**
@@ -12,17 +12,17 @@ Bem-vindo à Footmatch API, uma aplicação Spring Boot para gerenciar dados de 
 - **Docker**
 - **SpringDoc OpenAPI** para documentação da API
 
-## 🚀 Como Começar
+## 🚀  Como Começar
 
 Esta seção guiará você na configuração e execução do projeto em seu ambiente local.
 
-### ✅ Pré-requisitos
+### ✅  Pré-requisitos
 
 - **Java 21**
 - **Maven**
 - **Docker** e **Docker Compose**
 
-### 🛠️ Passos para Execução
+### 🛠️  Passos para Execução
 
 1.  **Clone o repositório:**
     ```sh
@@ -61,7 +61,7 @@ Esta seção guiará você na configuração e execução do projeto em seu ambi
 
     A aplicação estará disponível em `http://localhost:8080`.
 
-### 🛑 Parando os Serviços
+### 🛑  Parando os Serviços
 
 Para parar todos os contêineres da infraestrutura, execute:
 
@@ -77,7 +77,7 @@ Para rodar a suíte de testes automatizados, execute o seguinte comando:
 ./mvnw test
 ```
 
-## 🔗 Endpoints da API
+## 🔗  Endpoints da API
 
 A API é documentada usando SpringDoc OpenAPI. Com a aplicação em execução, você pode acessar a interface do Swagger em:
 
@@ -115,7 +115,7 @@ Abaixo está um resumo dos endpoints disponíveis:
 -   `GET /{clubeId}/confrontos-diretos/{adversarioId}`: Retorna o confronto direto entre dois clubes.
 -   `GET /ranking`: Retorna um ranking de clubes com base em diferentes critérios (`pontos`, `vitorias`, etc.).
 
-## 📨 Comunicação com Kafka
+## 📨  Comunicação com Kafka
 
 A aplicação utiliza o Kafka para comunicação assíncrona, notificando outros sistemas sobre a criação, atualização e exclusão de entidades. Abaixo estão os tópicos utilizados:
 
