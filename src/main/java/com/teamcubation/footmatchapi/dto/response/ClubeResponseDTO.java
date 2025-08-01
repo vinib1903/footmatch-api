@@ -1,5 +1,6 @@
 package com.teamcubation.footmatchapi.dto.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -9,9 +10,18 @@ import java.time.LocalDate;
 @Builder
 public class ClubeResponseDTO {
 
+    @Schema(description = "Identificador único do clube.", example = "1")
     private Long id;
+
+    @Schema(description = "Nome do clube.", example = "Grêmio")
     private String nome;
+
+    @Schema(description = "Sigla do estado do clube.", example = "RS")
     private String siglaEstado;
+
+    @Schema(description = "Data de criação do clube.", example = "1903-09-15", format = "yyyy-MM-dd")
     private LocalDate dataCriacao;
+
+    @Schema(description = "Indica se o clube está ativo ou inativo.", example = "true")
     private Boolean ativo;
 }
