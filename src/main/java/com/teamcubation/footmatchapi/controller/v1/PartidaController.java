@@ -1,4 +1,4 @@
-package com.teamcubation.footmatchapi.controller;
+package com.teamcubation.footmatchapi.controller.v1;
 
 import com.teamcubation.footmatchapi.dto.request.PartidaRequestDTO;
 import com.teamcubation.footmatchapi.dto.response.PartidaResponseDTO;
@@ -12,20 +12,24 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
-@RestController
+@RestController("v1")
 @RequestMapping("api/v1/partidas")
 @RequiredArgsConstructor
 public class PartidaController {
 
     private final PartidaService partidaService;
 
+    @Deprecated
     @PostMapping
     public ResponseEntity<PartidaResponseDTO> createPartida(
             @RequestBody @Valid PartidaRequestDTO dto) {
 
-        PartidaResponseDTO partida = partidaService.criarPartida(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(partida);
+        throw new ResponseStatusException(
+                HttpStatus.GONE,
+                "Este endpoint está depreciado. Utilize a versão v2 da API."
+        );
     }
 
     @GetMapping
@@ -47,17 +51,23 @@ public class PartidaController {
         return ResponseEntity.ok(partida);
     }
 
+    @Deprecated
     @PutMapping("/{id}")
     public ResponseEntity<PartidaResponseDTO> updatePartida(@PathVariable Long id, @RequestBody @Valid PartidaRequestDTO dto) {
 
-        PartidaResponseDTO partida = partidaService.atualizarPartida(id, dto);
-        return ResponseEntity.ok(partida);
+        throw new ResponseStatusException(
+                HttpStatus.GONE,
+                "Este endpoint está depreciado. Utilize a versão v2 da API."
+        );
     }
 
+    @Deprecated
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePartida(@PathVariable Long id) {
 
-        partidaService.deletarPartida(id);
-        return ResponseEntity.noContent().build();
+        throw new ResponseStatusException(
+                HttpStatus.GONE,
+                "Este endpoint está depreciado. Utilize a versão v2 da API."
+        );
     }
 }
