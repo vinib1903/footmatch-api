@@ -8,9 +8,9 @@ services:
       - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: footmatchdb
+      MYSQL_DATABASE: footmatch_db
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mysql_footmatch_data:/var/lib/mysql
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.0.1
@@ -39,4 +39,4 @@ services:
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
 
 volumes:
-  mysql_data:
+  mysql_footmatch_data:
