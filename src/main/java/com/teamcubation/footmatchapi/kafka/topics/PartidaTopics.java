@@ -24,4 +24,9 @@ public class PartidaTopics {
 
         return new NewTopic("partidas-exclusao", 2, (short) 1);
     }
+
+    @Bean
+    public NewTopic partidasCriacaoDltTopic() {
+        return new NewTopic("partidas-criacao.DLT", 2, (short) 1);
+    }
 }

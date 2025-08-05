@@ -25,19 +25,19 @@ public class PartidaConsumer {
     )
     public void consumirPartidaCriacao(PartidaRequestDTO partidaDTO) {
 
-        try {
+//        try {
             partidaService.criarPartida(partidaDTO);
             log.info("Partida consumida e salva com sucesso: {}", partidaDTO);
-        } catch (ResponseStatusException ex) {
-
-            log.warn("Erro ao salvar partida do Kafka (status={}): {}", ex.getStatusCode(), ex.getReason());
-        } catch (IllegalArgumentException ex) {
-
-            log.warn("Erro ao salvar partida do Kafka: {}", ex.getMessage());
-        } catch (Exception ex) {
-
-            log.error("Erro inesperado ao salvar partida do Kafka", ex);
-        }
+//        } catch (ResponseStatusException ex) {
+//
+//            log.warn("Erro ao salvar partida do Kafka (status={}): {}", ex.getStatusCode(), ex.getReason());
+//        } catch (IllegalArgumentException ex) {
+//
+//            log.warn("Erro ao salvar partida do Kafka: {}", ex.getMessage());
+//        } catch (Exception ex) {
+//
+//            log.error("Erro inesperado ao salvar partida do Kafka", ex);
+//        }
     }
 
     @KafkaListener(
@@ -82,5 +82,17 @@ public class PartidaConsumer {
 
             log.error("Erro inesperado ao excluir partida do Kafka", ex);
         }
+    }
+
+    @KafkaListener(
+            topics = "partidas-criacao.DLT",
+            groupId = "partida-group-dlt",
+            containerFactory = "dltKafkaListenerContainerFactory"
+    )
+    public void consumirPartidaCriacaoDLT(PartidaRequestDTO partidaDTO) {
+
+        log.error("MENSAGEM NA DLT: A partida a seguir falhou em todas as tentativas de processamento: {}", partidaDTO);
+        // Aqui você pode implementar a lógica para tratar a mensagem com falha,
+        // como salvar em um banco de dados para análise posterior ou notificar um sistema de monitoramento.
     }
 }
