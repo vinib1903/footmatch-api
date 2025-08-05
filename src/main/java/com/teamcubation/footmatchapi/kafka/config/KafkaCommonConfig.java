@@ -5,11 +5,13 @@ import com.teamcubation.footmatchapi.dto.request.EstadioRequestDTO;
 import com.teamcubation.footmatchapi.dto.request.PartidaRequestDTO;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.KafkaException;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
@@ -45,6 +47,7 @@ public class KafkaCommonConfig {
 
     private <T> ConsumerFactory<String, T> consumerFactory(Class<T> clazz, String groupId) {
         JsonDeserializer<T> deserializer = new JsonDeserializer<>(clazz, false);
+        deserializer.setUseTypeHeaders(false); // Ignora os cabeçalhos de tipo
         deserializer.addTrustedPackages("*");
         Map<String, Object> config = new HashMap<>();
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
@@ -72,9 +75,12 @@ public class KafkaCommonConfig {
 
     @Bean
     public DefaultErrorHandler errorHandler(KafkaTemplate<String, Object> template) {
-        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(template);
-        FixedBackOff backOff = new FixedBackOff(5000L, 5);
-        return new DefaultErrorHandler(recoverer, backOff);
+        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(template,
+                (consumerRecord, exception) -> new TopicPartition(consumerRecord.topic() + ".DLT", -1));
+        FixedBackOff backOff = new FixedBackOff(1000, 3);
+        DefaultErrorHandler errorHandler = new DefaultErrorHandler(recoverer, backOff);
+        errorHandler.setLogLevel(KafkaException.Level.ERROR);
+        return errorHandler;
     }
 
     @Bean
@@ -97,6 +103,13 @@ public class KafkaCommonConfig {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(stringConsumerFactory());
         factory.setCommonErrorHandler(errorHandler);
+        return factory;
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, PartidaRequestDTO> dltKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, PartidaRequestDTO> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactory(PartidaRequestDTO.class, "partida-group-dlt"));
         return factory;
     }
 }
