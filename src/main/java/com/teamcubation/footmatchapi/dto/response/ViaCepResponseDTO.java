@@ -1,9 +1,11 @@
 package com.teamcubation.footmatchapi.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
+import lombok.*;
 
 @Data
+@NoArgsConstructor @AllArgsConstructor
+@Builder
 public class ViaCepResponseDTO {
 
 

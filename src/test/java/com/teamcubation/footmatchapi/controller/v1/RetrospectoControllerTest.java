@@ -1,6 +1,5 @@
-package com.teamcubation.footmatchapi.controller;
+package com.teamcubation.footmatchapi.controller.v1;
 
-import com.teamcubation.footmatchapi.controller.v1.RetrospectoController;
 import com.teamcubation.footmatchapi.dto.response.*;
 import com.teamcubation.footmatchapi.service.RetrospectoService;
 import org.junit.jupiter.api.Test;
@@ -38,7 +37,7 @@ public class RetrospectoControllerTest {
 
 
     @Test
-    void testGetClubRetrospectById() throws Exception {
+    void testGetClubRetrospectById_shouldReturnIsOk() throws Exception {
 
         ClubeRetrospectoResponseDTO response = ClubeRetrospectoResponseDTO.builder()
                 .partidas(6)
@@ -68,7 +67,7 @@ public class RetrospectoControllerTest {
     }
 
     @Test
-    void testGetClubRetrospectVersusAdversaries() throws Exception {
+    void testGetClubRetrospectVersusAdversaries_shouldReturnIsOk() throws Exception {
 
         ClubeRestrospectoAdversarioResponseDTO gremio = ClubeRestrospectoAdversarioResponseDTO.builder()
                 .adversarioNome("Grêmio")
@@ -119,7 +118,7 @@ public class RetrospectoControllerTest {
     }
 
     @Test
-    void testGetHeadToHead() throws Exception {
+    void testGetHeadToHead_shouldReturnIsOk() throws Exception {
 
         ConfrontoDiretoResponseDTO response = ConfrontoDiretoResponseDTO.builder()
                 .clube(ClubeRestrospectoAdversarioResponseDTO.builder().build())
@@ -143,7 +142,7 @@ public class RetrospectoControllerTest {
     }
 
     @Test
-    void testGetRanking() throws Exception {
+    void testGetRanking_shouldReturnIsOk() throws Exception {
 
         RankingResponseDTO gremio = RankingResponseDTO.builder()
                 .nome("Grêmio")

@@ -1,6 +1,5 @@
-package com.teamcubation.footmatchapi.controller;
+package com.teamcubation.footmatchapi.controller.v1;
 
-import com.teamcubation.footmatchapi.controller.v1.ClubeController;
 import com.teamcubation.footmatchapi.dto.request.ClubeRequestDTO;
 import com.teamcubation.footmatchapi.dto.response.ClubeResponseDTO;
 import com.teamcubation.footmatchapi.service.ClubeService;
@@ -37,43 +36,31 @@ public class ClubeControllerTest {
     final String BASE_URL = "/api/v1/clubes";
 
     @Test
-    void testCreateClubWhenDataIsValid() throws Exception {
-
-        ClubeResponseDTO response = ClubeResponseDTO.builder()
-                .id(1L)
-                .nome("Grêmio")
-                .siglaEstado("RS")
-                .dataCriacao(LocalDate.of(1903, 9, 15))
-                .ativo(true)
-                .build();
-
-        when(clubeService.criarClube(any(ClubeRequestDTO.class)))
-                .thenReturn(response);
+    void testCreateClubWhenDataIsValid_shouldReturnIsGone() throws Exception {
 
         mockMvc.perform(post(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"nome\": \"Grêmio\", \"siglaEstado\": \"RS\", \"dataCriacao\": \"1903-09-15\", \"ativo\": true}"))
                 .andDo(print())
-                .andExpect(status().isCreated())
-                .andExpect(content().json("{\"id\": 1, \"nome\": \"Grêmio\", \"siglaEstado\": \"RS\", \"dataCriacao\": \"1903-09-15\", \"ativo\": true}"));
-
-        verify(clubeService, times(1)).criarClube(any(ClubeRequestDTO.class));
-    }
-
-    @Test
-    void testCreateClubWhenDataIsInvalid() throws Exception {
-
-        mockMvc.perform(post(BASE_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"nome\": \"Grêmio\", \"siglaEstado\": \"\", \"dataCriacao\": \"1903-09-15\", \"ativo\": true}"))
-                .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isGone());
 
         verify(clubeService, never()).criarClube(any(ClubeRequestDTO.class));
     }
 
     @Test
-    void testSearchClubs() throws Exception {
+    void testCreateClubWhenDataIsInvalid_shouldReturnIsGone() throws Exception {
+
+        mockMvc.perform(post(BASE_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nome\": \"Grêmio\", \"siglaEstado\": \"\", \"dataCriacao\": \"1903-09-15\", \"ativo\": true}"))
+                .andDo(print())
+                .andExpect(status().isGone());
+
+        verify(clubeService, never()).criarClube(any(ClubeRequestDTO.class));
+    }
+
+    @Test
+    void testSearchClubs_shouldReturnPageOfClubs() throws Exception {
 
         ClubeResponseDTO gremio = ClubeResponseDTO.builder()
                 .id(1L)
@@ -107,7 +94,7 @@ public class ClubeControllerTest {
     }
 
     @Test
-    void testGetClubById() throws Exception {
+    void testGetClubById_shouldReturnIsOk() throws Exception {
 
         ClubeResponseDTO gremio = ClubeResponseDTO.builder()
                 .id(1L)
@@ -131,38 +118,25 @@ public class ClubeControllerTest {
     }
 
     @Test
-    void testUpdateClub() throws Exception {
-
-        ClubeResponseDTO response = ClubeResponseDTO.builder()
-                .id(1L)
-                .nome("Grêmio F.B.P.A.")
-                .siglaEstado("RS")
-                .dataCriacao(LocalDate.of(1903, 9, 15))
-                .ativo(true)
-                .build();
-
-        when(clubeService.atualizarClube(eq(1L), any(ClubeRequestDTO.class)))
-                .thenReturn(response);
+    void testUpdateClub_shouldReturnIsGone() throws Exception {
 
         mockMvc.perform(put(BASE_URL + "/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"nome\": \"Grêmio F.B.P.A.\", \"siglaEstado\": \"RS\", \"dataCriacao\": \"1903-09-15\", \"ativo\": true}"))
                 .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(content().json("{\"id\": 1, \"nome\": \"Grêmio F.B.P.A.\", \"siglaEstado\": \"RS\", \"dataCriacao\": \"1903-09-15\", \"ativo\": true}"));
+                .andExpect(status().isGone());
 
-        verify(clubeService, times(1)).atualizarClube(eq(1L), any(ClubeRequestDTO.class));
+        verify(clubeService, never()).atualizarClube(eq(1L), any(ClubeRequestDTO.class));
     }
 
     @Test
-    void testDeleteClub() throws Exception {
+    void testDeleteClub_shouldReturnIsGone() throws Exception {
 
         mockMvc.perform(delete(BASE_URL + "/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isNoContent());
+                .andExpect(status().isGone());
 
-        verify(clubeService, times(1)).inativarClube(eq(1L));
+        verify(clubeService, never()).inativarClube(eq(1L));
     }
 }
