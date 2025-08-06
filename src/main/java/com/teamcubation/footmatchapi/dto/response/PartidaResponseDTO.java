@@ -13,13 +13,13 @@ public class PartidaResponseDTO {
     @Schema(description = "Identificador único da partida.", example = "1")
     private Long id;
 
-    @Schema(description = "Identificador único do clube mandante da partida.", example = "1")
+    @Schema(description = "Dados do clube mandante da partida.")
     private ClubeResponseDTO mandante;
 
-    @Schema(description = "Identificador único do clube visitante da partida.", example = "2")
+    @Schema(description = "Dados do clube visitante da partida.")
     private ClubeResponseDTO visitante;
 
-    @Schema(description = "Identificador único do estádio da partida.", example = "1")
+    @Schema(description = "Dados do estádio da partida.")
     private EstadioResponseDTO estadio;
 
     @Schema(description = "Data e hora da partida.", example = "2023-01-01T00:00:00")
