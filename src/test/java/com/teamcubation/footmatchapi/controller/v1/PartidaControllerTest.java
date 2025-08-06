@@ -4,7 +4,7 @@ import com.teamcubation.footmatchapi.dto.request.PartidaRequestDTO;
 import com.teamcubation.footmatchapi.dto.response.ClubeResponseDTO;
 import com.teamcubation.footmatchapi.dto.response.EstadioResponseDTO;
 import com.teamcubation.footmatchapi.dto.response.PartidaResponseDTO;
-import com.teamcubation.footmatchapi.service.PartidaService;
+import com.teamcubation.footmatchapi.service.partida.PartidaService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

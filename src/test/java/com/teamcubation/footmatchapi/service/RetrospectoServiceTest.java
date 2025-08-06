@@ -10,6 +10,7 @@ import com.teamcubation.footmatchapi.dto.response.PartidaResponseDTO;
 import com.teamcubation.footmatchapi.mapper.PartidaMapper;
 import com.teamcubation.footmatchapi.repository.ClubeRepository;
 import com.teamcubation.footmatchapi.repository.PartidaRepository;
+import com.teamcubation.footmatchapi.service.retrospecto.RetrospectoService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

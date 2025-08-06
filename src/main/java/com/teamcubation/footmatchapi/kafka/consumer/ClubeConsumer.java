@@ -1,13 +1,15 @@
 package com.teamcubation.footmatchapi.kafka.consumer;
 
 import com.teamcubation.footmatchapi.dto.request.ClubeRequestDTO;
-import com.teamcubation.footmatchapi.service.ClubeService;
+import com.teamcubation.footmatchapi.service.clube.ClubeService;
+import com.teamcubation.footmatchapi.service.kafka.NotificationServiceKafka;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.annotation.DltHandler;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import static org.springframework.kafka.support.KafkaHeaders.RECEIVED_KEY;
 
@@ -17,6 +19,7 @@ import static org.springframework.kafka.support.KafkaHeaders.RECEIVED_KEY;
 public class ClubeConsumer {
 
     private final ClubeService clubeService;
+    private final NotificationServiceKafka notificationServiceKafka;
 
     @KafkaListener(
             topics = "clubes-criacao",
@@ -24,20 +27,10 @@ public class ClubeConsumer {
             containerFactory = "clubeRequestKafkaListenerContainerFactory"
     )
     public void consumirClubeCriacao(ClubeRequestDTO dto) {
-
-        try {
-            clubeService.criarClube(dto);
-            log.info("Clube consumido e salvo com sucesso: {}", dto);
-        } catch (ResponseStatusException ex) {
-
-            log.warn("Erro ao salvar clube do Kafka (status={}): {}", ex.getStatusCode(), ex.getReason());
-        } catch (IllegalArgumentException ex) {
-
-            log.warn("Erro ao salvar clube do Kafka: {}", ex.getMessage());
-        } catch (Exception ex) {
-
-            log.error("Erro inesperado ao salvar clube do Kafka", ex);
-        }
+        log.info("Consumindo mensagem para criar clube: {}", dto);
+        clubeService.criarClube(dto);
+        log.info("Clube consumido e salvo com sucesso: {}", dto);
+        notificationServiceKafka.sendNotification("Novo clube criado: " + dto.toString());
     }
 
     @KafkaListener(
@@ -46,20 +39,10 @@ public class ClubeConsumer {
             containerFactory = "clubeRequestKafkaListenerContainerFactory"
     )
     public void consumirClubeAtualizacao(@Header(RECEIVED_KEY) String id, ClubeRequestDTO dto) {
-
-        try {
-            clubeService.atualizarClube(Long.valueOf(id), dto);
-            log.info("Clube consumido e atualizado com sucesso: {}", dto);
-        } catch (ResponseStatusException ex) {
-
-            log.warn("Erro ao atualizar clube do Kafka (status={}): {}", ex.getStatusCode(), ex.getReason());
-        } catch (IllegalArgumentException ex) {
-
-            log.warn("Erro ao atualizar clube do Kafka: {}", ex.getMessage());
-        } catch (Exception ex) {
-
-            log.error("Erro inesperado ao clube do Kafka", ex);
-        }
+        log.info("Consumindo mensagem para atualizar clube com id {}: {}", id, dto);
+        clubeService.atualizarClube(Long.valueOf(id), dto);
+        log.info("Clube consumido e atualizado com sucesso: {}", dto);
+        notificationServiceKafka.sendNotification("Clube com id " + id + " atualizado: " + dto.toString());
     }
 
     @KafkaListener(
@@ -68,20 +51,27 @@ public class ClubeConsumer {
             containerFactory = "stringKafkaListenerContainerFactory"
     )
     public void consumirClubeExclusao(@Header(RECEIVED_KEY) String id) {
+        log.info("Consumindo mensagem para excluir clube com id: {}", id);
+        clubeService.inativarClube(Long.valueOf(id));
+        log.info("Clube consumido e excluído com sucesso: {}", id);
+        notificationServiceKafka.sendNotification("Clube com id " + id + " excluído");
+    }
 
-
-        try {
-            clubeService.inativarClube(Long.valueOf(id));
-            log.info("Clube consumido e excluído com sucesso: {}", id);
-        } catch (ResponseStatusException ex) {
-
-            log.warn("Erro ao excluir clube do Kafka (status={}): {}", ex.getStatusCode(), ex.getReason());
-        } catch (IllegalArgumentException ex) {
-
-            log.warn("Erro ao excluir clube do Kafka: {}", ex.getMessage());
-        } catch (Exception ex) {
-
-            log.error("Erro inesperado ao excluir clube do Kafka", ex);
+    @DltHandler
+    public void dltHandler(String message, @Header(KafkaHeaders.DLT_ORIGINAL_TOPIC) String originalTopic, @Header(KafkaHeaders.DLT_EXCEPTION_MESSAGE) String exceptionMessage) {
+        String cleanedReason = exceptionMessage;
+        int colonIndex = exceptionMessage.indexOf(':');
+        if (colonIndex != -1) {
+            cleanedReason = exceptionMessage.substring(colonIndex + 1).trim();
         }
+
+        String errorMessage = String.format(
+                "Uma mensagem falhou em todas as tentativas de processamento e foi para a DLT.\n\n" +
+                        "Tópico Original: %s\n\n" +
+                        "Payload: %s\n\n" +
+                        "Motivo da Falha: %s\n\n",
+                originalTopic, message, cleanedReason
+        );
+        log.error("MENSAGEM NA DLT: {}\n", errorMessage);
     }
 }

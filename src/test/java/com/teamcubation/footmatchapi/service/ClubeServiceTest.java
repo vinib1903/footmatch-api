@@ -8,6 +8,7 @@ import com.teamcubation.footmatchapi.dto.response.ClubeResponseDTO;
 import com.teamcubation.footmatchapi.mapper.ClubeMapper;
 import com.teamcubation.footmatchapi.repository.ClubeRepository;
 import com.teamcubation.footmatchapi.repository.PartidaRepository;
+import com.teamcubation.footmatchapi.service.clube.ClubeService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -256,7 +257,7 @@ public class ClubeServiceTest {
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("nome").descending());
 
-        when(clubeRepository.findClubesWichFilters(null, null, null, pageable))
+        when(clubeRepository.findClubesWithFilters(null, null, null, pageable))
                 .thenReturn(new PageImpl<>(clubes, pageable, clubes.size()));
 
         when(clubeMapper.toDto(clube1))
@@ -286,7 +287,7 @@ public class ClubeServiceTest {
         assertEquals("Bahia", result.getContent().get(5).getNome());
         assertEquals("Grêmio", result.getContent().get(2).getNome());
 
-        verify(clubeRepository, times(1)).findClubesWichFilters(null, null, null, pageable);
+        verify(clubeRepository, times(1)).findClubesWithFilters(null, null, null, pageable);
     }
 
     @Test

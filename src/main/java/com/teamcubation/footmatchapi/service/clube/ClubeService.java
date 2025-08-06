@@ -1,4 +1,4 @@
-package com.teamcubation.footmatchapi.service;
+package com.teamcubation.footmatchapi.service.clube;
 
 import com.teamcubation.footmatchapi.domain.entities.Clube;
 import com.teamcubation.footmatchapi.domain.entities.Partida;
@@ -28,7 +28,11 @@ public class ClubeService {
 
     public ClubeResponseDTO criarClube(ClubeRequestDTO dto) {
 
-        validarSiglaEstado(dto.getSiglaEstado());
+        try {
+            SiglaEstado.valueOf(dto.getSiglaEstado().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sigla do estado inválida: " + dto.getSiglaEstado());
+        }
 
         validarDataCriacaoFutura(dto.getDataCriacao());
 
@@ -49,7 +53,7 @@ public class ClubeService {
             estado = SiglaEstado.valueOf(siglaEstado);
         }
 
-        return clubeRepository.findClubesWichFilters(nome, estado, ativo, pageable)
+        return clubeRepository.findClubesWithFilters(nome, estado, ativo, pageable)
                 .map(clubeMapper::toDto);
     }
 
@@ -64,7 +68,11 @@ public class ClubeService {
 
         Clube clube = validarExistenciaClube(id);
 
-        validarSiglaEstado(dto.getSiglaEstado());
+        try {
+            SiglaEstado.valueOf(dto.getSiglaEstado().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sigla do estado inválida: " + dto.getSiglaEstado());
+        }
 
         validarDataCriacaoFutura(dto.getDataCriacao());
 
@@ -104,13 +112,6 @@ public class ClubeService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube não encontrado."));
     }
 
-    private void validarSiglaEstado(String siglaEstado) throws ResponseStatusException {
-
-        if (Arrays.stream(SiglaEstado.values()).noneMatch(e -> e.name().equalsIgnoreCase(siglaEstado))) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Estado inválido.");
-        }
-    }
-
     private void validarDataCriacaoFutura(LocalDate dataCriacao) throws ResponseStatusException {
 
         if (dataCriacao.isAfter(LocalDate.now()))
@@ -127,7 +128,3 @@ public class ClubeService {
         }
     }
 }
-
-
-
-

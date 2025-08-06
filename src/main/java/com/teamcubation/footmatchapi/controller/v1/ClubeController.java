@@ -3,7 +3,7 @@ package com.teamcubation.footmatchapi.controller.v1;
 import com.teamcubation.footmatchapi.dto.request.ClubeRequestDTO;
 import com.teamcubation.footmatchapi.dto.response.ClubeResponseDTO;
 import com.teamcubation.footmatchapi.dto.response.ErroResponseDTO;
-import com.teamcubation.footmatchapi.service.ClubeService;
+import com.teamcubation.footmatchapi.service.clube.ClubeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

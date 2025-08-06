@@ -1,4 +1,4 @@
-package com.teamcubation.footmatchapi.service;
+package com.teamcubation.footmatchapi.service.retrospecto;
 
 import com.teamcubation.footmatchapi.domain.entities.Clube;
 import com.teamcubation.footmatchapi.domain.entities.Partida;

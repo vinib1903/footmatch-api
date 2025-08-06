@@ -9,6 +9,7 @@ import com.teamcubation.footmatchapi.integration.ViacepClient;
 import com.teamcubation.footmatchapi.mapper.EnderecoMapper;
 import com.teamcubation.footmatchapi.mapper.EstadioMapper;
 import com.teamcubation.footmatchapi.repository.EstadioRepository;
+import com.teamcubation.footmatchapi.service.estadio.EstadioService;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;

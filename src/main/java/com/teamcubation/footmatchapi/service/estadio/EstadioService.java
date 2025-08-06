@@ -1,4 +1,4 @@
-package com.teamcubation.footmatchapi.service;
+package com.teamcubation.footmatchapi.service.estadio;
 
 import com.teamcubation.footmatchapi.domain.entities.Endereco;
 import com.teamcubation.footmatchapi.domain.entities.Estadio;
