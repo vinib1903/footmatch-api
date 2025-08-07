@@ -1,28 +1,44 @@
-# ⚽  Footmatch API
+# ⚽ Footmatch API
 
-Bem-vindo à Footmatch API, uma aplicação Spring Boot para gerenciar dados de partidas de futebol, incluindo clubes, estádios e estatísticas de confrontos.
+Bem-vindo à **Footmatch API**, uma robusta aplicação Spring Boot projetada para gerenciar dados de partidas de futebol, incluindo clubes, estádios e estatísticas de confrontos. A API utiliza uma arquitetura moderna e desacoplada com Apache Kafka para garantir alta performance e resiliência.
 
-## 💻  Tecnologias Utilizadas
+---
 
-- **Java 21**
-- **Spring Boot 3**
-- **Spring Data JPA**
-- **Kafka**
-- **MySQL**
-- **Docker**
-- **SpringDoc OpenAPI** para documentação da API
+## ✨ Principais Funcionalidades
 
-## 🚀  Como Começar
+- **Gerenciamento de Entidades**: CRUD completo para Clubes, Estádios e Partidas.
+- **Processamento Assíncrono**: Utiliza Kafka para processar a criação e atualização de entidades em segundo plano, proporcionando uma resposta de API mais rápida.
+- **Sistema de Alertas com DLT**: Monitora tópicos de Dead Letter (DLT) no Kafka e envia notificações por e-mail quando um número configurável de mensagens falha, permitindo uma análise proativa de erros.
+- **Validação Robusta**: Regras de negócio e validação de dados para garantir a integridade das informações.
+- **Documentação Interativa**: API totalmente documentada com Swagger (OpenAPI 3).
 
-Esta seção guiará você na configuração e execução do projeto em seu ambiente local.
+---
 
-### ✅  Pré-requisitos
+## 💻 Tecnologias Utilizadas
 
-- **Java 21**
-- **Maven**
+| Categoria         | Tecnologia                                                                                                 |
+| ----------------- | ---------------------------------------------------------------------------------------------------------- |
+| **Backend**       | Java 21, Spring Boot 3, Spring Data JPA, Hibernate                                                         |
+| **Mensageria**    | Apache Kafka                                                                                               |
+| **Banco de Dados**| MySQL                                                                                                      |
+| **Testes**        | JUnit 5, Mockito                                                                                           |
+| **Documentação**  | SpringDoc OpenAPI (Swagger)                                                                                |
+| **Container**     | Docker, Docker Compose                                                                                     |
+| **Build**         | Maven                                                                                                      |
+
+---
+
+## 🚀 Como Executar (Ambiente de Desenvolvimento)
+
+Siga os passos abaixo para configurar e executar o projeto em seu ambiente local.
+
+### ✅ Pré-requisitos
+
+- **Java 21** (ou superior)
 - **Docker** e **Docker Compose**
+- **Maven**
 
-### 🛠️  Passos para Execução
+### 🛠️ Passos para Execução
 
 1.  **Clone o repositório:**
     ```sh
@@ -30,30 +46,25 @@ Esta seção guiará você na configuração e execução do projeto em seu ambi
     cd footmatch-api
     ```
 
-2.  **Inicie a infraestrutura com Docker Compose:**
+2.  **Configure as Variáveis de Ambiente:**
+    O projeto utiliza um arquivo `.env` para gerenciar segredos e configurações locais. Crie o seu a partir do template fornecido:
 
-    O arquivo `docker-compose.yml` na raiz do projeto irá configurar e iniciar todos os serviços necessários (MySQL, Kafka e Zookeeper). Execute o seguinte comando:
+    ```sh
+    cp .env.example .env
+    ```
+
+    Agora, **edite o arquivo `.env`** e preencha os valores, especialmente `MAIL_USERNAME` e `MAIL_PASSWORD`.
+
+3.  **Inicie a Infraestrutura com Docker Compose:**
+    O `docker-compose.yml` na raiz do projeto irá configurar e iniciar todos os serviços necessários (MySQL e Kafka).
 
     ```sh
     docker-compose up -d
     ```
     O `-d` executa os contêineres em modo "detached" (em segundo plano).
 
-3.  **Configure a aplicação:**
-
-    As configurações da aplicação em `src/main/resources/application.properties` devem apontar para os serviços que estão rodando no Docker. O arquivo já deve estar configurado, mas verifique se as propriedades abaixo estão corretas:
-
-    ```properties
-    # MySQL
-    spring.datasource.url=jdbc:mysql://localhost:3306/footmatchdb
-    spring.datasource.username=root
-    spring.datasource.password=root
-
-    # Kafka
-    spring.kafka.bootstrap-servers=localhost:9092
-    ```
-
-4.  **Execute a aplicação Spring Boot:**
+4.  **Execute a Aplicação Spring Boot:**
+    Você pode executar a aplicação diretamente pelo seu IDE (como IntelliJ IDEA) ou via Maven:
 
     ```sh
     ./mvnw spring-boot:run
@@ -61,7 +72,7 @@ Esta seção guiará você na configuração e execução do projeto em seu ambi
 
     A aplicação estará disponível em `http://localhost:8080`.
 
-### 🛑  Parando os Serviços
+### 🛑 Parando os Serviços
 
 Para parar todos os contêineres da infraestrutura, execute:
 
@@ -69,66 +80,47 @@ Para parar todos os contêineres da infraestrutura, execute:
 docker-compose down
 ```
 
-## 🧪 Testes
+---
 
-Para rodar a suíte de testes automatizados, execute o seguinte comando:
+## ⚙️ Configuração de Ambiente
 
-```sh
-./mvnw test
-```
+As seguintes variáveis de ambiente são utilizadas pelo projeto e devem ser definidas no arquivo `.env` para o ambiente de desenvolvimento.
 
-## 🔗  Endpoints da API
+| Variável                  | Descrição                                                                                             |
+| ------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `DB_URL`                  | URL de conexão JDBC para o banco de dados MySQL.                                                      |
+| `DB_USERNAME`             | Nome de usuário para o banco de dados.                                                                |
+| `DB_PASSWORD`             | Senha para o banco de dados.                                                                          |
+| `MAIL_USERNAME`           | Seu endereço de e-mail do Gmail usado para enviar notificações.                                       |
+| `MAIL_PASSWORD`           | **Senha de App** gerada na sua conta Google para permitir o envio de e-mails. **Não use sua senha principal.** |
+| `NOTIFICATION_EMAIL_TO`   | Endereço de e-mail que receberá os alertas de falhas da DLT.                                          |
 
-A API é documentada usando SpringDoc OpenAPI. Com a aplicação em execução, você pode acessar a interface do Swagger em:
+---
 
-`http://localhost:8080/swagger-ui.html`
+## 🏛️ Arquitetura
 
-Abaixo está um resumo dos endpoints disponíveis:
+A Footmatch API adota uma arquitetura de microsserviços orientada a eventos, utilizando o Apache Kafka como broker de mensagens para desacoplar as operações.
 
-### Clubes (`/api/v1/clubes`)
+### Fluxo de Processamento Assíncrono
 
--   `POST /`: Cria um novo clube.
--   `GET /`: Retorna uma lista paginada de clubes. Pode ser filtrada por `nome`, `siglaEstado` e `ativo`.
--   `GET /{id}`: Retorna um clube específico pelo seu ID.
--   `PUT /{id}`: Atualiza um clube existente.
--   `DELETE /{id}`: Inativa um clube.
+1.  **Requisição**: O cliente envia uma requisição para um endpoint (ex: `POST /api/v1/clubes`).
+2.  **Validação e Produção**: O Controller valida a requisição e, em vez de salvar diretamente no banco, produz uma mensagem com os dados para um tópico Kafka (ex: `clubes-criacao`).
+3.  **Consumo e Persistência**: Um `Consumer` Kafka escuta o tópico, processa a mensagem e persiste a entidade no banco de dados.
 
-### Estádios (`/api/v1/estadios`)
+Este padrão melhora a latência da API e aumenta a resiliência do sistema.
 
--   `POST /`: Cria um novo estádio.
--   `GET /`: Retorna uma lista paginada de estádios. Pode ser filtrada por `nome`.
--   `GET /{id}`: Retorna um estádio específico pelo seu ID.
--   `PUT /{id}`: Atualiza um estádio existente.
+### Sistema de Dead Letter Topic (DLT)
 
-### Partidas (`/api/v1/partidas`)
+- **Detecção de Falhas**: Se um consumidor não consegue processar uma mensagem (devido a um erro de validação, bug, etc.), a mensagem é automaticamente enviada para um tópico de "cartas mortas" (DLT) correspondente.
+- **Monitoramento e Alerta**: Uma tarefa agendada (`KafkaTopicMonitorTask`) verifica periodicamente os tópicos DLT. Se o número de mensagens em uma DLT atinge um limite configurado (`kafka.dlt.message-threshold`), um relatório detalhado é gerado e enviado por e-mail para o endereço em `NOTIFICATION_EMAIL_TO`.
 
--   `POST /`: Cria uma nova partida.
--   `GET /`: Retorna uma lista paginada de partidas. Pode ser filtrada por `clubeId`, `estadioId`, `goleada` e `papel` (ex: mandante/visitante).
--   `GET /{id}`: Retorna uma partida específica pelo seu ID.
--   `PUT /{id}`: Atualiza uma partida existente.
--   `DELETE /{id}`: Deleta uma partida.
+---
 
-### Retrospectos (`/api/v1/retrospectos`)
+## 📚 Documentação da API (Swagger)
 
--   `GET /{id}`: Retorna as estatísticas gerais de um clube.
--   `GET /{id}/contra-adversarios`: Retorna o retrospecto de um clube contra todos os seus adversários.
--   `GET /{clubeId}/confrontos-diretos/{adversarioId}`: Retorna o confronto direto entre dois clubes.
--   `GET /ranking`: Retorna um ranking de clubes com base em diferentes critérios (`pontos`, `vitorias`, etc.).
+A API é totalmente documentada usando SpringDoc OpenAPI. Com a aplicação em execução, você pode acessar a interface interativa do Swagger em:
 
-## 📨  Comunicação com Kafka
+[**http://localhost:8080/swagger-ui.html**](http://localhost:8080/swagger-ui.html)
 
-A aplicação utiliza o Kafka para comunicação assíncrona, notificando outros sistemas sobre a criação, atualização e exclusão de entidades. Abaixo estão os tópicos utilizados:
+Nesta interface, você pode visualizar todos os endpoints, seus parâmetros, e testá-los diretamente.
 
-### Tópicos de Clubes
--   `clubes-criacao`: Notifica a criação de um novo clube.
--   `clubes-atualizacao`: Notifica a atualização de um clube existente.
--   `clubes-exclusao`: Notifica a inativação de um clube.
-
-### Tópicos de Estádios
--   `estadios-criacao`: Notifica a criação de um novo estádio.
--   `estadios-atualizacao`: Notifica a atualização de um estádio existente.
-
-### Tópicos de Partidas
--   `partidas-criacao`: Notifica a criação de uma nova partida.
--   `partidas-atualizacao`: Notifica a atualização de uma partida existente.
--   `partidas-exclusao`: Notifica a exclusão de uma partida.
