@@ -16,6 +16,6 @@ public class EstadioRequestDTO {
 
     @NotBlank(message = "O CEP do estádio é obrigatório.")
     @Pattern(regexp = "\\d{8}", message = "O CEP deve conter 8 dígitos numéricos.")
-    @Schema(description = "CEP do estádio.", example = "93300-000", required = true)
+    @Schema(description = "CEP do estádio.", example = "93300000", required = true)
     private String cep;
 }
