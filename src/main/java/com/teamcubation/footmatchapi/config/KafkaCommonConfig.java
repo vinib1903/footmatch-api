@@ -50,26 +50,8 @@ public class KafkaCommonConfig {
     }
 
     @Bean
-    public ProducerFactory<String, Object> producerFactory() {
-        Map<String, Object> config = new HashMap<>();
-        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-        return new DefaultKafkaProducerFactory<>(config);
-    }
-
-    @Bean
     public KafkaTemplate<String, Object> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
-    }
-
-    @Bean
-    public ProducerFactory<String, String> stringProducerFactory() {
-        Map<String, Object> config = new HashMap<>();
-        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        return new DefaultKafkaProducerFactory<>(config);
     }
 
     @Bean(name = "stringKafkaTemplate")
@@ -77,15 +59,42 @@ public class KafkaCommonConfig {
         return new KafkaTemplate<>(stringProducerFactory());
     }
 
+    @Bean
+    public ProducerFactory<String, Object> producerFactory() {
+        Map<String, Object> configs = new HashMap<>();
+        configs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        configs.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+        return new DefaultKafkaProducerFactory<>(configs);
+    }
+
+    @Bean
+    public ProducerFactory<String, String> stringProducerFactory() {
+        Map<String, Object> configs = new HashMap<>();
+        configs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        configs.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        return new DefaultKafkaProducerFactory<>(configs);
+    }
+
     private <T> ConsumerFactory<String, T> consumerFactory(Class<T> clazz, String groupId) {
         JsonDeserializer<T> deserializer = new JsonDeserializer<>(clazz, false);
         deserializer.addTrustedPackages("com.teamcubation.footmatchapi.dto.**");
-        Map<String, Object> config = new HashMap<>();
-        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
-        config.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        return new DefaultKafkaConsumerFactory<>(config, new StringDeserializer(), deserializer);
+        Map<String, Object> configs = new HashMap<>();
+        configs.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        configs.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        configs.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        configs.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        return new DefaultKafkaConsumerFactory<>(configs, new StringDeserializer(), deserializer);
+    }
+
+    @Bean
+    public ConsumerFactory<String, String> stringConsumerFactory() {
+        Map<String, Object> configs = new HashMap<>();
+        configs.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        configs.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        configs.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        return new DefaultKafkaConsumerFactory<>(configs);
     }
 
     private <T> ConcurrentKafkaListenerContainerFactory<String, T> kafkaListenerContainerFactory(Class<T> clazz, String groupId, DefaultErrorHandler errorHandler) {
@@ -93,34 +102,6 @@ public class KafkaCommonConfig {
         factory.setConsumerFactory(consumerFactory(clazz, groupId));
         factory.setCommonErrorHandler(errorHandler);
         return factory;
-    }
-
-    @Bean
-    public ConsumerFactory<String, String> stringConsumerFactory() {
-        Map<String, Object> config = new HashMap<>();
-        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        return new DefaultKafkaConsumerFactory<>(config);
-    }
-
-    @Bean
-    public DefaultErrorHandler errorHandler(KafkaTemplate<String, Object> template) {
-        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(template,
-                (consumerRecord, exception) -> new TopicPartition(consumerRecord.topic() + ".DLT", -1));
-        FixedBackOff backOff = new FixedBackOff(3000, 3);
-        DefaultErrorHandler errorHandler = new DefaultErrorHandler(recoverer, backOff);
-        errorHandler.setLogLevel(KafkaException.Level.ERROR);
-        return errorHandler;
-    }
-
-    @Bean
-    public DefaultErrorHandler dltErrorHandler() {
-        DefaultErrorHandler errorHandler = new DefaultErrorHandler((consumerRecord, exception) -> {
-            log.error("Erro crítico ao processar mensagem da DLT. A mensagem será descartada. Record: {}", consumerRecord, exception);
-        });
-        errorHandler.setLogLevel(KafkaException.Level.ERROR);
-        return errorHandler;
     }
 
     @Bean
@@ -153,10 +134,29 @@ public class KafkaCommonConfig {
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "dlt-group"); // Um grupo único para todos os listeners de DLT
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "dlt-group");
 
         factory.setConsumerFactory(new DefaultKafkaConsumerFactory<>(props));
         factory.setCommonErrorHandler(dltErrorHandler);
         return factory;
+    }
+
+    @Bean
+    public DefaultErrorHandler errorHandler(KafkaTemplate<String, Object> template) {
+        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(template,
+                (consumerRecord, exception) -> new TopicPartition(consumerRecord.topic() + ".DLT", -1));
+        FixedBackOff backOff = new FixedBackOff(3000, 3);
+        DefaultErrorHandler errorHandler = new DefaultErrorHandler(recoverer, backOff);
+        errorHandler.setLogLevel(KafkaException.Level.ERROR);
+        return errorHandler;
+    }
+
+    @Bean
+    public DefaultErrorHandler dltErrorHandler() {
+        DefaultErrorHandler errorHandler = new DefaultErrorHandler((consumerRecord, exception) -> {
+            log.error("Erro crítico ao processar mensagem da DLT. A mensagem será descartada. Record: {}", consumerRecord, exception);
+        });
+        errorHandler.setLogLevel(KafkaException.Level.ERROR);
+        return errorHandler;
     }
 }
