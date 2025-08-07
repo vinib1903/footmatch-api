@@ -37,7 +37,12 @@ public class EstadioController {
             })
     public ResponseEntity<Page<EstadioResponseDTO>> searchEstadios(
             @Parameter(description = "Nome do estádio para filtrar (opcional)") @RequestParam(required = false) String nome,
-            @Parameter(description = "Configuração da paginação (tamanho da página, ordenação)") @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
+            @Parameter(description = "Configuração da paginação (tamanho da página, ordenação)", example = "{\n" +
+                    "  \"page\": 0,\n" +
+                    "  \"size\": 10,\n" +
+                    "  \"sort\": \"nome,asc\"\n" +
+                    "}")
+            @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
 
         Page<EstadioResponseDTO> page = estadioService.obterEstadios(nome, pageable);
         return ResponseEntity.ok(page);

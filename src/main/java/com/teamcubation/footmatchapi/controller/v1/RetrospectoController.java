@@ -97,7 +97,12 @@ public class RetrospectoController {
             })
     public ResponseEntity<Page<RankingResponseDTO>> getRanking(
             @Parameter(description = "Critério de ordenação (ex: pontos, vitorias)", example = "pontos", required = false) @RequestParam(defaultValue = "pontos") String criterio,
-            @Parameter(description = "Parâmetros de paginação (tamanho da página, ordenação, etc.)") @PageableDefault(size = 10) Pageable pageable) {
+            @Parameter(description = "Parâmetros de paginação (tamanho da página, ordenação, etc.)", example = "{\n" +
+                    "  \"page\": 0,\n" +
+                    "  \"size\": 10,\n" +
+                    "  \"sort\": \"pontos,desc\"\n" +
+                    "}")
+            @PageableDefault(size = 10) Pageable pageable) {
 
         Page<RankingResponseDTO> page = retrospectoService.obterRanking(criterio, pageable);
         return ResponseEntity.ok(page);
