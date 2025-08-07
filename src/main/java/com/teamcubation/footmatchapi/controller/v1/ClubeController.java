@@ -39,7 +39,12 @@ public class ClubeController {
             @Parameter(description = "Nome do clube para filtrar (opcional)") @RequestParam(required = false) String nome,
             @Parameter(description = "Sigla do estado para filtrar (opcional)") @RequestParam(required = false) String siglaEstado,
             @Parameter(description = "Status do clube (ativo/inativo) para filtrar (opcional)") @RequestParam(required = false) Boolean ativo,
-            @Parameter(description = "Configuração da paginação (tamanho da página, ordenação)") @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
+            @Parameter(description = "Configuração da paginação (tamanho da página, ordenação)", example = "{\n" +
+                    "  \"page\": 0,\n" +
+                    "  \"size\": 10,\n" +
+                    "  \"sort\": \"nome,desc\"\n" +
+                    "}")
+            @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
 
         Page<ClubeResponseDTO> page = clubeService.obterClubes(nome, siglaEstado, ativo, pageable);
         return ResponseEntity.ok(page);

@@ -44,7 +44,12 @@ public class PartidaController {
             @Parameter(description = "ID do estádio para filtrar (opcional)") @RequestParam(required = false, name = "estadioId") Long estadioId,
             @Parameter(description = "Indica se a partida foi uma goleada (opcional)") @RequestParam(required = false) Boolean goleada,
             @Parameter(description = "Papel na partida (opcional)") @RequestParam(required = false) String papel,
-            @Parameter(description = "Configuração da paginação (tamanho, ordenação, etc.)") @PageableDefault(size = 10, sort = "dataHora", direction = Sort.Direction.DESC) Pageable pageable) {
+            @Parameter(description = "Configuração da paginação (tamanho, ordenação, etc.)", example = "{\n" +
+                    "  \"page\": 0,\n" +
+                    "  \"size\": 10,\n" +
+                    "  \"sort\": \"dataHora,desc\"\n" +
+                    "}")
+            @PageableDefault(size = 10, sort = "dataHora", direction = Sort.Direction.DESC) Pageable pageable) {
 
         Page<PartidaResponseDTO> page = partidaService.obterPartidas(clubeId, estadioId, goleada, papel, pageable);
         return ResponseEntity.ok(page);
