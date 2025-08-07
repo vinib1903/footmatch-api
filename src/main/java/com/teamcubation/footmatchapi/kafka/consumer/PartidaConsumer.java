@@ -1,13 +1,15 @@
 package com.teamcubation.footmatchapi.kafka.consumer;
 
 import com.teamcubation.footmatchapi.dto.request.PartidaRequestDTO;
-import com.teamcubation.footmatchapi.service.PartidaService;
+import com.teamcubation.footmatchapi.service.kafka.NotificationServiceKafka;
+import com.teamcubation.footmatchapi.service.partida.PartidaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.annotation.DltHandler;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import static org.springframework.kafka.support.KafkaHeaders.RECEIVED_KEY;
 
@@ -17,6 +19,7 @@ import static org.springframework.kafka.support.KafkaHeaders.RECEIVED_KEY;
 public class PartidaConsumer {
 
     private final PartidaService partidaService;
+    private final NotificationServiceKafka notificationServiceKafka;
 
     @KafkaListener(
             topics = "partidas-criacao",
@@ -24,20 +27,8 @@ public class PartidaConsumer {
             containerFactory = "partidaRequestKafkaListenerContainerFactory"
     )
     public void consumirPartidaCriacao(PartidaRequestDTO partidaDTO) {
-
-//        try {
-            partidaService.criarPartida(partidaDTO);
-            log.info("Partida consumida e salva com sucesso: {}", partidaDTO);
-//        } catch (ResponseStatusException ex) {
-//
-//            log.warn("Erro ao salvar partida do Kafka (status={}): {}", ex.getStatusCode(), ex.getReason());
-//        } catch (IllegalArgumentException ex) {
-//
-//            log.warn("Erro ao salvar partida do Kafka: {}", ex.getMessage());
-//        } catch (Exception ex) {
-//
-//            log.error("Erro inesperado ao salvar partida do Kafka", ex);
-//        }
+        partidaService.criarPartida(partidaDTO);
+        log.info("Partida consumida e salva com sucesso: {}", partidaDTO);
     }
 
     @KafkaListener(
@@ -46,20 +37,8 @@ public class PartidaConsumer {
             containerFactory = "partidaRequestKafkaListenerContainerFactory"
     )
     public void consumirPartidaAtualizacao(@Header(RECEIVED_KEY) String id, PartidaRequestDTO partidaDTO) {
-
-        try {
-            partidaService.atualizarPartida(Long.valueOf(id), partidaDTO);
-            log.info("Partida consumida e atualizada com sucesso: {}", partidaDTO);
-        } catch (ResponseStatusException ex) {
-
-            log.warn("Erro ao atualizar partida do Kafka (status={}): {}", ex.getStatusCode(), ex.getReason());
-        } catch (IllegalArgumentException ex) {
-
-            log.warn("Erro ao atualizar partida do Kafka: {}", ex.getMessage());
-        } catch (Exception ex) {
-
-            log.error("Erro inesperado ao atualizar partida do Kafka", ex);
-        }
+        partidaService.atualizarPartida(Long.valueOf(id), partidaDTO);
+        log.info("Partida consumida e atualizada com sucesso: {}", partidaDTO);
     }
 
     @KafkaListener(
@@ -68,31 +47,28 @@ public class PartidaConsumer {
             containerFactory = "stringKafkaListenerContainerFactory"
     )
     public void consumirPartidaExclusao(@Header(RECEIVED_KEY) String id) {
-
-        try {
-            partidaService.deletarPartida(Long.valueOf(id));
-            log.info("Partida consumida e excluída com sucesso: {}", id);
-        } catch (ResponseStatusException ex) {
-
-            log.warn("Erro ao excluir partida do Kafka (status={}): {}", ex.getStatusCode(), ex.getReason());
-        } catch (IllegalArgumentException ex) {
-
-            log.warn("Erro ao excluir partida do Kafka: {}", ex.getMessage());
-        } catch (Exception ex) {
-
-            log.error("Erro inesperado ao excluir partida do Kafka", ex);
-        }
+        partidaService.deletarPartida(Long.valueOf(id));
+        log.info("Partida consumida e excluída com sucesso: {}", id);
     }
 
-    @KafkaListener(
-            topics = "partidas-criacao.DLT",
-            groupId = "partida-group-dlt",
-            containerFactory = "dltKafkaListenerContainerFactory"
-    )
-    public void consumirPartidaCriacaoDLT(PartidaRequestDTO partidaDTO) {
+    @DltHandler
+    public void dltHandler(String message, 
+                           @Header(KafkaHeaders.DLT_ORIGINAL_TOPIC) String originalTopic, 
+                           @Header(KafkaHeaders.DLT_EXCEPTION_MESSAGE) String exceptionMessage) {
+        
+        String cleanedReason = exceptionMessage;
+        int colonIndex = exceptionMessage.indexOf(':');
+        if (colonIndex != -1) {
+            cleanedReason = exceptionMessage.substring(colonIndex + 1).trim();
+        }
 
-        log.error("MENSAGEM NA DLT: A partida a seguir falhou em todas as tentativas de processamento: {}", partidaDTO);
-        // Aqui você pode implementar a lógica para tratar a mensagem com falha,
-        // como salvar em um banco de dados para análise posterior ou notificar um sistema de monitoramento.
+        String errorMessage = String.format(
+                "Uma mensagem falhou em todas as tentativas de processamento e foi para a DLT.\n\n" +
+                "Tópico Original: %s\n\n" +
+                "Payload: %s\n\n" +
+                "Motivo da Falha: %s\n\n",
+                originalTopic, message, cleanedReason
+        );
+        log.error("MENSAGEM NA DLT: {}\n", errorMessage);
     }
 }

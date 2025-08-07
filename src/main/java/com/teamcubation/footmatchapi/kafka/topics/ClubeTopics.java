@@ -14,14 +14,32 @@ public class ClubeTopics {
     }
 
     @Bean
+    public NewTopic clubesCriacaoDltTopic() {
+
+        return new NewTopic("clubes-criacao.DLT", 2, (short) 1);
+    }
+
+    @Bean
     public NewTopic clubesAtualizacaoTopic() {
 
         return new NewTopic("clubes-atualizacao", 2, (short) 1);
     }
 
     @Bean
+    public NewTopic clubesAtualizacaoDltTopic() {
+
+        return new NewTopic("clubes-atualizacao.DLT", 2, (short) 1);
+    }
+
+    @Bean
     public NewTopic clubesExclusaoTopic() {
 
         return new NewTopic("clubes-exclusao", 2, (short) 1);
+    }
+
+    @Bean
+    public NewTopic clubesExclusaoDltTopic() {
+
+        return new NewTopic("clubes-exclusao.DLT", 2, (short) 1);
     }
 }

@@ -2,6 +2,7 @@ package com.teamcubation.footmatchapi.handler;
 
 import com.teamcubation.footmatchapi.dto.response.ErroResponseDTO;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,6 +20,7 @@ public class GlobalExceptionHandler {
                 .toList();
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(new ErroResponseDTO(HttpStatus.BAD_REQUEST.value(), messages));
     }
 
@@ -26,6 +28,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErroResponseDTO> handleResponseStatusException(ResponseStatusException ex) {
         return ResponseEntity
                 .status(ex.getStatusCode())
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(new ErroResponseDTO(ex.getStatusCode().value(), List.of(ex.getReason())));
     }
 
@@ -33,6 +36,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErroResponseDTO> handleIllegalArgumentException(IllegalArgumentException ex) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(new ErroResponseDTO(HttpStatus.BAD_REQUEST.value(), List.of(ex.getMessage())));
     }
 
@@ -40,6 +44,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErroResponseDTO> handleGenericException(Exception ex) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(new ErroResponseDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), List.of(ex.getMessage())));
     }
 }

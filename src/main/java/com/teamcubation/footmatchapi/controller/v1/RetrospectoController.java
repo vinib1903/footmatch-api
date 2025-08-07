@@ -1,7 +1,7 @@
 package com.teamcubation.footmatchapi.controller.v1;
 
 import com.teamcubation.footmatchapi.dto.response.*;
-import com.teamcubation.footmatchapi.service.RetrospectoService;
+import com.teamcubation.footmatchapi.service.retrospecto.RetrospectoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

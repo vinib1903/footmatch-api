@@ -14,9 +14,21 @@ public class PartidaTopics {
     }
 
     @Bean
+    public NewTopic partidasCriacaoDltTopic() {
+
+        return new NewTopic("partidas-criacao.DLT", 2, (short) 1);
+    }
+
+    @Bean
     public NewTopic partidasAtualizacaoTopic() {
 
         return new NewTopic("partidas-atualizacao", 2, (short) 1);
+    }
+
+    @Bean
+    public NewTopic partidasAtualizacaoDltTopic() {
+
+        return new NewTopic("partidas-atualizacao.DLT", 2, (short) 1);
     }
 
     @Bean
@@ -26,7 +38,8 @@ public class PartidaTopics {
     }
 
     @Bean
-    public NewTopic partidasCriacaoDltTopic() {
-        return new NewTopic("partidas-criacao.DLT", 2, (short) 1);
+    public NewTopic partidasExclusaoDltTopic() {
+
+        return new NewTopic("partidas-exclusao.DLT", 2, (short) 1);
     }
 }

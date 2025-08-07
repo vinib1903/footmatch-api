@@ -3,7 +3,7 @@ package com.teamcubation.footmatchapi.controller.v1;
 import com.teamcubation.footmatchapi.dto.request.PartidaRequestDTO;
 import com.teamcubation.footmatchapi.dto.response.ErroResponseDTO;
 import com.teamcubation.footmatchapi.dto.response.PartidaResponseDTO;
-import com.teamcubation.footmatchapi.service.PartidaService;
+import com.teamcubation.footmatchapi.service.partida.PartidaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

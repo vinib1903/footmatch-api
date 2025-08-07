@@ -1,4 +1,4 @@
-package com.teamcubation.footmatchapi.service;
+package com.teamcubation.footmatchapi.service.partida;
 
 import com.teamcubation.footmatchapi.domain.entities.Clube;
 import com.teamcubation.footmatchapi.domain.entities.Estadio;
@@ -7,6 +7,8 @@ import com.teamcubation.footmatchapi.dto.request.PartidaRequestDTO;
 import com.teamcubation.footmatchapi.dto.response.PartidaResponseDTO;
 import com.teamcubation.footmatchapi.mapper.PartidaMapper;
 import com.teamcubation.footmatchapi.repository.PartidaRepository;
+import com.teamcubation.footmatchapi.service.clube.ClubeService;
+import com.teamcubation.footmatchapi.service.estadio.EstadioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
