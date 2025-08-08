@@ -19,7 +19,7 @@ public class PartidaTopics {
         return TopicBuilder.name("partidas-criacao.DLT")
                 .partitions(2)
                 .replicas(1)
-                .config("retention.ms", "86400000") // 24 horas
+                .config("retention.ms", "86400000")
                 .build();
     }
 
@@ -34,7 +34,7 @@ public class PartidaTopics {
         return TopicBuilder.name("partidas-atualizacao.DLT")
                 .partitions(2)
                 .replicas(1)
-                .config("retention.ms", "86400000") // 24 horas
+                .config("retention.ms", "86400000")
                 .build();
     }
 

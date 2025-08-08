@@ -19,7 +19,7 @@ public class NotificationTopics {
         return TopicBuilder.name("notifications.DLT")
                 .partitions(2)
                 .replicas(1)
-                .config("retention.ms", "86400000") // 24 horas
+                .config("retention.ms", "86400000")
                 .build();
     }
 }
