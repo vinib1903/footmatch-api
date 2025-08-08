@@ -1,11 +1,11 @@
 package com.teamcubation.footmatchapi.kafka.consumer;
 
 import com.teamcubation.footmatchapi.dto.request.EstadioRequestDTO;
+import com.teamcubation.footmatchapi.dto.response.EstadioResponseDTO;
 import com.teamcubation.footmatchapi.service.estadio.EstadioService;
 import com.teamcubation.footmatchapi.service.kafka.NotificationServiceKafka;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.springframework.kafka.annotation.DltHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
@@ -29,7 +29,8 @@ public class EstadioConsumer {
     )
     public void consumirEstadioCriacao(EstadioRequestDTO dto) {
         log.info("Consumindo mensagem para criar estádio: {}", dto);
-        estadioService.criarEstadio(dto);
+        EstadioResponseDTO estadioCriado = estadioService.criarEstadio(dto);
+        notificationServiceKafka.sendNotification("Novo estádio criado: " + estadioCriado.getNome() + " - " + estadioCriado.getEndereco().getLocalidade() + "/" + estadioCriado.getEndereco().getUf());
         log.info("Estadio consumido e salvo com sucesso: {}", dto);
     }
 
@@ -42,23 +43,5 @@ public class EstadioConsumer {
         log.info("Consumindo mensagem para atualizar estádio: {}", dto);
         estadioService.atualizarEstadio(Long.valueOf(id), dto);
         log.info("Estadio consumido e atualizado com sucesso: {}", dto);
-    }
-
-    @DltHandler
-    public void dltHandler(String message, @Header(KafkaHeaders.DLT_ORIGINAL_TOPIC) String originalTopic, @Header(KafkaHeaders.DLT_EXCEPTION_MESSAGE) String exceptionMessage) {
-        String cleanedReason = exceptionMessage;
-        int colonIndex = exceptionMessage.indexOf(':');
-        if (colonIndex != -1) {
-            cleanedReason = exceptionMessage.substring(colonIndex + 1).trim();
-        }
-
-        String errorMessage = String.format(
-                "Uma mensagem falhou em todas as tentativas de processamento e foi para a DLT.\n\n" +
-                        "Tópico Original: %s\n\n" +
-                        "Payload: %s\n\n" +
-                        "Motivo da Falha: %s\n\n",
-                originalTopic, message, cleanedReason
-        );
-        log.error("MENSAGEM NA DLT: {}\n", errorMessage);
     }
 }

@@ -1,6 +1,7 @@
 package com.teamcubation.footmatchapi.kafka.topics;
 
 import org.apache.kafka.clients.admin.NewTopic;
+import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,7 +16,10 @@ public class NotificationTopics {
 
     @Bean
     public NewTopic notificationDltTopic() {
-
-        return new NewTopic("notifications.DLT", 2, (short) 1);
+        return TopicBuilder.name("notifications.DLT")
+                .partitions(2)
+                .replicas(1)
+                .config("retention.ms", "86400000") // 24 horas
+                .build();
     }
 }

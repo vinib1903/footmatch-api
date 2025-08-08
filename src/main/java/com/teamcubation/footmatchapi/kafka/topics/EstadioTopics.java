@@ -1,6 +1,7 @@
 package com.teamcubation.footmatchapi.kafka.topics;
 
 import org.apache.kafka.clients.admin.NewTopic;
+import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,7 +15,11 @@ public class EstadioTopics {
 
     @Bean
     public NewTopic estadiosCriacaoDltTopic() {
-        return new NewTopic("estadios-criacao.DLT", 2, (short) 1);
+        return TopicBuilder.name("estadios-criacao.DLT")
+                .partitions(2)
+                .replicas(1)
+                .config("retention.ms", "86400000") // 24 horas
+                .build();
     }
 
     @Bean
@@ -24,6 +29,10 @@ public class EstadioTopics {
 
     @Bean
     public NewTopic estadiosAtualizacaoDltTopic() {
-        return new NewTopic("estadios-atualizacao.DLT", 2, (short) 1);
+        return TopicBuilder.name("estadios-atualizacao.DLT")
+                .partitions(2)
+                .replicas(1)
+                .config("retention.ms", "86400000") // 24 horas
+                .build();
     }
 }
