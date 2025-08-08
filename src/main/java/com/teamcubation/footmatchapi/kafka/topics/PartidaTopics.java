@@ -1,6 +1,7 @@
 package com.teamcubation.footmatchapi.kafka.topics;
 
 import org.apache.kafka.clients.admin.NewTopic;
+import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,8 +16,11 @@ public class PartidaTopics {
 
     @Bean
     public NewTopic partidasCriacaoDltTopic() {
-
-        return new NewTopic("partidas-criacao.DLT", 2, (short) 1);
+        return TopicBuilder.name("partidas-criacao.DLT")
+                .partitions(2)
+                .replicas(1)
+                .config("retention.ms", "86400000") // 24 horas
+                .build();
     }
 
     @Bean
@@ -27,8 +31,11 @@ public class PartidaTopics {
 
     @Bean
     public NewTopic partidasAtualizacaoDltTopic() {
-
-        return new NewTopic("partidas-atualizacao.DLT", 2, (short) 1);
+        return TopicBuilder.name("partidas-atualizacao.DLT")
+                .partitions(2)
+                .replicas(1)
+                .config("retention.ms", "86400000") // 24 horas
+                .build();
     }
 
     @Bean
@@ -39,7 +46,10 @@ public class PartidaTopics {
 
     @Bean
     public NewTopic partidasExclusaoDltTopic() {
-
-        return new NewTopic("partidas-exclusao.DLT", 2, (short) 1);
+        return TopicBuilder.name("partidas-exclusao.DLT")
+                .partitions(2)
+                .replicas(1)
+                .config("retention.ms", "86400000")
+                .build();
     }
 }
