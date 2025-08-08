@@ -19,7 +19,7 @@ public class ClubeTopics {
         return TopicBuilder.name("clubes-criacao.DLT")
                 .partitions(2)
                 .replicas(1)
-                .config("retention.ms", "86400000") // 24 horas
+                .config("retention.ms", "86400000")
                 .build();
     }
 
@@ -34,7 +34,7 @@ public class ClubeTopics {
         return TopicBuilder.name("clubes-atualizacao.DLT")
                 .partitions(2)
                 .replicas(1)
-                .config("retention.ms", "86400000") // 24 horas
+                .config("retention.ms", "86400000")
                 .build();
     }
 
@@ -49,7 +49,7 @@ public class ClubeTopics {
         return TopicBuilder.name("clubes-exclusao.DLT")
                 .partitions(2)
                 .replicas(1)
-                .config("retention.ms", "86400000") // 24 horas
+                .config("retention.ms", "86400000")
                 .build();
     }
 }
