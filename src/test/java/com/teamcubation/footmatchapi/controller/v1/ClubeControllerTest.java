@@ -1,8 +1,9 @@
 package com.teamcubation.footmatchapi.controller.v1;
 
-import com.teamcubation.footmatchapi.dto.request.ClubeRequestDTO;
-import com.teamcubation.footmatchapi.dto.response.ClubeResponseDTO;
-import com.teamcubation.footmatchapi.service.clube.ClubeService;
+import com.teamcubation.footmatchapi.adapters.inbound.controller.v1.ClubeController;
+import com.teamcubation.footmatchapi.application.dto.request.ClubeRequestDTO;
+import com.teamcubation.footmatchapi.application.dto.response.ClubeResponseDTO;
+import com.teamcubation.footmatchapi.application.service.clube.ClubeService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

@@ -1,8 +1,9 @@
 package com.teamcubation.footmatchapi.controller.v2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.teamcubation.footmatchapi.dto.request.ClubeRequestDTO;
-import com.teamcubation.footmatchapi.service.kafka.ClubeServiceKafka;
+import com.teamcubation.footmatchapi.adapters.inbound.controller.v2.ClubeController;
+import com.teamcubation.footmatchapi.application.dto.request.ClubeRequestDTO;
+import com.teamcubation.footmatchapi.application.service.kafka.ClubeServiceKafka;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

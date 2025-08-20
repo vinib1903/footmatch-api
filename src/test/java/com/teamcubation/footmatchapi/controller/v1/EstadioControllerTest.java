@@ -1,9 +1,10 @@
 package com.teamcubation.footmatchapi.controller.v1;
 
-import com.teamcubation.footmatchapi.dto.request.EstadioRequestDTO;
-import com.teamcubation.footmatchapi.dto.response.EnderecoResponseDTO;
-import com.teamcubation.footmatchapi.dto.response.EstadioResponseDTO;
-import com.teamcubation.footmatchapi.service.estadio.EstadioService;
+import com.teamcubation.footmatchapi.adapters.inbound.controller.v1.EstadioController;
+import com.teamcubation.footmatchapi.application.dto.request.EstadioRequestDTO;
+import com.teamcubation.footmatchapi.application.dto.response.EnderecoResponseDTO;
+import com.teamcubation.footmatchapi.application.dto.response.EstadioResponseDTO;
+import com.teamcubation.footmatchapi.application.service.estadio.EstadioService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

@@ -1,7 +1,8 @@
 package com.teamcubation.footmatchapi.controller.v1;
 
-import com.teamcubation.footmatchapi.dto.response.*;
-import com.teamcubation.footmatchapi.service.retrospecto.RetrospectoService;
+import com.teamcubation.footmatchapi.adapters.inbound.controller.v1.RetrospectoController;
+import com.teamcubation.footmatchapi.application.dto.response.*;
+import com.teamcubation.footmatchapi.application.service.retrospecto.RetrospectoService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
