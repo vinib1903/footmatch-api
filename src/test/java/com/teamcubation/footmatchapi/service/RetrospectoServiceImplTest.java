@@ -432,16 +432,16 @@ public class RetrospectoServiceImplTest {
         when(partidaJpaRepository.findAllByClubes(gremio, botafogo))
                 .thenReturn(partidas);
 
-        when(partidaMapper.toDto(partida1))
+        when(partidaMapper.EntityToDto(partida1))
                 .thenReturn(partida1Dto);
 
-        when(partidaMapper.toDto(partida2))
+        when(partidaMapper.EntityToDto(partida2))
                 .thenReturn(partida2Dto);
 
-        when(partidaMapper.toDto(partida3))
+        when(partidaMapper.EntityToDto(partida3))
                 .thenReturn(partida3Dto);
 
-        when(partidaMapper.toDto(partida4))
+        when(partidaMapper.EntityToDto(partida4))
                 .thenReturn(partida4Dto);
 
         var result = retrospectoServiceImpl.obterConfrontoDireto(1L, 2L, null);
@@ -462,10 +462,10 @@ public class RetrospectoServiceImplTest {
         verify(clubeJpaRepository, times(1)).findById(1L);
         verify(clubeJpaRepository, times(1)).findById(2L);
         verify(partidaJpaRepository, times(1)).findAllByClubes(gremio, botafogo);
-        verify(partidaMapper, times(1)).toDto(partida1);
-        verify(partidaMapper, times(1)).toDto(partida2);
-        verify(partidaMapper, times(1)).toDto(partida3);
-        verify(partidaMapper, times(1)).toDto(partida4);
+        verify(partidaMapper, times(1)).EntityToDto(partida1);
+        verify(partidaMapper, times(1)).EntityToDto(partida2);
+        verify(partidaMapper, times(1)).EntityToDto(partida3);
+        verify(partidaMapper, times(1)).EntityToDto(partida4);
     }
 
     @Test

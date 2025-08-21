@@ -165,7 +165,7 @@ public class RetrospectoServiceImpl implements RetrospectoUseCases {
         );
 
         List<PartidaResponseDTO> partidaDTOs = partidas.stream()
-                .map(partidaMapper::toDto)
+                .map(partidaMapper::EntityToDto)
                 .collect(Collectors.toList());
 
         return ConfrontoDiretoResponseDTO.builder()

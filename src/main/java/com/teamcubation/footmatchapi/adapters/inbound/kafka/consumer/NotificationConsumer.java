@@ -1,8 +1,8 @@
 package com.teamcubation.footmatchapi.adapters.inbound.kafka.consumer;
 
 import com.teamcubation.footmatchapi.application.dto.request.EmailContentDTO;
-import com.teamcubation.footmatchapi.application.service.email.EmailService;
 import com.teamcubation.footmatchapi.application.service.email.strategy.NotificationStrategy;
+import com.teamcubation.footmatchapi.application.usecase.EmailUseCases;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -16,7 +16,7 @@ import java.util.List;
 public class NotificationConsumer {
 
     private final List<NotificationStrategy> notificationStrategies;
-    private final EmailService emailService;
+    private final EmailUseCases emailUseCases;
 
     @KafkaListener(topics = "notifications",
             groupId = "notification-group",
@@ -30,7 +30,7 @@ public class NotificationConsumer {
                 .ifPresentOrElse(
                         strategy -> {
                             EmailContentDTO emailContent = strategy.createEmail(message);
-                            emailService.sendEmail(
+                            emailUseCases.sendEmail(
                                     emailContent.getTo(),
                                     emailContent.getSubject(),
                                     emailContent.getBody()
