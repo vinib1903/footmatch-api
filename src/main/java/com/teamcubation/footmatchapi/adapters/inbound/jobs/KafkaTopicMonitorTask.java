@@ -1,6 +1,6 @@
 package com.teamcubation.footmatchapi.adapters.inbound.jobs;
 
-import com.teamcubation.footmatchapi.application.service.kafka.NotificationServiceKafka;
+import com.teamcubation.footmatchapi.application.ports.out.NotificationPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.AdminClient;
@@ -12,8 +12,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 public class KafkaTopicMonitorTask {
 
     private final AdminClient adminClient;
-    private final NotificationServiceKafka notificationServiceKafka;
+    private final NotificationPort notificationPort;
     private final KafkaProperties kafkaProperties;
 
     @Value("${kafka.dlt.topics-to-monitor}")
@@ -63,13 +63,13 @@ public class KafkaTopicMonitorTask {
                     if (messageCount > 0) {
                         hasMessages = true;
                         totalMessages += messageCount;
-                        
+
                         log.info("Tópico {} contém {} mensagens para o relatório", topicName, messageCount);
-                        
+
                         consolidatedReport.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
                         consolidatedReport.append("TÓPICO: ").append(topicName).append(" (").append(messageCount).append(" mensagens)\n");
                         consolidatedReport.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
-                        
+
                         String topicReport = createDltReport(topicName);
                         consolidatedReport.append(topicReport).append("\n\n");
                     }
@@ -87,25 +87,25 @@ public class KafkaTopicMonitorTask {
                 consolidatedReport.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 
                 String notificationMessage = "Relatório Diário DLT:\n\n" + consolidatedReport.toString();
-                notificationServiceKafka.sendNotification(notificationMessage);
-                
+                notificationPort.sendNotification(notificationMessage);
+
                 log.info("Relatório diário DLT enviado com {} mensagens de {} tópicos", totalMessages, dltTopics.size());
             } else {
                 consolidatedReport.append("✅ SISTEMA LIMPO - Nenhuma mensagem DLT encontrada\n\n");
                 consolidatedReport.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
                 consolidatedReport.append("RESUMO: Todos os ").append(dltTopics.size()).append(" tópicos DLT monitorados estão limpos\n");
                 consolidatedReport.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
-                
+
                 String notificationMessage = "Relatório Diário DLT - Status Limpo:\n\n" + consolidatedReport.toString();
-                notificationServiceKafka.sendNotification(notificationMessage);
-                
+                notificationPort.sendNotification(notificationMessage);
+
                 log.info("Relatório diário DLT enviado - status limpo (0 mensagens DLT)");
             }
 
         } catch (InterruptedException | ExecutionException e) {
             log.error("Erro ao gerar relatório diário DLT", e);
         }
-        
+
         log.info("Geração do relatório diário DLT concluída");
     }
 
@@ -158,7 +158,7 @@ public class KafkaTopicMonitorTask {
                     cleanedReason = exceptionMessage.substring(lastSemicolonIndex + 1).trim();
                 }
 
-                reportBuilder.append(String.format("📋 Mensagem #%d (Partição: %d, Offset: %d)\n", 
+                reportBuilder.append(String.format("📋 Mensagem #%d (Partição: %d, Offset: %d)\n",
                         messageNumber++, record.partition(), record.offset()));
                 reportBuilder.append(String.format("   🎯 Tópico de Origem: %s\n", originalTopic));
                 reportBuilder.append(String.format("   📄 Payload: %s\n", record.value()));

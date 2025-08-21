@@ -1,16 +1,18 @@
 package com.teamcubation.footmatchapi.application.service.partida;
 
+import com.teamcubation.footmatchapi.application.ports.out.PartidaEventsPort;
+import com.teamcubation.footmatchapi.application.usecase.ClubeUseCases;
+import com.teamcubation.footmatchapi.application.usecase.EstadioUseCases;
 import com.teamcubation.footmatchapi.application.usecase.PartidaUseCases;
 import com.teamcubation.footmatchapi.domain.entities.Clube;
 import com.teamcubation.footmatchapi.domain.entities.Estadio;
 import com.teamcubation.footmatchapi.domain.entities.Partida;
 import com.teamcubation.footmatchapi.application.dto.request.PartidaRequestDTO;
 import com.teamcubation.footmatchapi.application.dto.response.PartidaResponseDTO;
-import com.teamcubation.footmatchapi.domain.interfaces.PartidaRepository;
+import com.teamcubation.footmatchapi.application.ports.out.PartidaRepository;
 import com.teamcubation.footmatchapi.utils.mapper.PartidaMapper;
 import com.teamcubation.footmatchapi.application.service.clube.ClubeServiceImpl;
 import com.teamcubation.footmatchapi.application.service.estadio.EstadioServiceImpl;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -26,23 +28,24 @@ public class PartidaServiceImpl implements PartidaUseCases {
 
     private final PartidaRepository partidaRepository;
     private final PartidaMapper partidaMapper;
-    private final EstadioServiceImpl estadioServiceImpl;
-    private final ClubeServiceImpl clubeServiceImpl;
+    private final EstadioUseCases estadioUseCases;
+    private final ClubeUseCases clubeUseCases;
+    PartidaEventsPort partidaEventsPort;
 
-    public PartidaServiceImpl(PartidaRepository partidaRepository, PartidaMapper partidaMapper, EstadioServiceImpl estadioServiceImpl, ClubeServiceImpl clubeServiceImpl) {
+    public PartidaServiceImpl(PartidaRepository partidaRepository, PartidaMapper partidaMapper, EstadioServiceImpl estadioUseCases, ClubeServiceImpl clubeUseCases) {
         this.partidaRepository = partidaRepository;
         this.partidaMapper = partidaMapper;
-        this.estadioServiceImpl = estadioServiceImpl;
-        this.clubeServiceImpl = clubeServiceImpl;
+        this.estadioUseCases = estadioUseCases;
+        this.clubeUseCases = clubeUseCases;
     }
 
     public PartidaResponseDTO criarPartida(PartidaRequestDTO dto) {
 
-        Clube mandante = clubeServiceImpl.validarExistenciaClube(dto.getMandanteId());
+        Clube mandante = clubeUseCases.validarExistenciaClube(dto.getMandanteId());
 
-        Clube visitante = clubeServiceImpl.validarExistenciaClube(dto.getVisitanteId());
+        Clube visitante = clubeUseCases.validarExistenciaClube(dto.getVisitanteId());
 
-        Estadio estadio = estadioServiceImpl.validarExistenciaEstadio(dto.getEstadioId());
+        Estadio estadio = estadioUseCases.validarExistenciaEstadio(dto.getEstadioId());
 
         validarClubesAtivos(mandante, visitante);
 
@@ -74,9 +77,9 @@ public class PartidaServiceImpl implements PartidaUseCases {
 
     public Page<PartidaResponseDTO> obterPartidas(Long clubeId, Long estadioId, Boolean goleada, String papel, Pageable pageable) {
 
-        Clube clube = (clubeId != null) ? clubeServiceImpl.validarExistenciaClube(clubeId) : null;
+        Clube clube = (clubeId != null) ? clubeUseCases.validarExistenciaClube(clubeId) : null;
 
-        Estadio estadio = (estadioId != null) ? estadioServiceImpl.validarExistenciaEstadio(estadioId) : null;
+        Estadio estadio = (estadioId != null) ? estadioUseCases.validarExistenciaEstadio(estadioId) : null;
 
         return partidaRepository.findPartidasWithFilters(clube, estadio, goleada, papel, pageable)
                 .map(partidaMapper::EntityToDto);
@@ -93,11 +96,11 @@ public class PartidaServiceImpl implements PartidaUseCases {
 
         Partida partida = validarExistenciaPartida(id);
 
-        Clube mandante = clubeServiceImpl.validarExistenciaClube(dto.getMandanteId());
+        Clube mandante = clubeUseCases.validarExistenciaClube(dto.getMandanteId());
 
-        Clube visitante = clubeServiceImpl.validarExistenciaClube(dto.getVisitanteId());
+        Clube visitante = clubeUseCases.validarExistenciaClube(dto.getVisitanteId());
 
-        Estadio estadio = estadioServiceImpl.validarExistenciaEstadio(dto.getEstadioId());
+        Estadio estadio = estadioUseCases.validarExistenciaEstadio(dto.getEstadioId());
 
         validarClubesAtivos(mandante, visitante);
 
@@ -130,6 +133,21 @@ public class PartidaServiceImpl implements PartidaUseCases {
         Partida partida = validarExistenciaPartida(id);
 
         partidaRepository.deletePartida(id);
+    }
+
+    @Override
+    public void solicitarCriacaoPartida(PartidaRequestDTO dto) {
+        partidaEventsPort.notificarCriacaoPartida(dto);
+    }
+
+    @Override
+    public void solicitarAtualizacaoPartida(Long id, PartidaRequestDTO dto) {
+        partidaEventsPort.notificarAtualizacaoPartida(id, dto);
+    }
+
+    @Override
+    public void solicitarExclusaoPartida(Long id) {
+        partidaEventsPort.notificarExclusaoPartida(id);
     }
 
     private void validarDataPartidaAnteriorCriacaoClube(Clube mandante, Clube visitante, LocalDate dataPartida) {

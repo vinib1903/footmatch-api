@@ -1,13 +1,14 @@
 package com.teamcubation.footmatchapi.application.service.clube;
 
+import com.teamcubation.footmatchapi.application.ports.out.ClubeEventsPort;
 import com.teamcubation.footmatchapi.application.dto.response.ClubeResponseDTO;
 import com.teamcubation.footmatchapi.application.usecase.ClubeUseCases;
 import com.teamcubation.footmatchapi.domain.entities.Clube;
 import com.teamcubation.footmatchapi.domain.entities.Partida;
 import com.teamcubation.footmatchapi.domain.enums.SiglaEstado;
 import com.teamcubation.footmatchapi.application.dto.request.ClubeRequestDTO;
-import com.teamcubation.footmatchapi.domain.interfaces.ClubeRepository;
-import com.teamcubation.footmatchapi.domain.interfaces.PartidaRepository;
+import com.teamcubation.footmatchapi.application.ports.out.ClubeRepository;
+import com.teamcubation.footmatchapi.application.ports.out.PartidaRepository;
 import com.teamcubation.footmatchapi.utils.mapper.ClubeMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,11 +22,13 @@ import java.util.*;
 @Service
 public class ClubeServiceImpl implements ClubeUseCases {
 
+    private final ClubeEventsPort clubeEventsPort;
     private final ClubeMapper clubeMapper;
     private final PartidaRepository partidaRepository;
     private final ClubeRepository clubeRepository;
 
-    public ClubeServiceImpl(ClubeMapper clubeMapper, PartidaRepository partidaRepository, ClubeRepository clubeRepository) {
+    public ClubeServiceImpl(ClubeEventsPort clubeEventsPort, ClubeMapper clubeMapper, PartidaRepository partidaRepository, ClubeRepository clubeRepository) {
+        this.clubeEventsPort = clubeEventsPort;
         this.clubeMapper = clubeMapper;
         this.partidaRepository = partidaRepository;
         this.clubeRepository = clubeRepository;
@@ -108,6 +111,21 @@ public class ClubeServiceImpl implements ClubeUseCases {
         clube.setAtivo(false);
 
         clubeRepository.save(clube);
+    }
+
+    @Override
+    public void solicitarCriacaoClube(ClubeRequestDTO dto) {
+        clubeEventsPort.notificarCriacaoClube(dto);
+    }
+
+    @Override
+    public void solicitarAtualizacaoClube(Long id, ClubeRequestDTO dto) {
+        clubeEventsPort.notificarAtualizacaoClube(id, dto);
+    }
+
+    @Override
+    public void solicitarInativacaoClube(Long id) {
+        clubeEventsPort.notificarInativacaoClube(id);
     }
 
     public Clube validarExistenciaClube(Long id) {

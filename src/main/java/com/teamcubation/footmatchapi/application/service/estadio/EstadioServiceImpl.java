@@ -1,13 +1,14 @@
 package com.teamcubation.footmatchapi.application.service.estadio;
 
-import com.teamcubation.footmatchapi.adapters.outbound.integration.ViacepClientPort;
+import com.teamcubation.footmatchapi.application.ports.out.EstadioEventsPort;
+import com.teamcubation.footmatchapi.application.ports.out.ViacepClientPort;
 import com.teamcubation.footmatchapi.application.usecase.EstadioUseCases;
 import com.teamcubation.footmatchapi.domain.entities.Endereco;
 import com.teamcubation.footmatchapi.domain.entities.Estadio;
 import com.teamcubation.footmatchapi.application.dto.request.EstadioRequestDTO;
 import com.teamcubation.footmatchapi.application.dto.response.EstadioResponseDTO;
 import com.teamcubation.footmatchapi.application.dto.response.ViaCepResponseDTO;
-import com.teamcubation.footmatchapi.domain.interfaces.EstadioRepository;
+import com.teamcubation.footmatchapi.application.ports.out.EstadioRepository;
 import com.teamcubation.footmatchapi.utils.mapper.EnderecoMapper;
 import com.teamcubation.footmatchapi.utils.mapper.EstadioMapper;
 import org.springframework.data.domain.Page;
@@ -24,12 +25,14 @@ public class EstadioServiceImpl implements EstadioUseCases {
     private final EstadioMapper estadioMapper;
     private final EnderecoMapper enderecoMapper;
     private final ViacepClientPort viacepClientPort;
+    private final EstadioEventsPort estadioEventsPort;
 
-    public EstadioServiceImpl(EstadioRepository estadioRepository, EstadioMapper estadioMapper, EnderecoMapper enderecoMapper, ViacepClientPort viacepClientPort) {
+    public EstadioServiceImpl(EstadioRepository estadioRepository, EstadioMapper estadioMapper, EnderecoMapper enderecoMapper, ViacepClientPort viacepClientPort, EstadioEventsPort estadioEventsPort) {
         this.estadioRepository = estadioRepository;
         this.estadioMapper = estadioMapper;
         this.enderecoMapper = enderecoMapper;
         this.viacepClientPort = viacepClientPort;
+        this.estadioEventsPort = estadioEventsPort;
     }
 
     public EstadioResponseDTO criarEstadio(EstadioRequestDTO estadioRequestDTO) {
@@ -92,6 +95,16 @@ public class EstadioServiceImpl implements EstadioUseCases {
 
         return estadioRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Estádio nao encontrado."));
+    }
+
+    @Override
+    public void solicitarCriacaoEstadio(EstadioRequestDTO dto) {
+        estadioEventsPort.notificarCriacaoEstadio(dto);
+    }
+
+    @Override
+    public void solicitarAtualizacaoEstadio(Long id, EstadioRequestDTO dto) {
+        estadioEventsPort.notificarAtualizacaoEstadio(id, dto);
     }
 
     private void validarNomeExistente(String nome, Long id) throws ResponseStatusException {
