@@ -1,7 +1,5 @@
 package com.teamcubation.footmatchapi.adapters.outbound.entities;
 
-import com.teamcubation.footmatchapi.domain.entities.Clube;
-import com.teamcubation.footmatchapi.domain.entities.Estadio;
 import com.teamcubation.footmatchapi.domain.entities.Partida;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
@@ -26,17 +24,17 @@ public class PartidaJpaEntity {
     @ManyToOne(optional = false)
     @JoinColumn(name = "mandante_id")
     @Schema(description = "Identificador único do clube mandante da partida.", example = "1", required = true)
-    private Clube mandante;
+    private ClubeJpaEntity mandante;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "visitante_id")
     @Schema(description = "Identificador único do clube visitante da partida.", example = "2", required = true)
-    private Clube visitante;
+    private ClubeJpaEntity visitante;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "estadio_id")
     @Schema(description = "Identificador único do estádio da partida.", example = "1", required = true)
-    private Estadio estadio;
+    private EstadioJpaEntity estadio;
 
     @Column(nullable = false)
     @Schema(description = "Data e hora da partida.", example = "2023-09-15T12:00:00", format = "yyyy-MM-dd'T'HH:mm:ss", required = true)
@@ -52,9 +50,9 @@ public class PartidaJpaEntity {
 
     public PartidaJpaEntity(Partida partida) {
         this.id = partida.getId();
-        this.mandante = partida.getMandante();
-        this.visitante = partida.getVisitante();
-        this.estadio = partida.getEstadio();
+        this.mandante = new ClubeJpaEntity(partida.getMandante());
+        this.visitante = new ClubeJpaEntity(partida.getVisitante());
+        this.estadio = new EstadioJpaEntity(partida.getEstadio());
         this.dataHora = partida.getDataHora();
         this.golsMandante = partida.getGolsMandante();
         this.golsVisitante = partida.getGolsVisitante();

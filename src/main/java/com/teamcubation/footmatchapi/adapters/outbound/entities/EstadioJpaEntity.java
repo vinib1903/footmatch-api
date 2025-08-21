@@ -1,6 +1,5 @@
 package com.teamcubation.footmatchapi.adapters.outbound.entities;
 
-import com.teamcubation.footmatchapi.domain.entities.Endereco;
 import com.teamcubation.footmatchapi.domain.entities.Estadio;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
@@ -29,11 +28,11 @@ public class EstadioJpaEntity {
 
     @Embedded
     @Schema(description = "Endereço do estadio, gerado automaticamente no ato do cadastro.", required = true)
-    private Endereco endereco;
+    private EnderecoJpaEntity endereco;
 
     public EstadioJpaEntity(Estadio estadio) {
         this.id = estadio.getId();
         this.nome = estadio.getNome();
-        this.endereco = estadio.getEndereco();
+        this.endereco = new EnderecoJpaEntity(estadio.getEndereco());
     }
 }

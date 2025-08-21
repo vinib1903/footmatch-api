@@ -1,5 +1,6 @@
 package com.teamcubation.footmatchapi.adapters.outbound.entities;
 
+import com.teamcubation.footmatchapi.domain.entities.Endereco;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
@@ -27,4 +28,12 @@ public class EnderecoJpaEntity {
 
     @Schema(description = "CEP do endereço.", example = "93300-000", required = true)
     private String cep;
+
+    public EnderecoJpaEntity(Endereco endereco) {
+        this.logradouro = endereco.getLogradouro();
+        this.bairro = endereco.getBairro();
+        this.localidade = endereco.getLocalidade();
+        this.uf = endereco.getUf();
+        this.cep = endereco.getCep();
+    }
 }
