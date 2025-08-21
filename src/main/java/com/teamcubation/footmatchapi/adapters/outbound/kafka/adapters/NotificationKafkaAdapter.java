@@ -1,15 +1,17 @@
-package com.teamcubation.footmatchapi.application.service.kafka;
+package com.teamcubation.footmatchapi.adapters.outbound.kafka.adapters;
 
 import com.teamcubation.footmatchapi.adapters.outbound.kafka.producer.NotificationProducer;
+import com.teamcubation.footmatchapi.application.ports.out.NotificationPort;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
+@Component
 @RequiredArgsConstructor
-public class NotificationServiceKafka {
+public class NotificationKafkaAdapter implements NotificationPort {
 
     private final NotificationProducer notificacaoProducer;
 
+    @Override
     public void sendNotification(String notificacao) {
         notificacaoProducer.send(notificacao);
     }

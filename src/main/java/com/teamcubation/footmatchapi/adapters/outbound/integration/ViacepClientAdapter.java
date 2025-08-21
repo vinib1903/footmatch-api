@@ -1,11 +1,12 @@
 package com.teamcubation.footmatchapi.adapters.outbound.integration;
 
 import com.teamcubation.footmatchapi.application.dto.response.ViaCepResponseDTO;
+import com.teamcubation.footmatchapi.application.ports.out.ViacepClientPort;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 @Component
-public class ViacepClientAdapter implements  ViacepClientPort{
+public class ViacepClientAdapter implements ViacepClientPort {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
