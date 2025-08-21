@@ -1,5 +1,6 @@
 package com.teamcubation.footmatchapi.adapters.outbound.repository;
 
+import com.teamcubation.footmatchapi.adapters.outbound.entities.EstadioJpaEntity;
 import com.teamcubation.footmatchapi.domain.entities.Estadio;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-public interface EstadioRepository extends JpaRepository<Estadio, Long> {
+public interface EstadioJpaRepository extends JpaRepository<EstadioJpaEntity, Long> {
 
     Optional<Estadio> findByNome(String nome);
 

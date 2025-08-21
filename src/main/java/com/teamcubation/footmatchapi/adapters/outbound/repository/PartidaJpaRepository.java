@@ -1,5 +1,6 @@
 package com.teamcubation.footmatchapi.adapters.outbound.repository;
 
+import com.teamcubation.footmatchapi.adapters.outbound.entities.PartidaJpaEntity;
 import com.teamcubation.footmatchapi.domain.entities.Clube;
 import com.teamcubation.footmatchapi.domain.entities.Estadio;
 import com.teamcubation.footmatchapi.domain.entities.Partida;
@@ -12,9 +13,9 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.util.List;
 
-public interface PartidaRepository extends JpaRepository<Partida, Long> {
+public interface PartidaJpaRepository extends JpaRepository<PartidaJpaEntity, Long> {
 
-    @Query("SELECT p FROM Partida p WHERE " +
+    @Query("SELECT p FROM PartidaJpaEntity p WHERE " +
             "(:clube IS NULL OR " +
             "(:papel = 'mandante' AND p.mandante = :clube) OR " +
             "(:papel = 'visitante' AND p.visitante = :clube) OR " +
