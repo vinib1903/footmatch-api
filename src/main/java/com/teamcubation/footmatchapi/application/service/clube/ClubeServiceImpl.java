@@ -9,7 +9,6 @@ import com.teamcubation.footmatchapi.application.dto.request.ClubeRequestDTO;
 import com.teamcubation.footmatchapi.domain.interfaces.ClubeRepository;
 import com.teamcubation.footmatchapi.domain.interfaces.PartidaRepository;
 import com.teamcubation.footmatchapi.utils.mapper.ClubeMapper;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -128,7 +127,7 @@ public class ClubeServiceImpl implements ClubeUseCases {
 
         Clube clubeExistente = clubeRepository.findByNomeAndSiglaEstado(nome, siglaEstado);
 
-        if (clubeExistente.isPresent() && !clubeExistente.get().getId().equals(id)) {
+        if (clubeExistente != null && !clubeExistente.getId().equals(id)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um clube com este nome no estado informado.");
         }
     }
