@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public interface ClubeJpaRepository extends JpaRepository<ClubeJpaEntity, Long> {
 
-    Optional<Clube> findByNomeAndSiglaEstado(String nome, SiglaEstado siglaEstado);
+    Optional<ClubeJpaEntity> findByNomeAndSiglaEstado(String nome, SiglaEstado siglaEstado);
 
     @Query("SELECT c FROM ClubeJpaEntity c WHERE " +
             "(:nome IS NULL OR LOWER(c.nome) LIKE LOWER(CONCAT('%', :nome, '%'))) AND " +

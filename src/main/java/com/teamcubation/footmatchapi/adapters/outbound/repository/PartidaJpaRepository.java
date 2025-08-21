@@ -28,16 +28,16 @@ public interface PartidaJpaRepository extends JpaRepository<PartidaJpaEntity, Lo
                                           @Param("papel") String papel,
                                           Pageable pageable);
 
-    @Query("SELECT p FROM Partida p WHERE " +
+    @Query("SELECT p FROM PartidaJpaEntity p WHERE " +
             "p.mandante = :clube OR p.visitante = :clube")
     List<Partida> findAllByClube(@Param("clube") Clube clube);
 
-    @Query("SELECT p FROM Partida p WHERE " +
+    @Query("SELECT p FROM PartidaJpaEntity p WHERE " +
             "(p.mandante = :clube OR p.visitante = :clube) AND " +
             "(p.mandante = :adversario OR p.visitante = :adversario)")
     List<Partida> findAllByClubes(@Param("clube") Clube clube,
                                   @Param("adversario") Clube adversario);
 
-    @Query("SELECT p FROM Partida p WHERE p.estadio = :estadio AND DATE(p.dataHora) = :data")
+    @Query("SELECT p FROM PartidaJpaEntity p WHERE p.estadio = :estadio AND DATE(p.dataHora) = :data")
     List<Partida> findAllByEstadioAndData(@Param("estadio") Estadio estadio, @Param("data") LocalDate data);
 }

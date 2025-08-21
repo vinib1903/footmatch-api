@@ -16,7 +16,7 @@ public interface EstadioJpaRepository extends JpaRepository<EstadioJpaEntity, Lo
 
     Optional<Estadio> findByEndereco_Cep(String cep);
 
-    @Query("SELECT e FROM Estadio e WHERE " +
+    @Query("SELECT e FROM EstadioJpaEntity e WHERE " +
             "(:nome IS NULL OR LOWER(e.nome) LIKE LOWER(CONCAT('%', :nome, '%')))")
     Page<Estadio> findStadiumsWichFilters(@Param("nome") String nome,
                                       Pageable pageable);

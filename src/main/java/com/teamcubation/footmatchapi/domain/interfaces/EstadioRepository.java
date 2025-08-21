@@ -12,7 +12,7 @@ public interface EstadioRepository {
 
     Optional<Estadio> findByNome(String nome);
 
-    Estadio findById(Long id);
+    Optional<Estadio> findById(Long id);
 
     Page<Estadio> findStadiumsWichFilters(String nome, Pageable pageable);
 

@@ -5,18 +5,23 @@ import com.teamcubation.footmatchapi.domain.entities.Clube;
 import com.teamcubation.footmatchapi.domain.entities.Estadio;
 import com.teamcubation.footmatchapi.domain.entities.Partida;
 import com.teamcubation.footmatchapi.domain.interfaces.PartidaRepository;
+import com.teamcubation.footmatchapi.utils.mapper.PartidaMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class PartidaRepositoryImpl implements PartidaRepository {
 
     private final PartidaJpaRepository partidaJpaRepository;
+    private final PartidaMapper partidaMapper;
 
-    public PartidaRepositoryImpl(PartidaJpaRepository partidaJpaRepository) {
+    public PartidaRepositoryImpl(PartidaJpaRepository partidaJpaRepository, PartidaMapper partidaMapper) {
+        this.partidaMapper = partidaMapper;
         this.partidaJpaRepository = partidaJpaRepository;
     }
 
@@ -48,12 +53,12 @@ public class PartidaRepositoryImpl implements PartidaRepository {
     }
 
     @Override
-    public Partida findById(Long id) {
+    public Optional<Partida> findById(Long id) {
         Optional<PartidaJpaEntity> partidaJpaEntity = this.partidaJpaRepository.findById(id);
-        return partidaJpaEntity.map(entity -> new Partida(entity.getId(), entity.getMandante(), entity.getVisitante(), entity.getEstadio(), entity.getDataHora(), entity.getGolsMandante(), entity.getGolsVisitante())).orElse(null);
+        return partidaJpaEntity.map(partidaMapper::jpaToEntity);
     }
 
-    public void delete(Long id) {
+    public void deletePartida(Long id) {
         this.partidaJpaRepository.deleteById(id);
     }
 }

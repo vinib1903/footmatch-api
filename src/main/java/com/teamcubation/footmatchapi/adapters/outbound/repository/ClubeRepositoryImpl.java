@@ -4,17 +4,22 @@ import com.teamcubation.footmatchapi.adapters.outbound.entities.ClubeJpaEntity;
 import com.teamcubation.footmatchapi.domain.entities.Clube;
 import com.teamcubation.footmatchapi.domain.enums.SiglaEstado;
 import com.teamcubation.footmatchapi.domain.interfaces.ClubeRepository;
+import com.teamcubation.footmatchapi.utils.mapper.ClubeMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class ClubeRepositoryImpl implements ClubeRepository {
 
     private final ClubeJpaRepository clubeJpaRepository;
+    private final ClubeMapper clubeMapper;
 
-    public ClubeRepositoryImpl(ClubeJpaRepository clubeJpaRepository) {
+    public ClubeRepositoryImpl(ClubeJpaRepository clubeJpaRepository, ClubeMapper clubeMapper) {
+        this.clubeMapper = clubeMapper;
         this.clubeJpaRepository = clubeJpaRepository;
     }
 
@@ -32,9 +37,9 @@ public class ClubeRepositoryImpl implements ClubeRepository {
     }
 
     @Override
-    public Clube findById(Long id) {
+    public Optional<Clube> findById(Long id) {
         Optional<ClubeJpaEntity> clubeJpaEntity = this.clubeJpaRepository.findById(id);
-        return clubeJpaEntity.map(entity -> new Clube(entity.getId(), entity.getNome(), entity.getSiglaEstado(), entity.getAtivo(), entity.getDataCriacao())).orElse(null);
+        return clubeJpaEntity.map(clubeMapper::jpaToEntity);
     }
 
     @Override

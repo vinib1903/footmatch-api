@@ -8,12 +8,13 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface PartidaRepository {
 
     Partida save(Partida partida);
 
-    Partida findById(Long id);
+    Optional<Partida> findById(Long id);
 
     Page<Partida> findPartidasWithFilters(Clube clube, Estadio estadio, Boolean goleada, String papel, Pageable pageable);
 
@@ -23,5 +24,5 @@ public interface PartidaRepository {
 
     List<Partida> findAllByEstadioAndData(Estadio estadio, LocalDate data);
 
-    void delete(Partida partida);
+    void deletePartida(Long id);
 }

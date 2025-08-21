@@ -3,16 +3,21 @@ package com.teamcubation.footmatchapi.adapters.outbound.repository;
 import com.teamcubation.footmatchapi.adapters.outbound.entities.EstadioJpaEntity;
 import com.teamcubation.footmatchapi.domain.entities.Estadio;
 import com.teamcubation.footmatchapi.domain.interfaces.EstadioRepository;
+import com.teamcubation.footmatchapi.utils.mapper.EstadioMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+@Repository
 public class EstadioRepositoryImpl implements EstadioRepository {
 
     private final EstadioJpaRepository estadioJpaRepository;
+    private final EstadioMapper estadioMapper;
 
-    public EstadioRepositoryImpl(EstadioJpaRepository estadioJpaRepository) {
+    public EstadioRepositoryImpl(EstadioJpaRepository estadioJpaRepository, EstadioMapper estadioMapper) {
+        this.estadioMapper = estadioMapper;
         this.estadioJpaRepository = estadioJpaRepository;
     }
 
@@ -29,9 +34,9 @@ public class EstadioRepositoryImpl implements EstadioRepository {
     }
 
     @Override
-    public Estadio findById(Long id) {
+    public Optional<Estadio> findById(Long id) {
         Optional<EstadioJpaEntity> estadioJpaEntity = this.estadioJpaRepository.findById(id);
-        return estadioJpaEntity.map(entity -> new Estadio(entity.getId(), entity.getNome(), entity.getEndereco())).orElse(null);
+        return estadioJpaEntity.map(estadioMapper::jpaToEntity);
     }
 
     @Override
