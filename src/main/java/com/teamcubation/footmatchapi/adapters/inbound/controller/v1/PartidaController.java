@@ -3,7 +3,7 @@ package com.teamcubation.footmatchapi.adapters.inbound.controller.v1;
 import com.teamcubation.footmatchapi.application.dto.request.PartidaRequestDTO;
 import com.teamcubation.footmatchapi.application.dto.response.ErroResponseDTO;
 import com.teamcubation.footmatchapi.application.dto.response.PartidaResponseDTO;
-import com.teamcubation.footmatchapi.application.service.partida.PartidaService;
+import com.teamcubation.footmatchapi.application.service.partida.PartidaServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -26,7 +26,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class PartidaController {
 
-    private final PartidaService partidaService;
+    private final PartidaServiceImpl partidaServiceImpl;
 
     @GetMapping
     @Operation(summary = "Lista partidas com suporte a paginação e filtros",
@@ -51,7 +51,7 @@ public class PartidaController {
                     "}")
             @PageableDefault(size = 10, sort = "dataHora", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Page<PartidaResponseDTO> page = partidaService.obterPartidas(clubeId, estadioId, goleada, papel, pageable);
+        Page<PartidaResponseDTO> page = partidaServiceImpl.obterPartidas(clubeId, estadioId, goleada, papel, pageable);
         return ResponseEntity.ok(page);
     }
 
@@ -67,7 +67,7 @@ public class PartidaController {
                             content = @Content(schema = @Schema(implementation = ErroResponseDTO.class)))
             })
     public ResponseEntity<PartidaResponseDTO> getPartidaById(@Parameter(description = "ID da partida a ser buscada", example = "1") @PathVariable Long id) {
-        PartidaResponseDTO partida = partidaService.obterPartidaPorId(id);
+        PartidaResponseDTO partida = partidaServiceImpl.obterPartidaPorId(id);
         return ResponseEntity.ok(partida);
     }
 

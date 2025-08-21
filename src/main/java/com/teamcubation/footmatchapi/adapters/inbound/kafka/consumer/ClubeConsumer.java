@@ -1,7 +1,7 @@
 package com.teamcubation.footmatchapi.adapters.inbound.kafka.consumer;
 
 import com.teamcubation.footmatchapi.application.dto.request.ClubeRequestDTO;
-import com.teamcubation.footmatchapi.application.service.clube.ClubeService;
+import com.teamcubation.footmatchapi.application.service.clube.ClubeServiceImpl;
 import com.teamcubation.footmatchapi.application.service.kafka.NotificationServiceKafka;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import static org.springframework.kafka.support.KafkaHeaders.RECEIVED_KEY;
 @Slf4j
 public class ClubeConsumer {
 
-    private final ClubeService clubeService;
+    private final ClubeServiceImpl clubeServiceImpl;
     private final NotificationServiceKafka notificationServiceKafka;
 
     @KafkaListener(
@@ -28,7 +28,7 @@ public class ClubeConsumer {
     )
     public void consumirClubeCriacao(ClubeRequestDTO dto) {
         log.info("Consumindo mensagem para criar clube: {}", dto);
-        clubeService.criarClube(dto);
+        clubeServiceImpl.criarClube(dto);
         log.info("Clube consumido e salvo com sucesso: {}", dto);
         notificationServiceKafka.sendNotification("Novo clube criado: " + dto.toString());
     }
@@ -40,7 +40,7 @@ public class ClubeConsumer {
     )
     public void consumirClubeAtualizacao(@Header(RECEIVED_KEY) String id, ClubeRequestDTO dto) {
         log.info("Consumindo mensagem para atualizar clube com id {}: {}", id, dto);
-        clubeService.atualizarClube(Long.valueOf(id), dto);
+        clubeServiceImpl.atualizarClube(Long.valueOf(id), dto);
         log.info("Clube consumido e atualizado com sucesso: {}", dto);
         notificationServiceKafka.sendNotification("Clube com id " + id + " atualizado: " + dto.toString());
     }
@@ -52,7 +52,7 @@ public class ClubeConsumer {
     )
     public void consumirClubeExclusao(@Header(RECEIVED_KEY) String id) {
         log.info("Consumindo mensagem para excluir clube com id: {}", id);
-        clubeService.inativarClube(Long.valueOf(id));
+        clubeServiceImpl.inativarClube(Long.valueOf(id));
         log.info("Clube consumido e excluído com sucesso: {}", id);
         notificationServiceKafka.sendNotification("Clube com id " + id + " excluído");
     }

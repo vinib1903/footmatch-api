@@ -4,7 +4,7 @@ import com.teamcubation.footmatchapi.adapters.inbound.controller.v1.EstadioContr
 import com.teamcubation.footmatchapi.application.dto.request.EstadioRequestDTO;
 import com.teamcubation.footmatchapi.application.dto.response.EnderecoResponseDTO;
 import com.teamcubation.footmatchapi.application.dto.response.EstadioResponseDTO;
-import com.teamcubation.footmatchapi.application.service.estadio.EstadioService;
+import com.teamcubation.footmatchapi.application.service.estadio.EstadioServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -33,7 +33,7 @@ public class EstadioControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private EstadioService estadioService;
+    private EstadioServiceImpl estadioServiceImpl;
 
     final String BASE_URL = "/api/v1/estadios";
 
@@ -46,7 +46,7 @@ public class EstadioControllerTest {
                 .andDo(print())
                 .andExpect(status().isGone());
 
-        verify(estadioService, never()).criarEstadio(any(EstadioRequestDTO.class));
+        verify(estadioServiceImpl, never()).criarEstadio(any(EstadioRequestDTO.class));
     }
 
     @Test
@@ -58,7 +58,7 @@ public class EstadioControllerTest {
                 .andDo(print())
                 .andExpect(status().isGone());
 
-        verify(estadioService, never()).criarEstadio(any(EstadioRequestDTO.class));
+        verify(estadioServiceImpl, never()).criarEstadio(any(EstadioRequestDTO.class));
     }
 
     @Test
@@ -105,7 +105,7 @@ public class EstadioControllerTest {
         Pageable pageable = PageRequest.of(0, 10, Sort.by("nome").ascending());
         PageImpl<EstadioResponseDTO> page = new PageImpl<>(estadios, pageable, estadios.size());
 
-        when(estadioService.obterEstadios(any(), eq(pageable))).thenReturn(page);
+        when(estadioServiceImpl.obterEstadios(any(), eq(pageable))).thenReturn(page);
 
         mockMvc.perform(get(BASE_URL)
                         .param("page", "0")
@@ -120,7 +120,7 @@ public class EstadioControllerTest {
                 .andExpect(jsonPath("$.content[1].nome").value("Olímpico"))
                 .andExpect(jsonPath("$.content[2].nome").value("Palestra Itália"));
 
-        verify(estadioService, times(1)).obterEstadios(any(), eq(pageable));
+        verify(estadioServiceImpl, times(1)).obterEstadios(any(), eq(pageable));
     }
 
     @Test
@@ -131,7 +131,7 @@ public class EstadioControllerTest {
                 .nome("Olímpico")
                 .build();
 
-        when(estadioService.obterEstadioPorId(eq(7L)))
+        when(estadioServiceImpl.obterEstadioPorId(eq(7L)))
                 .thenReturn(olimpico);
 
         mockMvc.perform(get(BASE_URL + "/7")
@@ -141,7 +141,7 @@ public class EstadioControllerTest {
                 .andExpect(jsonPath("$.id").value(7L))
                 .andExpect(jsonPath("$.nome").value("Olímpico"));
 
-        verify(estadioService, times(1)).obterEstadioPorId(eq(7L));
+        verify(estadioServiceImpl, times(1)).obterEstadioPorId(eq(7L));
     }
 
     @Test
@@ -153,6 +153,6 @@ public class EstadioControllerTest {
                 .andDo(print())
                 .andExpect(status().isGone());
 
-        verify(estadioService, never()).atualizarEstadio(eq(7L), any(EstadioRequestDTO.class));
+        verify(estadioServiceImpl, never()).atualizarEstadio(eq(7L), any(EstadioRequestDTO.class));
     }
 }

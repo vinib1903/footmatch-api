@@ -1,7 +1,7 @@
 package com.teamcubation.footmatchapi.adapters.inbound.controller.v1;
 
 import com.teamcubation.footmatchapi.application.dto.response.*;
-import com.teamcubation.footmatchapi.application.service.retrospecto.RetrospectoService;
+import com.teamcubation.footmatchapi.application.service.retrospecto.RetrospectoServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class RetrospectoController {
 
-    private final RetrospectoService retrospectoService;
+    private final RetrospectoServiceImpl retrospectoServiceImpl;
 
     @GetMapping("/{id}")
     @Operation(summary = "Retorna o retrospecto geral de um clube",
@@ -38,7 +38,7 @@ public class RetrospectoController {
             @Parameter(description = "ID do clube para buscar o retrospecto", example = "1") @PathVariable Long id,
             @Parameter(description = "Papel do clube (ex: mandante, visitante, ambos)", example = "ambos", required = false) @RequestParam(required = false) String papel) {
 
-        ClubeRetrospectoResponseDTO clubeRestrospecto = retrospectoService.obterRetrospecto(id, papel);
+        ClubeRetrospectoResponseDTO clubeRestrospecto = retrospectoServiceImpl.obterRetrospecto(id, papel);
         return ResponseEntity.ok(clubeRestrospecto);
     }
 
@@ -60,7 +60,7 @@ public class RetrospectoController {
             @Parameter(description = "Papel do clube (ex: mandante, visitante, ambos)", example = "ambos", required = false) @RequestParam(required = false) String papel,
             @Parameter(description = "Parâmetros de paginação (tamanho da página, ordenação, etc.)") @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
 
-        Page<ClubeRestrospectoAdversarioResponseDTO> page = retrospectoService.obterRestrospectoAdversarios(id, papel, pageable);
+        Page<ClubeRestrospectoAdversarioResponseDTO> page = retrospectoServiceImpl.obterRestrospectoAdversarios(id, papel, pageable);
         return ResponseEntity.ok(page);
     }
 
@@ -80,7 +80,7 @@ public class RetrospectoController {
             @Parameter(description = "ID do clube adversário", example = "2") @PathVariable Long adversarioId,
             @Parameter(description = "Papel do clube (ex: mandante, visitante, ambos)", example = "ambos", required = false) @RequestParam(required = false) String papel) {
 
-        ConfrontoDiretoResponseDTO result = retrospectoService.obterConfrontoDireto(clubeId, adversarioId, papel);
+        ConfrontoDiretoResponseDTO result = retrospectoServiceImpl.obterConfrontoDireto(clubeId, adversarioId, papel);
         return ResponseEntity.ok(result);
     }
 
@@ -104,7 +104,7 @@ public class RetrospectoController {
                     "}")
             @PageableDefault(size = 10) Pageable pageable) {
 
-        Page<RankingResponseDTO> page = retrospectoService.obterRanking(criterio, pageable);
+        Page<RankingResponseDTO> page = retrospectoServiceImpl.obterRanking(criterio, pageable);
         return ResponseEntity.ok(page);
     }
 }

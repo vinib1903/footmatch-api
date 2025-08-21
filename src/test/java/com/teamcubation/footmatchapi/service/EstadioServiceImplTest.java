@@ -8,8 +8,8 @@ import com.teamcubation.footmatchapi.application.dto.response.ViaCepResponseDTO;
 import com.teamcubation.footmatchapi.adapters.outbound.integration.ViacepClient;
 import com.teamcubation.footmatchapi.utils.mapper.EnderecoMapper;
 import com.teamcubation.footmatchapi.utils.mapper.EstadioMapper;
-import com.teamcubation.footmatchapi.adapters.outbound.repository.EstadioRepository;
-import com.teamcubation.footmatchapi.application.service.estadio.EstadioService;
+import com.teamcubation.footmatchapi.adapters.outbound.repository.EstadioJpaRepository;
+import com.teamcubation.footmatchapi.application.service.estadio.EstadioServiceImpl;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -35,10 +35,10 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @Slf4j
-public class EstadioServiceTest {
+public class EstadioServiceImplTest {
 
     @Mock
-    private EstadioRepository estadioRepository;
+    private EstadioJpaRepository estadioJpaRepository;
     @Mock
     EstadioMapper estadioMapper;
     @Mock
@@ -47,7 +47,7 @@ public class EstadioServiceTest {
     ViacepClient viacepClient;
 
     @InjectMocks
-    EstadioService estadioService;
+    EstadioServiceImpl estadioServiceImpl;
 
     @Test
     void testCreateStadiumWhenDataIsValid() {
@@ -90,9 +90,9 @@ public class EstadioServiceTest {
                 .nome(estadioSalvo.getNome())
                 .build();
 
-        when(estadioRepository.findByNome(dto.getNome()))
+        when(estadioJpaRepository.findByNome(dto.getNome()))
                 .thenReturn(Optional.empty());
-        when(estadioRepository.findByEndereco_Cep("93300000"))
+        when(estadioJpaRepository.findByEndereco_Cep("93300000"))
                 .thenReturn(Optional.empty());
         when(viacepClient.buscarEnderecoPorCep("93300000"))
                 .thenReturn(viaCepResponse);
@@ -100,12 +100,12 @@ public class EstadioServiceTest {
                 .thenReturn(endereco);
         when(estadioMapper.toEntity(dto))
                 .thenReturn(estadioEntity);
-        when(estadioRepository.save(any(Estadio.class)))
+        when(estadioJpaRepository.save(any(Estadio.class)))
                 .thenReturn(estadioSalvo);
         when(estadioMapper.toDto(any(Estadio.class)))
                 .thenReturn(response);
 
-        EstadioResponseDTO result = estadioService.criarEstadio(dto);
+        EstadioResponseDTO result = estadioServiceImpl.criarEstadio(dto);
 
         log.info("Response: {}", response);
         log.info("Result: {}", result);
@@ -113,7 +113,7 @@ public class EstadioServiceTest {
         assertEquals(response, result);
 
         verify(estadioMapper, times(1)).toEntity(dto);
-        verify(estadioRepository, times(1)).save(any(Estadio.class));
+        verify(estadioJpaRepository, times(1)).save(any(Estadio.class));
         verify(viacepClient, times(1)).buscarEnderecoPorCep("93300000");
     }
 
@@ -130,10 +130,10 @@ public class EstadioServiceTest {
                 .nome(dto.getNome())
                 .build();
 
-        when(estadioRepository.findByNome(dto.getNome()))
+        when(estadioJpaRepository.findByNome(dto.getNome()))
                 .thenReturn(Optional.of(estadio));
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> estadioService.criarEstadio(dto));
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> estadioServiceImpl.criarEstadio(dto));
 
         log.info("Exception: {}", ex.getMessage());
 
@@ -212,7 +212,7 @@ public class EstadioServiceTest {
                 .sorted(Comparator.comparing(Estadio::getNome))
                 .toList();
 
-        when(estadioRepository.findStadiumsWichFilters(any(), any(Pageable.class)))
+        when(estadioJpaRepository.findStadiumsWichFilters(any(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(estadios));
 
         when(estadioMapper.toDto(estadio1))
@@ -227,7 +227,7 @@ public class EstadioServiceTest {
         when(estadioMapper.toDto(estadio4))
                 .thenReturn(dto4);
 
-        Page<EstadioResponseDTO> result = estadioService.obterEstadios(null, PageRequest.of(0, 10));
+        Page<EstadioResponseDTO> result = estadioServiceImpl.obterEstadios(null, PageRequest.of(0, 10));
 
         log.info("Result: {}", result);
 
@@ -255,13 +255,13 @@ public class EstadioServiceTest {
                 .nome(estadio.getNome())
                 .build();
 
-        when(estadioRepository.findById(1L))
+        when(estadioJpaRepository.findById(1L))
                 .thenReturn(Optional.of(estadio));
 
         when(estadioMapper.toDto(estadio))
                 .thenReturn(dto);
 
-        EstadioResponseDTO result = estadioService.obterEstadioPorId(1L);
+        EstadioResponseDTO result = estadioServiceImpl.obterEstadioPorId(1L);
 
         log.info("Response: {}", dto);
         log.info("Result: {}", result);
@@ -274,16 +274,16 @@ public class EstadioServiceTest {
     @Test
     void testGetStadiumByIdWhenDataIsInvalid() {
 
-        when(estadioRepository.findById(1L))
+        when(estadioJpaRepository.findById(1L))
                 .thenReturn(Optional.empty());
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> estadioService.obterEstadioPorId(1L));
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> estadioServiceImpl.obterEstadioPorId(1L));
 
         log.info("Exception: {}", ex.getMessage());
 
         assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
 
-        verify(estadioRepository, times(1)).findById(1L);
+        verify(estadioJpaRepository, times(1)).findById(1L);
     }
 
     @Test
@@ -322,22 +322,22 @@ public class EstadioServiceTest {
                 .nome("Olímpico Monumental")
                 .build();
 
-        when(estadioRepository.findById(1L))
+        when(estadioJpaRepository.findById(1L))
                 .thenReturn(Optional.of(estadio));
-        when(estadioRepository.findByNome(dto.getNome()))
+        when(estadioJpaRepository.findByNome(dto.getNome()))
                 .thenReturn(Optional.empty());
-        when(estadioRepository.findByEndereco_Cep("93300000"))
+        when(estadioJpaRepository.findByEndereco_Cep("93300000"))
                 .thenReturn(Optional.of(estadio)); // Mesmo estádio, então pode usar o mesmo CEP
         when(viacepClient.buscarEnderecoPorCep("93300000"))
                 .thenReturn(viaCepResponse);
         when(enderecoMapper.fromViaCepResponse(viaCepResponse))
                 .thenReturn(endereco);
-        when(estadioRepository.save(any(Estadio.class)))
+        when(estadioJpaRepository.save(any(Estadio.class)))
                 .thenReturn(estadio);
         when(estadioMapper.toDto(any(Estadio.class)))
                 .thenReturn(response);
 
-        EstadioResponseDTO result = estadioService.atualizarEstadio(1L, dto);
+        EstadioResponseDTO result = estadioServiceImpl.atualizarEstadio(1L, dto);
 
         log.info("Response: {}", response);
         log.info("Result: {}", result);
@@ -345,7 +345,7 @@ public class EstadioServiceTest {
         assertEquals(response, result);
 
         verify(estadioMapper, times(1)).toDto(any(Estadio.class));
-        verify(estadioRepository, times(1)).save(any(Estadio.class));
+        verify(estadioJpaRepository, times(1)).save(any(Estadio.class));
         verify(viacepClient, times(1)).buscarEnderecoPorCep("93300000");
     }
 
@@ -357,16 +357,16 @@ public class EstadioServiceTest {
                 .cep("93300000")
                 .build();
 
-        when(estadioRepository.findById(1L))
+        when(estadioJpaRepository.findById(1L))
                 .thenReturn(Optional.empty());
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> estadioService.atualizarEstadio(1L, dto));
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> estadioServiceImpl.atualizarEstadio(1L, dto));
 
         log.info("Exception: {}", ex.getMessage());
 
         assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
 
-        verify(estadioRepository, times(1)).findById(1L);
+        verify(estadioJpaRepository, times(1)).findById(1L);
         verify(viacepClient, never()).buscarEnderecoPorCep(anyString());
     }
 }

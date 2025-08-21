@@ -2,7 +2,7 @@ package com.teamcubation.footmatchapi.adapters.inbound.kafka.consumer;
 
 import com.teamcubation.footmatchapi.application.dto.request.EstadioRequestDTO;
 import com.teamcubation.footmatchapi.application.dto.response.EstadioResponseDTO;
-import com.teamcubation.footmatchapi.application.service.estadio.EstadioService;
+import com.teamcubation.footmatchapi.application.service.estadio.EstadioServiceImpl;
 import com.teamcubation.footmatchapi.application.service.kafka.NotificationServiceKafka;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ import static org.springframework.kafka.support.KafkaHeaders.RECEIVED_KEY;
 @Slf4j
 public class EstadioConsumer {
 
-    private final EstadioService estadioService;
+    private final EstadioServiceImpl estadioServiceImpl;
     private final NotificationServiceKafka notificationServiceKafka;
 
     @KafkaListener(
@@ -27,7 +27,7 @@ public class EstadioConsumer {
     )
     public void consumirEstadioCriacao(EstadioRequestDTO dto) {
         log.info("Consumindo mensagem para criar estádio: {}", dto);
-        EstadioResponseDTO estadioCriado = estadioService.criarEstadio(dto);
+        EstadioResponseDTO estadioCriado = estadioServiceImpl.criarEstadio(dto);
         notificationServiceKafka.sendNotification("Novo estádio criado: " + estadioCriado.getNome() + " - " + estadioCriado.getEndereco().getLocalidade() + "/" + estadioCriado.getEndereco().getUf());
         log.info("Estadio consumido e salvo com sucesso: {}", dto);
     }
@@ -39,7 +39,7 @@ public class EstadioConsumer {
     )
     public void consumirEstadioAtualizacao(@Header(RECEIVED_KEY) String id, EstadioRequestDTO dto) {
         log.info("Consumindo mensagem para atualizar estádio: {}", dto);
-        estadioService.atualizarEstadio(Long.valueOf(id), dto);
+        estadioServiceImpl.atualizarEstadio(Long.valueOf(id), dto);
         log.info("Estadio consumido e atualizado com sucesso: {}", dto);
     }
 }

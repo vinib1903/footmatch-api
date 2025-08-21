@@ -1,13 +1,14 @@
 package com.teamcubation.footmatchapi.application.service.clube;
 
 import com.teamcubation.footmatchapi.application.dto.response.ClubeResponseDTO;
+import com.teamcubation.footmatchapi.application.usecase.ClubeUseCases;
 import com.teamcubation.footmatchapi.domain.entities.Clube;
 import com.teamcubation.footmatchapi.domain.entities.Partida;
 import com.teamcubation.footmatchapi.domain.enums.SiglaEstado;
 import com.teamcubation.footmatchapi.application.dto.request.ClubeRequestDTO;
+import com.teamcubation.footmatchapi.domain.interfaces.ClubeRepository;
+import com.teamcubation.footmatchapi.domain.interfaces.PartidaRepository;
 import com.teamcubation.footmatchapi.utils.mapper.ClubeMapper;
-import com.teamcubation.footmatchapi.adapters.outbound.repository.ClubeRepository;
-import com.teamcubation.footmatchapi.adapters.outbound.repository.PartidaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,11 +21,11 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class ClubeService {
+public class ClubeServiceImpl implements ClubeUseCases {
 
-    private final ClubeRepository clubeRepository;
     private final ClubeMapper clubeMapper;
     private final PartidaRepository partidaRepository;
+    private final ClubeRepository clubeRepository;
 
     public ClubeResponseDTO criarClube(ClubeRequestDTO dto) {
 
@@ -78,7 +79,6 @@ public class ClubeService {
 
         validarNomeClubeExistenteNoEstado(dto.getNome(), SiglaEstado.valueOf(dto.getSiglaEstado()), id);
 
-        //TODO: da pra melhorar?
         if (!dto.getDataCriacao().isEqual(clube.getDataCriacao())) {
             Optional<Partida> partidaMaisAntiga = partidaRepository.findAllByClube(clube).stream()
                     .min(Comparator.comparing(Partida::getDataHora));

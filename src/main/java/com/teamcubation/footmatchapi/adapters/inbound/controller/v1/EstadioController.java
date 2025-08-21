@@ -3,7 +3,7 @@ package com.teamcubation.footmatchapi.adapters.inbound.controller.v1;
 import com.teamcubation.footmatchapi.application.dto.request.EstadioRequestDTO;
 import com.teamcubation.footmatchapi.application.dto.response.ErroResponseDTO;
 import com.teamcubation.footmatchapi.application.dto.response.EstadioResponseDTO;
-import com.teamcubation.footmatchapi.application.service.estadio.EstadioService;
+import com.teamcubation.footmatchapi.application.service.estadio.EstadioServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -25,7 +25,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class EstadioController {
 
-    private final EstadioService estadioService;
+    private final EstadioServiceImpl estadioServiceImpl;
 
     @GetMapping
     @Operation(summary = "Lista estádios com suporte a paginação e filtro por nome",
@@ -44,7 +44,7 @@ public class EstadioController {
                     "}")
             @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
 
-        Page<EstadioResponseDTO> page = estadioService.obterEstadios(nome, pageable);
+        Page<EstadioResponseDTO> page = estadioServiceImpl.obterEstadios(nome, pageable);
         return ResponseEntity.ok(page);
     }
 
@@ -56,7 +56,7 @@ public class EstadioController {
                     @ApiResponse(responseCode = "500", description = "Erro interno no servidor", content = @Content(schema = @Schema(implementation = ErroResponseDTO.class)))
             })
     public ResponseEntity<EstadioResponseDTO> getEstadioById(@Parameter(description = "ID do estádio a ser buscado", example = "1") @PathVariable Long id) {
-        EstadioResponseDTO estadio = estadioService.obterEstadioPorId(id);
+        EstadioResponseDTO estadio = estadioServiceImpl.obterEstadioPorId(id);
         return ResponseEntity.ok(estadio);
     }
 

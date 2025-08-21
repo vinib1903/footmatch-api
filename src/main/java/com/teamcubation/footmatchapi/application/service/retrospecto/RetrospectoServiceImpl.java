@@ -1,11 +1,12 @@
 package com.teamcubation.footmatchapi.application.service.retrospecto;
 
 import com.teamcubation.footmatchapi.application.dto.response.*;
+import com.teamcubation.footmatchapi.application.usecase.RetrospectoUseCases;
 import com.teamcubation.footmatchapi.domain.entities.Clube;
 import com.teamcubation.footmatchapi.domain.entities.Partida;
+import com.teamcubation.footmatchapi.domain.interfaces.ClubeRepository;
+import com.teamcubation.footmatchapi.domain.interfaces.PartidaRepository;
 import com.teamcubation.footmatchapi.utils.mapper.PartidaMapper;
-import com.teamcubation.footmatchapi.adapters.outbound.repository.ClubeRepository;
-import com.teamcubation.footmatchapi.adapters.outbound.repository.PartidaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class RetrospectoService {
+public class RetrospectoServiceImpl implements RetrospectoUseCases {
 
     private final ClubeRepository clubeRepository;
     private final PartidaRepository partidaRepository;

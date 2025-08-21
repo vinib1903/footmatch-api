@@ -2,7 +2,7 @@ package com.teamcubation.footmatchapi.adapters.inbound.kafka.consumer;
 
 import com.teamcubation.footmatchapi.application.dto.request.PartidaRequestDTO;
 import com.teamcubation.footmatchapi.application.service.kafka.NotificationServiceKafka;
-import com.teamcubation.footmatchapi.application.service.partida.PartidaService;
+import com.teamcubation.footmatchapi.application.service.partida.PartidaServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.DltHandler;
@@ -18,7 +18,7 @@ import static org.springframework.kafka.support.KafkaHeaders.RECEIVED_KEY;
 @Slf4j
 public class PartidaConsumer {
 
-    private final PartidaService partidaService;
+    private final PartidaServiceImpl partidaServiceImpl;
     private final NotificationServiceKafka notificationServiceKafka;
 
     @KafkaListener(
@@ -27,7 +27,7 @@ public class PartidaConsumer {
             containerFactory = "partidaRequestKafkaListenerContainerFactory"
     )
     public void consumirPartidaCriacao(PartidaRequestDTO partidaDTO) {
-        partidaService.criarPartida(partidaDTO);
+        partidaServiceImpl.criarPartida(partidaDTO);
         log.info("Partida consumida e salva com sucesso: {}", partidaDTO);
     }
 
@@ -37,7 +37,7 @@ public class PartidaConsumer {
             containerFactory = "partidaRequestKafkaListenerContainerFactory"
     )
     public void consumirPartidaAtualizacao(@Header(RECEIVED_KEY) String id, PartidaRequestDTO partidaDTO) {
-        partidaService.atualizarPartida(Long.valueOf(id), partidaDTO);
+        partidaServiceImpl.atualizarPartida(Long.valueOf(id), partidaDTO);
         log.info("Partida consumida e atualizada com sucesso: {}", partidaDTO);
     }
 
@@ -47,7 +47,7 @@ public class PartidaConsumer {
             containerFactory = "stringKafkaListenerContainerFactory"
     )
     public void consumirPartidaExclusao(@Header(RECEIVED_KEY) String id) {
-        partidaService.deletarPartida(Long.valueOf(id));
+        partidaServiceImpl.deletarPartida(Long.valueOf(id));
         log.info("Partida consumida e excluída com sucesso: {}", id);
     }
 

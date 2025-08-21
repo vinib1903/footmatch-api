@@ -3,7 +3,7 @@ package com.teamcubation.footmatchapi.adapters.inbound.controller.v1;
 import com.teamcubation.footmatchapi.application.dto.request.ClubeRequestDTO;
 import com.teamcubation.footmatchapi.application.dto.response.ClubeResponseDTO;
 import com.teamcubation.footmatchapi.application.dto.response.ErroResponseDTO;
-import com.teamcubation.footmatchapi.application.service.clube.ClubeService;
+import com.teamcubation.footmatchapi.application.service.clube.ClubeServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -25,7 +25,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class ClubeController {
 
-    private final ClubeService clubeService;
+    private final ClubeServiceImpl clubeServiceImpl;
 
     @GetMapping
     @Operation(summary = "Lista clubes com suporte a paginação e filtros",
@@ -46,7 +46,7 @@ public class ClubeController {
                     "}")
             @PageableDefault(size = 10, sort = "nome") Pageable pageable) {
 
-        Page<ClubeResponseDTO> page = clubeService.obterClubes(nome, siglaEstado, ativo, pageable);
+        Page<ClubeResponseDTO> page = clubeServiceImpl.obterClubes(nome, siglaEstado, ativo, pageable);
         return ResponseEntity.ok(page);
     }
 
@@ -58,7 +58,7 @@ public class ClubeController {
                     @ApiResponse(responseCode = "500", description = "Erro interno no servidor", content = @Content(schema = @Schema(implementation = ErroResponseDTO.class)))
             })
     public ResponseEntity<ClubeResponseDTO> getClubeById(@Parameter(description = "ID do clube a ser buscado", example = "1") @PathVariable Long id) {
-        ClubeResponseDTO clube = clubeService.obterClubePorId(id);
+        ClubeResponseDTO clube = clubeServiceImpl.obterClubePorId(id);
         return ResponseEntity.ok(clube);
     }
 

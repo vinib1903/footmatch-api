@@ -5,7 +5,7 @@ import com.teamcubation.footmatchapi.application.dto.request.PartidaRequestDTO;
 import com.teamcubation.footmatchapi.application.dto.response.ClubeResponseDTO;
 import com.teamcubation.footmatchapi.application.dto.response.EstadioResponseDTO;
 import com.teamcubation.footmatchapi.application.dto.response.PartidaResponseDTO;
-import com.teamcubation.footmatchapi.application.service.partida.PartidaService;
+import com.teamcubation.footmatchapi.application.service.partida.PartidaServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -34,7 +34,7 @@ public class PartidaControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private PartidaService partidaService;
+    private PartidaServiceImpl partidaServiceImpl;
 
     final String BASE_URL = "/api/v1/partidas";
 
@@ -47,7 +47,7 @@ public class PartidaControllerTest {
                 .andDo(print())
                 .andExpect(status().isGone());
 
-        verify(partidaService, never()).criarPartida(any(PartidaRequestDTO.class));
+        verify(partidaServiceImpl, never()).criarPartida(any(PartidaRequestDTO.class));
     }
 
     @Test
@@ -85,7 +85,7 @@ public class PartidaControllerTest {
 
         Pageable pageable = PageRequest.of(0, 10);
 
-        when(partidaService.obterPartidas(any(), any(), any(), any(), any(Pageable.class)))
+        when(partidaServiceImpl.obterPartidas(any(), any(), any(), any(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(partida1, partida2, partida3), pageable, 3));
 
         mockMvc.perform(get(BASE_URL)
@@ -96,7 +96,7 @@ public class PartidaControllerTest {
                 .andExpect(jsonPath("$.content[1].id").value(2L))
                 .andExpect(jsonPath("$.content[2].id").value(1L));
 
-        verify(partidaService, times(1)).obterPartidas(any(), any(), any(), any(), any(Pageable.class));
+        verify(partidaServiceImpl, times(1)).obterPartidas(any(), any(), any(), any(), any(Pageable.class));
     }
 
     @Test
@@ -112,7 +112,7 @@ public class PartidaControllerTest {
                 .golsVisitante(5)
                 .build();
 
-        when(partidaService.obterPartidaPorId(1L))
+        when(partidaServiceImpl.obterPartidaPorId(1L))
                 .thenReturn(partida);
 
         mockMvc.perform(get(BASE_URL + "/1")
@@ -122,7 +122,7 @@ public class PartidaControllerTest {
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.golsMandante").value(3));
 
-        verify(partidaService, times(1)).obterPartidaPorId(1L);
+        verify(partidaServiceImpl, times(1)).obterPartidaPorId(1L);
     }
 
     @Test
@@ -134,7 +134,7 @@ public class PartidaControllerTest {
                 .andDo(print())
                 .andExpect(status().isGone());
 
-        verify(partidaService, never()).atualizarPartida(eq(1L), any(PartidaRequestDTO.class));
+        verify(partidaServiceImpl, never()).atualizarPartida(eq(1L), any(PartidaRequestDTO.class));
     }
 
     @Test
@@ -145,7 +145,7 @@ public class PartidaControllerTest {
                 .andDo(print())
                 .andExpect(status().isGone());
 
-        verify(partidaService, never()).deletarPartida(eq(1L));
+        verify(partidaServiceImpl, never()).deletarPartida(eq(1L));
     }
 
 }

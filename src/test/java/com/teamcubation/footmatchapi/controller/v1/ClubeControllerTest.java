@@ -3,7 +3,7 @@ package com.teamcubation.footmatchapi.controller.v1;
 import com.teamcubation.footmatchapi.adapters.inbound.controller.v1.ClubeController;
 import com.teamcubation.footmatchapi.application.dto.request.ClubeRequestDTO;
 import com.teamcubation.footmatchapi.application.dto.response.ClubeResponseDTO;
-import com.teamcubation.footmatchapi.application.service.clube.ClubeService;
+import com.teamcubation.footmatchapi.application.service.clube.ClubeServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -32,7 +32,7 @@ public class ClubeControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private ClubeService clubeService;
+    private ClubeServiceImpl clubeServiceImpl;
 
     final String BASE_URL = "/api/v1/clubes";
 
@@ -45,7 +45,7 @@ public class ClubeControllerTest {
                 .andDo(print())
                 .andExpect(status().isGone());
 
-        verify(clubeService, never()).criarClube(any(ClubeRequestDTO.class));
+        verify(clubeServiceImpl, never()).criarClube(any(ClubeRequestDTO.class));
     }
 
     @Test
@@ -57,7 +57,7 @@ public class ClubeControllerTest {
                 .andDo(print())
                 .andExpect(status().isGone());
 
-        verify(clubeService, never()).criarClube(any(ClubeRequestDTO.class));
+        verify(clubeServiceImpl, never()).criarClube(any(ClubeRequestDTO.class));
     }
 
     @Test
@@ -81,7 +81,7 @@ public class ClubeControllerTest {
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("nome").ascending());
 
-        when(clubeService.obterClubes(any(), any(), any(), any(Pageable.class)))
+        when(clubeServiceImpl.obterClubes(any(), any(), any(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(gremio, botafogo), pageable, 2));
 
         mockMvc.perform(get(BASE_URL)
@@ -91,7 +91,7 @@ public class ClubeControllerTest {
                 .andExpect(jsonPath("$.content[0].nome").value("Grêmio"))
                 .andExpect(jsonPath("$.content[1].nome").value("Botafogo"));
 
-        verify(clubeService, times(1)).obterClubes(any(), any(), any(), any(Pageable.class));
+        verify(clubeServiceImpl, times(1)).obterClubes(any(), any(), any(), any(Pageable.class));
     }
 
     @Test
@@ -105,7 +105,7 @@ public class ClubeControllerTest {
                 .ativo(true)
                 .build();
 
-        when(clubeService.obterClubePorId(1L))
+        when(clubeServiceImpl.obterClubePorId(1L))
                 .thenReturn(gremio);
 
         mockMvc.perform(get(BASE_URL + "/1")
@@ -115,7 +115,7 @@ public class ClubeControllerTest {
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.nome").value("Grêmio"));
 
-        verify(clubeService, times(1)).obterClubePorId(1L);
+        verify(clubeServiceImpl, times(1)).obterClubePorId(1L);
     }
 
     @Test
@@ -127,7 +127,7 @@ public class ClubeControllerTest {
                 .andDo(print())
                 .andExpect(status().isGone());
 
-        verify(clubeService, never()).atualizarClube(eq(1L), any(ClubeRequestDTO.class));
+        verify(clubeServiceImpl, never()).atualizarClube(eq(1L), any(ClubeRequestDTO.class));
     }
 
     @Test
@@ -138,6 +138,6 @@ public class ClubeControllerTest {
                 .andDo(print())
                 .andExpect(status().isGone());
 
-        verify(clubeService, never()).inativarClube(eq(1L));
+        verify(clubeServiceImpl, never()).inativarClube(eq(1L));
     }
 }

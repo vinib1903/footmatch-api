@@ -8,11 +8,11 @@ import com.teamcubation.footmatchapi.application.dto.request.PartidaRequestDTO;
 import com.teamcubation.footmatchapi.application.dto.response.ClubeResponseDTO;
 import com.teamcubation.footmatchapi.application.dto.response.EstadioResponseDTO;
 import com.teamcubation.footmatchapi.application.dto.response.PartidaResponseDTO;
+import com.teamcubation.footmatchapi.domain.interfaces.PartidaRepository;
 import com.teamcubation.footmatchapi.utils.mapper.PartidaMapper;
-import com.teamcubation.footmatchapi.adapters.outbound.repository.PartidaRepository;
-import com.teamcubation.footmatchapi.application.service.clube.ClubeService;
-import com.teamcubation.footmatchapi.application.service.estadio.EstadioService;
-import com.teamcubation.footmatchapi.application.service.partida.PartidaService;
+import com.teamcubation.footmatchapi.application.service.clube.ClubeServiceImpl;
+import com.teamcubation.footmatchapi.application.service.estadio.EstadioServiceImpl;
+import com.teamcubation.footmatchapi.application.service.partida.PartidaServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,19 +38,19 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @Slf4j
-public class PartidaServiceTest {
+public class PartidaServiceImplTest {
 
     @Mock
     private PartidaRepository partidaRepository;
     @Mock
     private PartidaMapper partidaMapper;
     @Mock
-    private EstadioService estadioService;
+    private EstadioServiceImpl estadioServiceImpl;
     @Mock
-    private ClubeService clubeService;
+    private ClubeServiceImpl clubeServiceImpl;
 
     @InjectMocks
-    private PartidaService partidaService;
+    private PartidaServiceImpl partidaServiceImpl;
 
     @Test
     void testCreateMatchWhenDataIsValid() {
@@ -126,13 +126,13 @@ public class PartidaServiceTest {
                 .golsVisitante(dto.getGolsVisitante())
                 .build();
 
-        when(clubeService.validarExistenciaClube(1L))
+        when(clubeServiceImpl.validarExistenciaClube(1L))
                 .thenReturn(mandante);
 
-        when(clubeService.validarExistenciaClube(2L))
+        when(clubeServiceImpl.validarExistenciaClube(2L))
                 .thenReturn(visitante);
 
-        when(estadioService.validarExistenciaEstadio(1L))
+        when(estadioServiceImpl.validarExistenciaEstadio(1L))
                 .thenReturn(estadio);
 
         when(partidaRepository.findAllByClube(mandante))
@@ -150,7 +150,7 @@ public class PartidaServiceTest {
         when(partidaMapper.toDto(any(Partida.class)))
                 .thenReturn(response);
 
-        PartidaResponseDTO result = partidaService.criarPartida(dto);
+        PartidaResponseDTO result = partidaServiceImpl.criarPartida(dto);
 
         assertNotNull(result);
         assertEquals(5L, result.getId());
@@ -161,9 +161,9 @@ public class PartidaServiceTest {
         assertEquals(1, result.getGolsVisitante());
         assertEquals(response, result);
 
-        verify(clubeService, times(1)).validarExistenciaClube(1L);
-        verify(clubeService, times(1)).validarExistenciaClube(2L);
-        verify(estadioService, times(1)).validarExistenciaEstadio(1L);
+        verify(clubeServiceImpl, times(1)).validarExistenciaClube(1L);
+        verify(clubeServiceImpl, times(1)).validarExistenciaClube(2L);
+        verify(estadioServiceImpl, times(1)).validarExistenciaEstadio(1L);
         verify(partidaRepository, times(1)).findAllByClube(mandante);
         verify(partidaRepository, times(1)).findAllByClube(visitante);
         verify(partidaRepository, times(1)).findAllByEstadioAndData(estadio, dto.getDataHora().toLocalDate());
@@ -204,25 +204,25 @@ public class PartidaServiceTest {
                 .golsVisitante(1)
                 .build();
 
-        when(clubeService.validarExistenciaClube(1L))
+        when(clubeServiceImpl.validarExistenciaClube(1L))
                 .thenReturn(mandante);
 
-        when(clubeService.validarExistenciaClube(2L))
+        when(clubeServiceImpl.validarExistenciaClube(2L))
                 .thenReturn(visitante);
 
-        when(estadioService.validarExistenciaEstadio(1L))
+        when(estadioServiceImpl.validarExistenciaEstadio(1L))
                 .thenReturn(estadio);
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> partidaService.criarPartida(dto));
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> partidaServiceImpl.criarPartida(dto));
 
         log.info("Exception: {}", ex.getMessage());
 
         assertEquals(org.springframework.http.HttpStatus.CONFLICT, ex.getStatusCode());
         assertEquals("Clube inativo.", ex.getReason());
 
-        verify(clubeService, times(1)).validarExistenciaClube(1L);
-        verify(clubeService, times(1)).validarExistenciaClube(2L);
-        verify(estadioService, times(1)).validarExistenciaEstadio(1L);
+        verify(clubeServiceImpl, times(1)).validarExistenciaClube(1L);
+        verify(clubeServiceImpl, times(1)).validarExistenciaClube(2L);
+        verify(estadioServiceImpl, times(1)).validarExistenciaEstadio(1L);
     }
 
     @Test
@@ -268,13 +268,13 @@ public class PartidaServiceTest {
                 .golsVisitante(0)
                 .build();
 
-        when(clubeService.validarExistenciaClube(1L))
+        when(clubeServiceImpl.validarExistenciaClube(1L))
                 .thenReturn(mandante);
 
-        when(clubeService.validarExistenciaClube(2L))
+        when(clubeServiceImpl.validarExistenciaClube(2L))
                 .thenReturn(visitante);
 
-        when(estadioService.validarExistenciaEstadio(1L))
+        when(estadioServiceImpl.validarExistenciaEstadio(1L))
                 .thenReturn(estadio);
 
         when(partidaRepository.findAllByClube(mandante))
@@ -286,14 +286,14 @@ public class PartidaServiceTest {
         when(partidaRepository.findAllByEstadioAndData(estadio, LocalDate.of(2022, 12, 18)))
                 .thenReturn(java.util.Collections.singletonList(partidaExistente));
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> partidaService.criarPartida(dto));
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> partidaServiceImpl.criarPartida(dto));
 
         assertEquals(org.springframework.http.HttpStatus.CONFLICT, ex.getStatusCode());
         assertEquals("Estádio já possui partida neste dia.", ex.getReason());
 
-        verify(clubeService, times(1)).validarExistenciaClube(1L);
-        verify(clubeService, times(1)).validarExistenciaClube(2L);
-        verify(estadioService, times(1)).validarExistenciaEstadio(1L);
+        verify(clubeServiceImpl, times(1)).validarExistenciaClube(1L);
+        verify(clubeServiceImpl, times(1)).validarExistenciaClube(2L);
+        verify(estadioServiceImpl, times(1)).validarExistenciaEstadio(1L);
         verify(partidaRepository, times(1)).findAllByClube(mandante);
         verify(partidaRepository, times(1)).findAllByClube(visitante);
         verify(partidaRepository, times(1)).findAllByEstadioAndData(estadio, LocalDate.of(2022, 12, 18));
@@ -357,7 +357,7 @@ public class PartidaServiceTest {
         PartidaResponseDTO dto2 = PartidaResponseDTO.builder().id(2L).build();
         PartidaResponseDTO dto3 = PartidaResponseDTO.builder().id(3L).build();
 
-        when(clubeService.validarExistenciaClube(1L)).thenReturn(gremio);
+        when(clubeServiceImpl.validarExistenciaClube(1L)).thenReturn(gremio);
 
         when(partidaRepository.findPartidasWithFilters(eq(gremio), isNull(), isNull(), isNull(), eq(pageable)))
                 .thenReturn(new PageImpl<>(partidasGremio));
@@ -368,7 +368,7 @@ public class PartidaServiceTest {
         when(partidaMapper.toDto(partida3))
                 .thenReturn(dto3);
 
-        Page<PartidaResponseDTO> partidas = partidaService.obterPartidas(1L, null, null, null, pageable);
+        Page<PartidaResponseDTO> partidas = partidaServiceImpl.obterPartidas(1L, null, null, null, pageable);
 
         log.info(partidas.getContent().toString());
 
@@ -408,7 +408,7 @@ public class PartidaServiceTest {
         when(partidaMapper.toDto(partida))
                 .thenReturn(dto);
 
-        PartidaResponseDTO result = partidaService.obterPartidaPorId(1L);
+        PartidaResponseDTO result = partidaServiceImpl.obterPartidaPorId(1L);
 
         log.info(result.toString());
 
@@ -426,7 +426,7 @@ public class PartidaServiceTest {
         when(partidaRepository.findById(1L))
                 .thenReturn(Optional.empty());
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> partidaService.obterPartidaPorId(1L));
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> partidaServiceImpl.obterPartidaPorId(1L));
 
         log.info("Exception: {}", ex.getMessage());
 
@@ -470,21 +470,21 @@ public class PartidaServiceTest {
         when(partidaRepository.findById(1L))
                 .thenReturn(Optional.of(partida));
 
-        when(clubeService.validarExistenciaClube(1L))
+        when(clubeServiceImpl.validarExistenciaClube(1L))
                 .thenReturn(Clube.builder()
                         .id(1L)
                         .dataCriacao(LocalDate.of(1903, 9, 15))
                         .ativo(true)
                         .build());
 
-        when(clubeService.validarExistenciaClube(2L))
+        when(clubeServiceImpl.validarExistenciaClube(2L))
                 .thenReturn(Clube.builder()
                         .id(2L)
                         .dataCriacao(LocalDate.of(1914, 8, 26))
                         .ativo(true)
                         .build());
 
-        when(estadioService.validarExistenciaEstadio(1L))
+        when(estadioServiceImpl.validarExistenciaEstadio(1L))
                 .thenReturn(Estadio.builder().id(1L).build());
 
         when(partidaRepository.findAllByClube(any(Clube.class)))
@@ -499,7 +499,7 @@ public class PartidaServiceTest {
         when(partidaMapper.toDto(any(Partida.class)))
                 .thenReturn(responseDto);
 
-        PartidaResponseDTO result = partidaService.atualizarPartida(1L, requestDto);
+        PartidaResponseDTO result = partidaServiceImpl.atualizarPartida(1L, requestDto);
 
         log.info(result.toString());
 
@@ -546,9 +546,9 @@ public class PartidaServiceTest {
                 .build();
 
         when(partidaRepository.findById(1L)).thenReturn(Optional.of(partida));
-        when(clubeService.validarExistenciaClube(1L)).thenReturn(clube);
+        when(clubeServiceImpl.validarExistenciaClube(1L)).thenReturn(clube);
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> partidaService.atualizarPartida(1L, requestDto));
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> partidaServiceImpl.atualizarPartida(1L, requestDto));
 
         log.info("Exception: {}", ex.getMessage());
 
@@ -567,7 +567,7 @@ public class PartidaServiceTest {
         when(partidaRepository.findById(1L))
                 .thenReturn(Optional.of(partida));
 
-        partidaService.deletarPartida(1L);
+        partidaServiceImpl.deletarPartida(1L);
 
         verify(partidaRepository, times(1)).delete(partida);
     }
@@ -578,7 +578,7 @@ public class PartidaServiceTest {
         when(partidaRepository.findById(1L))
                 .thenReturn(Optional.empty());
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> partidaService.deletarPartida(1L));
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> partidaServiceImpl.deletarPartida(1L));
 
         log.info("Exception: {}", ex.getMessage());
 

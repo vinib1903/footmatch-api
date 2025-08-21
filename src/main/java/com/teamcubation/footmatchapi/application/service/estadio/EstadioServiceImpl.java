@@ -1,14 +1,15 @@
 package com.teamcubation.footmatchapi.application.service.estadio;
 
+import com.teamcubation.footmatchapi.application.usecase.EstadioUseCases;
 import com.teamcubation.footmatchapi.domain.entities.Endereco;
 import com.teamcubation.footmatchapi.domain.entities.Estadio;
 import com.teamcubation.footmatchapi.application.dto.request.EstadioRequestDTO;
 import com.teamcubation.footmatchapi.application.dto.response.EstadioResponseDTO;
 import com.teamcubation.footmatchapi.application.dto.response.ViaCepResponseDTO;
 import com.teamcubation.footmatchapi.adapters.outbound.integration.ViacepClient;
+import com.teamcubation.footmatchapi.domain.interfaces.EstadioRepository;
 import com.teamcubation.footmatchapi.utils.mapper.EnderecoMapper;
 import com.teamcubation.footmatchapi.utils.mapper.EstadioMapper;
-import com.teamcubation.footmatchapi.adapters.outbound.repository.EstadioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +20,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class EstadioService {
+public class EstadioServiceImpl implements EstadioUseCases {
 
     public final EstadioRepository estadioRepository;
     private final EstadioMapper estadioMapper;
