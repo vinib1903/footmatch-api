@@ -147,7 +147,7 @@ public class PartidaServiceImplTest {
         when(partidaRepository.save(any(Partida.class)))
                 .thenReturn(partida);
 
-        when(partidaMapper.toDto(any(Partida.class)))
+        when(partidaMapper.EntityToDto(any(Partida.class)))
                 .thenReturn(response);
 
         PartidaResponseDTO result = partidaServiceImpl.criarPartida(dto);
@@ -168,7 +168,7 @@ public class PartidaServiceImplTest {
         verify(partidaRepository, times(1)).findAllByClube(visitante);
         verify(partidaRepository, times(1)).findAllByEstadioAndData(estadio, dto.getDataHora().toLocalDate());
         verify(partidaRepository, times(1)).save(any(Partida.class));
-        verify(partidaMapper, times(1)).toDto(any(Partida.class));
+        verify(partidaMapper, times(1)).EntityToDto(any(Partida.class));
     }
 
     @Test
@@ -362,10 +362,10 @@ public class PartidaServiceImplTest {
         when(partidaRepository.findPartidasWithFilters(eq(gremio), isNull(), isNull(), isNull(), eq(pageable)))
                 .thenReturn(new PageImpl<>(partidasGremio));
 
-        when(partidaMapper.toDto(partida2))
+        when(partidaMapper.EntityToDto(partida2))
                 .thenReturn(dto2);
 
-        when(partidaMapper.toDto(partida3))
+        when(partidaMapper.EntityToDto(partida3))
                 .thenReturn(dto3);
 
         Page<PartidaResponseDTO> partidas = partidaServiceImpl.obterPartidas(1L, null, null, null, pageable);
@@ -405,7 +405,7 @@ public class PartidaServiceImplTest {
         when(partidaRepository.findById(1L))
                 .thenReturn(Optional.of(partida));
 
-        when(partidaMapper.toDto(partida))
+        when(partidaMapper.EntityToDto(partida))
                 .thenReturn(dto);
 
         PartidaResponseDTO result = partidaServiceImpl.obterPartidaPorId(1L);
@@ -417,7 +417,7 @@ public class PartidaServiceImplTest {
         assertEquals(5, dto.getGolsVisitante());
 
         verify(partidaRepository, times(1)).findById(1L);
-        verify(partidaMapper, times(1)).toDto(partida);
+        verify(partidaMapper, times(1)).EntityToDto(partida);
     }
 
     @Test
@@ -496,7 +496,7 @@ public class PartidaServiceImplTest {
         when(partidaRepository.save(any(Partida.class)))
                 .thenReturn(partida);
 
-        when(partidaMapper.toDto(any(Partida.class)))
+        when(partidaMapper.EntityToDto(any(Partida.class)))
                 .thenReturn(responseDto);
 
         PartidaResponseDTO result = partidaServiceImpl.atualizarPartida(1L, requestDto);
@@ -569,7 +569,7 @@ public class PartidaServiceImplTest {
 
         partidaServiceImpl.deletarPartida(1L);
 
-        verify(partidaRepository, times(1)).delete(partida);
+        verify(partidaRepository, times(1)).deletePartida(1L);
     }
 
     @Test

@@ -1,12 +1,12 @@
 package com.teamcubation.footmatchapi.application.service.estadio;
 
+import com.teamcubation.footmatchapi.adapters.outbound.integration.ViacepClientPort;
 import com.teamcubation.footmatchapi.application.usecase.EstadioUseCases;
 import com.teamcubation.footmatchapi.domain.entities.Endereco;
 import com.teamcubation.footmatchapi.domain.entities.Estadio;
 import com.teamcubation.footmatchapi.application.dto.request.EstadioRequestDTO;
 import com.teamcubation.footmatchapi.application.dto.response.EstadioResponseDTO;
 import com.teamcubation.footmatchapi.application.dto.response.ViaCepResponseDTO;
-import com.teamcubation.footmatchapi.adapters.outbound.integration.ViacepClient;
 import com.teamcubation.footmatchapi.domain.interfaces.EstadioRepository;
 import com.teamcubation.footmatchapi.utils.mapper.EnderecoMapper;
 import com.teamcubation.footmatchapi.utils.mapper.EstadioMapper;
@@ -19,13 +19,19 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class EstadioServiceImpl implements EstadioUseCases {
 
     public final EstadioRepository estadioRepository;
     private final EstadioMapper estadioMapper;
     private final EnderecoMapper enderecoMapper;
-    private final ViacepClient viacepClient;
+    private final ViacepClientPort viacepClientPort;
+
+    public EstadioServiceImpl(EstadioRepository estadioRepository, EstadioMapper estadioMapper, EnderecoMapper enderecoMapper, ViacepClientPort viacepClientPort) {
+        this.estadioRepository = estadioRepository;
+        this.estadioMapper = estadioMapper;
+        this.enderecoMapper = enderecoMapper;
+        this.viacepClientPort = viacepClientPort;
+    }
 
     public EstadioResponseDTO criarEstadio(EstadioRequestDTO estadioRequestDTO) {
 
@@ -33,31 +39,31 @@ public class EstadioServiceImpl implements EstadioUseCases {
 
         validarCepExistente(estadioRequestDTO.getCep(), null);
 
-        ViaCepResponseDTO viaCepResponse = viacepClient.buscarEnderecoPorCep(estadioRequestDTO.getCep());
+        ViaCepResponseDTO viaCepResponse = viacepClientPort.buscarEnderecoPorCep(estadioRequestDTO.getCep());
 
         Endereco endereco = enderecoMapper.fromViaCepResponse(viaCepResponse);
 
         endereco.setCep(normalizarCep(viaCepResponse.getCep()));
 
-        Estadio estadio = estadioMapper.toEntity(estadioRequestDTO);
+        Estadio estadio = estadioMapper.dtoToEntity(estadioRequestDTO);
 
         estadio.setEndereco(endereco);
 
         estadioRepository.save(estadio);
 
-        return estadioMapper.toDto(estadio);
+        return estadioMapper.entityToDto(estadio);
     }
 
     public Page<EstadioResponseDTO> obterEstadios(String nome, Pageable pageable) {
 
-        return estadioRepository.findStadiumsWichFilters(nome,pageable).map(estadioMapper::toDto);
+        return estadioRepository.findStadiumsWichFilters(nome,pageable).map(estadioMapper::entityToDto);
     }
 
     public EstadioResponseDTO obterEstadioPorId(Long id) {
 
         Estadio estadio = validarExistenciaEstadio(id);
 
-        return estadioMapper.toDto(estadio);
+        return estadioMapper.entityToDto(estadio);
     }
 
     public EstadioResponseDTO atualizarEstadio(Long id, EstadioRequestDTO estadioRequestDTO) {
@@ -68,7 +74,7 @@ public class EstadioServiceImpl implements EstadioUseCases {
 
         validarCepExistente(estadioRequestDTO.getCep(), id);
 
-        ViaCepResponseDTO viaCepResponse = viacepClient.buscarEnderecoPorCep(estadioRequestDTO.getCep());
+        ViaCepResponseDTO viaCepResponse = viacepClientPort.buscarEnderecoPorCep(estadioRequestDTO.getCep());
 
         Endereco endereco = enderecoMapper.fromViaCepResponse(viaCepResponse);
 
@@ -80,7 +86,7 @@ public class EstadioServiceImpl implements EstadioUseCases {
 
         Estadio salvo = estadioRepository.save(estadio);
 
-        return estadioMapper.toDto(salvo);
+        return estadioMapper.entityToDto(salvo);
     }
 
     public Estadio validarExistenciaEstadio(Long id) {

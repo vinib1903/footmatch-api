@@ -65,13 +65,13 @@ public class ClubeServiceImplTest {
                 .ativo(clube.getAtivo())
                 .build();
 
-        when(clubeMapper.toEntity(dto))
+        when(clubeMapper.dtoToEntity(dto))
                 .thenReturn(clube);
 
         when(clubeJpaRepository.save(clube))
                 .thenReturn(clube);
 
-        when(clubeMapper.toDto(clube))
+        when(clubeMapper.entityToDto(clube))
                 .thenReturn(response);
 
         ClubeResponseDTO result = clubeServiceImpl.criarClube(dto);
@@ -260,22 +260,22 @@ public class ClubeServiceImplTest {
         when(clubeJpaRepository.findClubesWithFilters(null, null, null, pageable))
                 .thenReturn(new PageImpl<>(clubes, pageable, clubes.size()));
 
-        when(clubeMapper.toDto(clube1))
+        when(clubeMapper.entityToDto(clube1))
                 .thenReturn(dto1);
 
-        when(clubeMapper.toDto(clube2))
+        when(clubeMapper.entityToDto(clube2))
                 .thenReturn(dto2);
 
-        when(clubeMapper.toDto(clube3))
+        when(clubeMapper.entityToDto(clube3))
                 .thenReturn(dto3);
 
-        when(clubeMapper.toDto(clube4))
+        when(clubeMapper.entityToDto(clube4))
                 .thenReturn(dto4);
 
-        when(clubeMapper.toDto(clube5))
+        when(clubeMapper.entityToDto(clube5))
                 .thenReturn(dto5);
 
-        when(clubeMapper.toDto(clube6))
+        when(clubeMapper.entityToDto(clube6))
                 .thenReturn(dto6);
 
         Page<ClubeResponseDTO> result = clubeServiceImpl.obterClubes(null, null, null, pageable);
@@ -312,7 +312,7 @@ public class ClubeServiceImplTest {
         when(clubeJpaRepository.findById(1L))
                 .thenReturn(Optional.of(clube));
 
-        when(clubeMapper.toDto(clube))
+        when(clubeMapper.entityToDto(clube))
                 .thenReturn(dto);
 
         ClubeResponseDTO result = clubeServiceImpl.obterClubePorId(1L);
@@ -323,7 +323,7 @@ public class ClubeServiceImplTest {
         assertEquals(dto, result);
 
         verify(clubeJpaRepository, times(1)).findById(1L);
-        verify(clubeMapper, times(1)).toDto(clube);
+        verify(clubeMapper, times(1)).entityToDto(clube);
     }
 
     @Test
@@ -376,7 +376,7 @@ public class ClubeServiceImplTest {
         when(clubeJpaRepository.save(clube))
                 .thenReturn(clube);
 
-        when(clubeMapper.toDto(clube))
+        when(clubeMapper.entityToDto(clube))
                 .thenReturn(responseDto);
 
         ClubeResponseDTO result = clubeServiceImpl.atualizarClube(1L, dto);

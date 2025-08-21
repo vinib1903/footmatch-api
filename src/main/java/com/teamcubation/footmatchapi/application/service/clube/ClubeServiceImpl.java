@@ -20,12 +20,17 @@ import java.time.LocalDate;
 import java.util.*;
 
 @Service
-@RequiredArgsConstructor
 public class ClubeServiceImpl implements ClubeUseCases {
 
     private final ClubeMapper clubeMapper;
     private final PartidaRepository partidaRepository;
     private final ClubeRepository clubeRepository;
+
+    public ClubeServiceImpl(ClubeMapper clubeMapper, PartidaRepository partidaRepository, ClubeRepository clubeRepository) {
+        this.clubeMapper = clubeMapper;
+        this.partidaRepository = partidaRepository;
+        this.clubeRepository = clubeRepository;
+    }
 
     public ClubeResponseDTO criarClube(ClubeRequestDTO dto) {
 
@@ -39,11 +44,11 @@ public class ClubeServiceImpl implements ClubeUseCases {
 
         validarNomeClubeExistenteNoEstado(dto.getNome(), SiglaEstado.valueOf(dto.getSiglaEstado()), null);
 
-        Clube clube = clubeMapper.toEntity(dto);
+        Clube clube = clubeMapper.dtoToEntity(dto);
 
         clubeRepository.save(clube);
 
-        return clubeMapper.toDto(clube);
+        return clubeMapper.entityToDto(clube);
     }
 
     public Page<ClubeResponseDTO> obterClubes(String nome, String siglaEstado, Boolean ativo, Pageable pageable) {
@@ -55,14 +60,14 @@ public class ClubeServiceImpl implements ClubeUseCases {
         }
 
         return clubeRepository.findClubesWithFilters(nome, estado, ativo, pageable)
-                .map(clubeMapper::toDto);
+                .map(clubeMapper::entityToDto);
     }
 
     public ClubeResponseDTO obterClubePorId(Long id) {
 
         Clube clube = validarExistenciaClube(id);
 
-        return clubeMapper.toDto(clube);
+        return clubeMapper.entityToDto(clube);
     }
 
     public ClubeResponseDTO atualizarClube(Long id, ClubeRequestDTO dto) {
@@ -94,7 +99,7 @@ public class ClubeServiceImpl implements ClubeUseCases {
 
         Clube salvo = clubeRepository.save(clube);
 
-        return clubeMapper.toDto(salvo);
+        return clubeMapper.entityToDto(salvo);
     }
 
     public void inativarClube(Long id) {
@@ -121,7 +126,7 @@ public class ClubeServiceImpl implements ClubeUseCases {
 
     private void validarNomeClubeExistenteNoEstado(String nome, SiglaEstado siglaEstado, Long id) throws ResponseStatusException {
 
-        Optional<Clube> clubeExistente = clubeRepository.findByNomeAndSiglaEstado(nome, siglaEstado);
+        Clube clubeExistente = clubeRepository.findByNomeAndSiglaEstado(nome, siglaEstado);
 
         if (clubeExistente.isPresent() && !clubeExistente.get().getId().equals(id)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um clube com este nome no estado informado.");

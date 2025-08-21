@@ -22,13 +22,19 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class PartidaServiceImpl implements PartidaUseCases {
 
     private final PartidaRepository partidaRepository;
     private final PartidaMapper partidaMapper;
     private final EstadioServiceImpl estadioServiceImpl;
     private final ClubeServiceImpl clubeServiceImpl;
+
+    public PartidaServiceImpl(PartidaRepository partidaRepository, PartidaMapper partidaMapper, EstadioServiceImpl estadioServiceImpl, ClubeServiceImpl clubeServiceImpl) {
+        this.partidaRepository = partidaRepository;
+        this.partidaMapper = partidaMapper;
+        this.estadioServiceImpl = estadioServiceImpl;
+        this.clubeServiceImpl = clubeServiceImpl;
+    }
 
     public PartidaResponseDTO criarPartida(PartidaRequestDTO dto) {
 
@@ -52,18 +58,18 @@ public class PartidaServiceImpl implements PartidaUseCases {
 
         validarEstadioOcupado(estadio, dto.getDataHora().toLocalDate(), null);
 
-        Partida partida = Partida.builder()
-                .mandante(mandante)
-                .visitante(visitante)
-                .estadio(estadio)
-                .dataHora(dto.getDataHora())
-                .golsMandante(dto.getGolsMandante())
-                .golsVisitante(dto.getGolsVisitante())
-                .build();
+        Partida partida = new Partida();
+        partida.setMandante(mandante);
+        partida.setVisitante(visitante);
+        partida.setEstadio(estadio);
+        partida.setDataHora(dto.getDataHora());
+        partida.setGolsMandante(dto.getGolsMandante());
+        partida.setGolsVisitante(dto.getGolsVisitante());
+
 
         partidaRepository.save(partida);
 
-        return partidaMapper.toDto(partida);
+        return partidaMapper.EntityToDto(partida);
     }
 
     public Page<PartidaResponseDTO> obterPartidas(Long clubeId, Long estadioId, Boolean goleada, String papel, Pageable pageable) {
@@ -73,14 +79,14 @@ public class PartidaServiceImpl implements PartidaUseCases {
         Estadio estadio = (estadioId != null) ? estadioServiceImpl.validarExistenciaEstadio(estadioId) : null;
 
         return partidaRepository.findPartidasWithFilters(clube, estadio, goleada, papel, pageable)
-                .map(partidaMapper::toDto);
+                .map(partidaMapper::EntityToDto);
     }
 
     public PartidaResponseDTO obterPartidaPorId(Long id) {
 
         Partida partida = validarExistenciaPartida(id);
 
-        return partidaMapper.toDto(partida);
+        return partidaMapper.EntityToDto(partida);
     }
 
     public PartidaResponseDTO atualizarPartida(Long id, PartidaRequestDTO dto) {
@@ -116,14 +122,14 @@ public class PartidaServiceImpl implements PartidaUseCases {
 
         Partida salva = partidaRepository.save(partida);
 
-        return partidaMapper.toDto(salva);
+        return partidaMapper.EntityToDto(salva);
     }
 
     public void deletarPartida(Long id) {
 
         Partida partida = validarExistenciaPartida(id);
 
-        partidaRepository.delete(partida);
+        partidaRepository.deletePartida(id);
     }
 
     private void validarDataPartidaAnteriorCriacaoClube(Clube mandante, Clube visitante, LocalDate dataPartida) {

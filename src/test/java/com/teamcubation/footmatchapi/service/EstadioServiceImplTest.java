@@ -1,11 +1,11 @@
 package com.teamcubation.footmatchapi.service;
 
+import com.teamcubation.footmatchapi.adapters.outbound.integration.ViacepClientPort;
 import com.teamcubation.footmatchapi.domain.entities.Endereco;
 import com.teamcubation.footmatchapi.domain.entities.Estadio;
 import com.teamcubation.footmatchapi.application.dto.request.EstadioRequestDTO;
 import com.teamcubation.footmatchapi.application.dto.response.EstadioResponseDTO;
 import com.teamcubation.footmatchapi.application.dto.response.ViaCepResponseDTO;
-import com.teamcubation.footmatchapi.adapters.outbound.integration.ViacepClient;
 import com.teamcubation.footmatchapi.utils.mapper.EnderecoMapper;
 import com.teamcubation.footmatchapi.utils.mapper.EstadioMapper;
 import com.teamcubation.footmatchapi.adapters.outbound.repository.EstadioJpaRepository;
@@ -44,7 +44,7 @@ public class EstadioServiceImplTest {
     @Mock
     EnderecoMapper enderecoMapper;
     @Mock
-    ViacepClient viacepClient;
+    ViacepClientPort viacepClientPort;
 
     @InjectMocks
     EstadioServiceImpl estadioServiceImpl;
@@ -66,24 +66,22 @@ public class EstadioServiceImplTest {
                 .erro(false)
                 .build();
 
-        Endereco endereco = Endereco.builder()
-                .cep("93300000")
-                .logradouro("Rua Sarandi")
-                .bairro("Jardim Mauá")
-                .localidade("Novo Hamburgo")
-                .uf("RS")
-                .build();
+        Endereco endereco = new Endereco();
+                endereco.setCep("93300000");
+                endereco.setLogradouro("Rua Sarandi");
+                endereco.setBairro("Jardim Mauá");
+                endereco.setLocalidade("Novo Hamburgo");
+                endereco.setUf("RS");
 
-        Estadio estadioEntity = Estadio.builder()
-                .nome(dto.getNome())
-                .endereco(endereco)
-                .build();
+        Estadio estadioEntity = new Estadio();
+                estadioEntity.setId(1L);
+                estadioEntity.setNome("Olímpico");
+                estadioEntity.setEndereco(endereco);
 
-        Estadio estadioSalvo = Estadio.builder()
-                .id(1L)
-                .nome(dto.getNome())
-                .endereco(endereco)
-                .build();
+        Estadio estadioSalvo = new Estadio();
+                estadioSalvo.setId(1L);
+                estadioSalvo.setNome("Olímpico");
+                estadioSalvo.setEndereco(endereco);
 
         EstadioResponseDTO response = EstadioResponseDTO.builder()
                 .id(1L)
@@ -94,15 +92,15 @@ public class EstadioServiceImplTest {
                 .thenReturn(Optional.empty());
         when(estadioJpaRepository.findByEndereco_Cep("93300000"))
                 .thenReturn(Optional.empty());
-        when(viacepClient.buscarEnderecoPorCep("93300000"))
+        when(viacepClientPort.buscarEnderecoPorCep("93300000"))
                 .thenReturn(viaCepResponse);
         when(enderecoMapper.fromViaCepResponse(viaCepResponse))
                 .thenReturn(endereco);
-        when(estadioMapper.toEntity(dto))
+        when(estadioMapper.dtoToEntity(dto))
                 .thenReturn(estadioEntity);
         when(estadioJpaRepository.save(any(Estadio.class)))
                 .thenReturn(estadioSalvo);
-        when(estadioMapper.toDto(any(Estadio.class)))
+        when(estadioMapper.entityToDto(any(Estadio.class)))
                 .thenReturn(response);
 
         EstadioResponseDTO result = estadioServiceImpl.criarEstadio(dto);
@@ -112,9 +110,9 @@ public class EstadioServiceImplTest {
 
         assertEquals(response, result);
 
-        verify(estadioMapper, times(1)).toEntity(dto);
+        verify(estadioMapper, times(1)).dtoToEntity(dto);
         verify(estadioJpaRepository, times(1)).save(any(Estadio.class));
-        verify(viacepClient, times(1)).buscarEnderecoPorCep("93300000");
+        verify(viacepClientPort, times(1)).buscarEnderecoPorCep("93300000");
     }
 
     @Test
@@ -125,10 +123,10 @@ public class EstadioServiceImplTest {
                 .cep("93300000")
                 .build();
 
-        Estadio estadio = Estadio.builder()
-                .id(1L)
-                .nome(dto.getNome())
-                .build();
+        Estadio estadio = new Estadio();
+                estadio.setId(1L);
+                estadio.setNome("Olímpico");
+                estadio.setEndereco(new Endereco());
 
         when(estadioJpaRepository.findByNome(dto.getNome()))
                 .thenReturn(Optional.of(estadio));
@@ -139,8 +137,8 @@ public class EstadioServiceImplTest {
 
         assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
 
-        verify(estadioMapper, never()).toEntity(dto);
-        verify(viacepClient, never()).buscarEnderecoPorCep(anyString());
+        verify(estadioMapper, never()).dtoToEntity(dto);
+        verify(viacepClientPort, never()).buscarEnderecoPorCep(anyString());
     }
 
     @Test
@@ -161,31 +159,31 @@ public class EstadioServiceImplTest {
         assertTrue(violations.stream().anyMatch(v -> v.getMessage().contains("O nome deve conter ao menos 3 caracteres.") || v.getMessage().contains("O nome do estádio é obrigatório.")));
         assertTrue(violations.stream().anyMatch(v -> v.getMessage().contains("O CEP do estádio é obrigatório.") || v.getMessage().contains("O CEP deve conter 8 dígitos numéricos.")));
 
-        verify(estadioMapper, never()).toEntity(dto);
+        verify(estadioMapper, never()).dtoToEntity(dto);
     }
 
     @Test
     void testGetAllStadiumsOrderByNameAsc() {
 
-        Estadio estadio1 = Estadio.builder()
-                .id(1L)
-                .nome("Olímpico")
-                .build();
+        Estadio estadio1 = new Estadio();
+                estadio1.setId(1L);
+                estadio1.setNome("Olímpico");
+                estadio1.setEndereco(new Endereco());
 
-        Estadio estadio2 = Estadio.builder()
-                .id(2L)
-                .nome("Maracanã")
-                .build();
+        Estadio estadio2 = new Estadio();
+                estadio2.setId(2L);
+                estadio2.setNome("Maracanã");
+                estadio2.setEndereco(new Endereco());
 
-        Estadio estadio3 = Estadio.builder()
-                .id(3L)
-                .nome("Mineirão")
-                .build();
+        Estadio estadio3 = new Estadio();
+                estadio3.setId(3L);
+                estadio3.setNome("Mineirão");
+                estadio3.setEndereco(new Endereco());
 
-        Estadio estadio4 = Estadio.builder()
-                .id(4L)
-                .nome("Alfredo Jaconi")
-                .build();
+        Estadio estadio4 = new Estadio();
+                estadio4.setId(4L);
+                estadio4.setNome("Alfredo Jaconi");
+                estadio4.setEndereco(new Endereco());
 
         EstadioResponseDTO dto1 = EstadioResponseDTO.builder()
                 .id(1L)
@@ -207,6 +205,8 @@ public class EstadioServiceImplTest {
                 .nome(estadio4.getNome())
                 .build();
 
+
+
         List<Estadio> estadios = List.of(estadio1, estadio2, estadio3, estadio4)
                 .stream()
                 .sorted(Comparator.comparing(Estadio::getNome))
@@ -215,16 +215,16 @@ public class EstadioServiceImplTest {
         when(estadioJpaRepository.findStadiumsWichFilters(any(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(estadios));
 
-        when(estadioMapper.toDto(estadio1))
+        when(estadioMapper.entityToDto(estadio1))
                 .thenReturn(dto1);
 
-        when(estadioMapper.toDto(estadio2))
+        when(estadioMapper.entityToDto(estadio2))
                 .thenReturn(dto2);
 
-        when(estadioMapper.toDto(estadio3))
+        when(estadioMapper.entityToDto(estadio3))
                 .thenReturn(dto3);
 
-        when(estadioMapper.toDto(estadio4))
+        when(estadioMapper.entityToDto(estadio4))
                 .thenReturn(dto4);
 
         Page<EstadioResponseDTO> result = estadioServiceImpl.obterEstadios(null, PageRequest.of(0, 10));
@@ -236,10 +236,10 @@ public class EstadioServiceImplTest {
         assertEquals("Olímpico", result.getContent().get(3).getNome());
         assertEquals("Alfredo Jaconi", result.getContent().get(0).getNome());
 
-        verify(estadioMapper, times(1)).toDto(estadio1);
-        verify(estadioMapper, times(1)).toDto(estadio2);
-        verify(estadioMapper, times(1)).toDto(estadio3);
-        verify(estadioMapper, times(1)).toDto(estadio4);
+        verify(estadioMapper, times(1)).entityToDto(estadio1);
+        verify(estadioMapper, times(1)).entityToDto(estadio2);
+        verify(estadioMapper, times(1)).entityToDto(estadio3);
+        verify(estadioMapper, times(1)).entityToDto(estadio4);
     }
 
     @Test
@@ -258,7 +258,7 @@ public class EstadioServiceImplTest {
         when(estadioJpaRepository.findById(1L))
                 .thenReturn(Optional.of(estadio));
 
-        when(estadioMapper.toDto(estadio))
+        when(estadioMapper.entityToDto(estadio))
                 .thenReturn(dto);
 
         EstadioResponseDTO result = estadioServiceImpl.obterEstadioPorId(1L);
@@ -268,7 +268,7 @@ public class EstadioServiceImplTest {
 
         assertEquals(dto, result);
 
-        verify(estadioMapper, times(1)).toDto(estadio);
+        verify(estadioMapper, times(1)).entityToDto(estadio);
     }
 
     @Test
@@ -328,13 +328,13 @@ public class EstadioServiceImplTest {
                 .thenReturn(Optional.empty());
         when(estadioJpaRepository.findByEndereco_Cep("93300000"))
                 .thenReturn(Optional.of(estadio)); // Mesmo estádio, então pode usar o mesmo CEP
-        when(viacepClient.buscarEnderecoPorCep("93300000"))
+        when(viacepClientPort.buscarEnderecoPorCep("93300000"))
                 .thenReturn(viaCepResponse);
         when(enderecoMapper.fromViaCepResponse(viaCepResponse))
                 .thenReturn(endereco);
         when(estadioJpaRepository.save(any(Estadio.class)))
                 .thenReturn(estadio);
-        when(estadioMapper.toDto(any(Estadio.class)))
+        when(estadioMapper.entityToDto(any(Estadio.class)))
                 .thenReturn(response);
 
         EstadioResponseDTO result = estadioServiceImpl.atualizarEstadio(1L, dto);
@@ -344,9 +344,9 @@ public class EstadioServiceImplTest {
 
         assertEquals(response, result);
 
-        verify(estadioMapper, times(1)).toDto(any(Estadio.class));
+        verify(estadioMapper, times(1)).entityToDto(any(Estadio.class));
         verify(estadioJpaRepository, times(1)).save(any(Estadio.class));
-        verify(viacepClient, times(1)).buscarEnderecoPorCep("93300000");
+        verify(viacepClientPort, times(1)).buscarEnderecoPorCep("93300000");
     }
 
     @Test
@@ -367,6 +367,6 @@ public class EstadioServiceImplTest {
         assertEquals(HttpStatus.NOT_FOUND, ex.getStatusCode());
 
         verify(estadioJpaRepository, times(1)).findById(1L);
-        verify(viacepClient, never()).buscarEnderecoPorCep(anyString());
+        verify(viacepClientPort, never()).buscarEnderecoPorCep(anyString());
     }
 }
