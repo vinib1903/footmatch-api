@@ -1,4 +1,4 @@
-package com.teamcubation.footmatchapi.adapters.outbound.integration;
+package com.teamcubation.footmatchapi.application.ports.out;
 
 import com.teamcubation.footmatchapi.application.dto.response.ViaCepResponseDTO;
 

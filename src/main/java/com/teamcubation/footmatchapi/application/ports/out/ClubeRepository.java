@@ -1,4 +1,4 @@
-package com.teamcubation.footmatchapi.domain.interfaces;
+package com.teamcubation.footmatchapi.application.ports.out;
 
 import com.teamcubation.footmatchapi.domain.entities.Clube;
 import com.teamcubation.footmatchapi.domain.enums.SiglaEstado;
