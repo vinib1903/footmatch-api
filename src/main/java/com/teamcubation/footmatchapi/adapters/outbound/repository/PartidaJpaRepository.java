@@ -1,9 +1,8 @@
 package com.teamcubation.footmatchapi.adapters.outbound.repository;
 
+import com.teamcubation.footmatchapi.adapters.outbound.entities.ClubeJpaEntity;
+import com.teamcubation.footmatchapi.adapters.outbound.entities.EstadioJpaEntity;
 import com.teamcubation.footmatchapi.adapters.outbound.entities.PartidaJpaEntity;
-import com.teamcubation.footmatchapi.domain.entities.Clube;
-import com.teamcubation.footmatchapi.domain.entities.Estadio;
-import com.teamcubation.footmatchapi.domain.entities.Partida;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,22 +21,22 @@ public interface PartidaJpaRepository extends JpaRepository<PartidaJpaEntity, Lo
             "(:papel IS NULL AND (p.mandante = :clube OR p.visitante = :clube))) AND " +
             "(:estadio IS NULL OR p.estadio = :estadio) AND " +
             "(:goleada = TRUE AND ABS(p.golsMandante - p.golsVisitante) >= 3 OR :goleada IS NULL OR :goleada = FALSE)")
-    Page<Partida> findPartidasWithFilters(@Param("clube") Clube clube,
-                                          @Param("estadio") Estadio estadio,
+    Page<PartidaJpaEntity> findPartidasWithFilters(@Param("clube") ClubeJpaEntity clube,
+                                          @Param("estadio") EstadioJpaEntity estadio,
                                           @Param("goleada") Boolean goleada,
                                           @Param("papel") String papel,
                                           Pageable pageable);
 
     @Query("SELECT p FROM PartidaJpaEntity p WHERE " +
             "p.mandante = :clube OR p.visitante = :clube")
-    List<Partida> findAllByClube(@Param("clube") Clube clube);
+    List<PartidaJpaEntity> findAllByClube(@Param("clube") ClubeJpaEntity clube);
 
     @Query("SELECT p FROM PartidaJpaEntity p WHERE " +
             "(p.mandante = :clube OR p.visitante = :clube) AND " +
             "(p.mandante = :adversario OR p.visitante = :adversario)")
-    List<Partida> findAllByClubes(@Param("clube") Clube clube,
-                                  @Param("adversario") Clube adversario);
+    List<PartidaJpaEntity> findAllByClubes(@Param("clube") ClubeJpaEntity clube,
+                                  @Param("adversario") ClubeJpaEntity adversario);
 
     @Query("SELECT p FROM PartidaJpaEntity p WHERE p.estadio = :estadio AND DATE(p.dataHora) = :data")
-    List<Partida> findAllByEstadioAndData(@Param("estadio") Estadio estadio, @Param("data") LocalDate data);
+    List<PartidaJpaEntity> findAllByEstadioAndData(@Param("estadio") EstadioJpaEntity estadio, @Param("data") LocalDate data);
 }

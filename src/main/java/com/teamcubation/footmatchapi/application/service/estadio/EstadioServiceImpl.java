@@ -10,7 +10,6 @@ import com.teamcubation.footmatchapi.application.dto.response.ViaCepResponseDTO;
 import com.teamcubation.footmatchapi.domain.interfaces.EstadioRepository;
 import com.teamcubation.footmatchapi.utils.mapper.EnderecoMapper;
 import com.teamcubation.footmatchapi.utils.mapper.EstadioMapper;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;

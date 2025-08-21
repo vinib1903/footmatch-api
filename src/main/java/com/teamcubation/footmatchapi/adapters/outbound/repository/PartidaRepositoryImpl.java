@@ -1,5 +1,7 @@
 package com.teamcubation.footmatchapi.adapters.outbound.repository;
 
+import com.teamcubation.footmatchapi.adapters.outbound.entities.ClubeJpaEntity;
+import com.teamcubation.footmatchapi.adapters.outbound.entities.EstadioJpaEntity;
 import com.teamcubation.footmatchapi.adapters.outbound.entities.PartidaJpaEntity;
 import com.teamcubation.footmatchapi.domain.entities.Clube;
 import com.teamcubation.footmatchapi.domain.entities.Estadio;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 public class PartidaRepositoryImpl implements PartidaRepository {
@@ -27,29 +30,39 @@ public class PartidaRepositoryImpl implements PartidaRepository {
 
     @Override
     public Page<Partida> findPartidasWithFilters(Clube clube, Estadio estadio, Boolean goleada, String papel, Pageable pageable) {
-        return this.partidaJpaRepository.findPartidasWithFilters(clube, estadio, goleada, papel, pageable);
+        ClubeJpaEntity clubeJpa = (clube != null) ? new ClubeJpaEntity(clube) : null;
+        EstadioJpaEntity estadioJpa = (estadio != null) ? new EstadioJpaEntity(estadio) : null;
+        Page<PartidaJpaEntity> page = this.partidaJpaRepository.findPartidasWithFilters(clubeJpa, estadioJpa, goleada, papel, pageable);
+        return page.map(partidaMapper::jpaToEntity);
     }
 
     @Override
     public List<Partida> findAllByClube(Clube clube) {
-        return this.partidaJpaRepository.findAllByClube(clube);
+        ClubeJpaEntity clubeJpa = (clube != null) ? new ClubeJpaEntity(clube) : null;
+        List<PartidaJpaEntity> list = this.partidaJpaRepository.findAllByClube(clubeJpa);
+        return list.stream().map(partidaMapper::jpaToEntity).collect(Collectors.toList());
     }
 
     @Override
     public List<Partida> findAllByClubes(Clube clube, Clube adversario) {
-        return this.partidaJpaRepository.findAllByClubes(clube, adversario);
+        ClubeJpaEntity clubeJpa = new ClubeJpaEntity(clube);
+        ClubeJpaEntity adversarioJpa = new ClubeJpaEntity(adversario);
+        List<PartidaJpaEntity> list = this.partidaJpaRepository.findAllByClubes(clubeJpa, adversarioJpa);
+        return list.stream().map(partidaMapper::jpaToEntity).collect(Collectors.toList());
     }
 
     @Override
     public List<Partida> findAllByEstadioAndData(Estadio estadio, LocalDate data) {
-        return this.partidaJpaRepository.findAllByEstadioAndData(estadio, data);
+        EstadioJpaEntity estadioJpa = new EstadioJpaEntity(estadio);
+        List<PartidaJpaEntity> list = this.partidaJpaRepository.findAllByEstadioAndData(estadioJpa, data);
+        return list.stream().map(partidaMapper::jpaToEntity).collect(Collectors.toList());
     }
 
     @Override
     public Partida save(Partida partida) {
         PartidaJpaEntity partidaJpaEntity = new PartidaJpaEntity(partida);
-        partidaJpaRepository.save(partidaJpaEntity);
-        return new Partida(partidaJpaEntity.getId(), partidaJpaEntity.getMandante(), partidaJpaEntity.getVisitante(), partidaJpaEntity.getEstadio(), partidaJpaEntity.getDataHora(), partidaJpaEntity.getGolsMandante(), partidaJpaEntity.getGolsVisitante());
+        PartidaJpaEntity savedEntity = partidaJpaRepository.save(partidaJpaEntity);
+        return partidaMapper.jpaToEntity(savedEntity);
     }
 
     @Override

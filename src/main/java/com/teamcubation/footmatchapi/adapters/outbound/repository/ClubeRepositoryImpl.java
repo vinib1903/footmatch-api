@@ -26,14 +26,14 @@ public class ClubeRepositoryImpl implements ClubeRepository {
     @Override
     public Clube save(Clube clube) {
         ClubeJpaEntity clubeJpaEntity = new ClubeJpaEntity(clube);
-         this.clubeJpaRepository.save(clubeJpaEntity);
-         return new Clube(clubeJpaEntity.getId(), clubeJpaEntity.getNome(), clubeJpaEntity.getSiglaEstado(), clubeJpaEntity.getAtivo(), clubeJpaEntity.getDataCriacao());
+        ClubeJpaEntity savedEntity = this.clubeJpaRepository.save(clubeJpaEntity);
+        return clubeMapper.jpaToEntity(savedEntity);
     }
 
     @Override
     public List<Clube> findAll() {
         List<ClubeJpaEntity> clubeJpaEntities = this.clubeJpaRepository.findAll();
-        return clubeJpaEntities.stream().map(entity -> new Clube(entity.getId(), entity.getNome(), entity.getSiglaEstado(), entity.getAtivo(), entity.getDataCriacao())).toList();
+        return clubeJpaEntities.stream().map(clubeMapper::jpaToEntity).toList();
     }
 
     @Override
@@ -44,12 +44,13 @@ public class ClubeRepositoryImpl implements ClubeRepository {
 
     @Override
     public Page<Clube> findClubesWithFilters(String nome, SiglaEstado siglaEstado, Boolean ativo, Pageable pageable) {
-        return this.clubeJpaRepository.findClubesWithFilters(nome, siglaEstado, ativo, pageable);
+        Page<ClubeJpaEntity> page = this.clubeJpaRepository.findClubesWithFilters(nome, siglaEstado, ativo, pageable);
+        return page.map(clubeMapper::jpaToEntity);
     }
 
     @Override
     public Clube findByNomeAndSiglaEstado(String nome, SiglaEstado siglaEstado) {
         Optional<ClubeJpaEntity> clubeJpaEntity = this.clubeJpaRepository.findByNomeAndSiglaEstado(nome, siglaEstado);
-        return clubeJpaEntity.map(entity -> new Clube(entity.getId(), entity.getNome(), entity.getSiglaEstado(), entity.getAtivo(), entity.getDataCriacao())).orElse(null);
+        return clubeJpaEntity.map(clubeMapper::jpaToEntity).orElse(null);
     }
 }

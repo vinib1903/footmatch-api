@@ -24,13 +24,14 @@ public class EstadioRepositoryImpl implements EstadioRepository {
     @Override
     public Estadio save(Estadio estadio) {
         EstadioJpaEntity estadioJpaEntity = new EstadioJpaEntity(estadio);
-        estadioJpaRepository.save(estadioJpaEntity);
-        return new Estadio(estadioJpaEntity.getId(), estadioJpaEntity.getNome(), estadioJpaEntity.getEndereco());
+        EstadioJpaEntity saved = this.estadioJpaRepository.save(estadioJpaEntity);
+        return estadioMapper.jpaToEntity(saved);
     }
 
     @Override
     public Optional<Estadio>  findByNome(String nome) {
-        return this.estadioJpaRepository.findByNome(nome);
+        Optional<EstadioJpaEntity> estadioJpaEntity = this.estadioJpaRepository.findByNome(nome);
+        return estadioJpaEntity.map(estadioMapper::jpaToEntity);
     }
 
     @Override
@@ -41,11 +42,13 @@ public class EstadioRepositoryImpl implements EstadioRepository {
 
     @Override
     public Page<Estadio> findStadiumsWichFilters(String nome, Pageable pageable) {
-        return this.estadioJpaRepository.findStadiumsWichFilters(nome, pageable);
+        Page<EstadioJpaEntity> page = this.estadioJpaRepository.findStadiumsWichFilters(nome, pageable);
+        return page.map(estadioMapper::jpaToEntity);
     }
 
     @Override
     public Optional<Estadio> findByEndereco_Cep(String cep) {
-        return this.estadioJpaRepository.findByEndereco_Cep(cep);
+        Optional<EstadioJpaEntity> estadioJpaEntity = this.estadioJpaRepository.findByEndereco_Cep(cep);
+        return estadioJpaEntity.map(estadioMapper::jpaToEntity);
     }
 }
