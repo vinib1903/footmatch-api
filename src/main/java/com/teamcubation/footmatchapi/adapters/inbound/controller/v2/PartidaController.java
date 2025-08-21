@@ -2,7 +2,7 @@ package com.teamcubation.footmatchapi.adapters.inbound.controller.v2;
 
 import com.teamcubation.footmatchapi.application.dto.request.PartidaRequestDTO;
 import com.teamcubation.footmatchapi.application.dto.response.ErroResponseDTO;
-import com.teamcubation.footmatchapi.application.service.kafka.PartidaServiceKafka;
+import com.teamcubation.footmatchapi.application.usecase.PartidaUseCases;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class PartidaController {
 
-    private final PartidaServiceKafka partidaServiceKafka;
+    private final PartidaUseCases partidaUseCases;
 
     @PostMapping
     @Operation(summary = "Cria uma nova partida (Kafka)",
@@ -33,7 +33,7 @@ public class PartidaController {
             })
     public ResponseEntity<String> createPartida(@RequestBody @Valid PartidaRequestDTO dto) {
 
-        partidaServiceKafka.enviarPartidaParaFilaCriacao(dto);
+        partidaUseCases.solicitarCriacaoPartida(dto);
         return ResponseEntity.accepted().body("Partida enviada para processamento assíncrono (Kafka).");
     }
 
@@ -51,7 +51,7 @@ public class PartidaController {
             @RequestBody @Valid PartidaRequestDTO dto) {
 
 
-        partidaServiceKafka.enviarPartidaParaFilaAtualizacao(id, dto);
+        partidaUseCases.solicitarAtualizacaoPartida(id, dto);
         return ResponseEntity.accepted().body("Partida enviada para processamento assíncrono (Kafka).");
     }
 
@@ -66,7 +66,7 @@ public class PartidaController {
     public ResponseEntity<String> deletePartida(@Parameter(description = "ID da partida a ser excluída", example = "1") @PathVariable Long id) {
 
 
-        partidaServiceKafka.enviarPartidaParaFilaExclusao(id);
+        partidaUseCases.solicitarExclusaoPartida(id);
         return ResponseEntity.accepted().body("Partida enviada para processamento assíncrono (Kafka).");
     }
 }

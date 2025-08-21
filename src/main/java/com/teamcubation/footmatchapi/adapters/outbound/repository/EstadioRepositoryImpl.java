@@ -2,7 +2,7 @@ package com.teamcubation.footmatchapi.adapters.outbound.repository;
 
 import com.teamcubation.footmatchapi.adapters.outbound.entities.EstadioJpaEntity;
 import com.teamcubation.footmatchapi.domain.entities.Estadio;
-import com.teamcubation.footmatchapi.domain.interfaces.EstadioRepository;
+import com.teamcubation.footmatchapi.application.ports.out.EstadioRepository;
 import com.teamcubation.footmatchapi.utils.mapper.EstadioMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

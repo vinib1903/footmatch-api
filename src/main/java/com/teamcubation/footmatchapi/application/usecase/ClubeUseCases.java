@@ -19,4 +19,10 @@ public interface ClubeUseCases {
     Clube validarExistenciaClube(Long id);
 
     void inativarClube(Long id);
+
+    void solicitarCriacaoClube(ClubeRequestDTO dto);
+
+    void solicitarAtualizacaoClube(Long id, ClubeRequestDTO dto);
+
+    void solicitarInativacaoClube(Long id);
 }

@@ -2,7 +2,7 @@ package com.teamcubation.footmatchapi.adapters.inbound.controller.v2;
 
 import com.teamcubation.footmatchapi.application.dto.request.EstadioRequestDTO;
 import com.teamcubation.footmatchapi.application.dto.response.ErroResponseDTO;
-import com.teamcubation.footmatchapi.application.service.kafka.EstadioServiceKafka;
+import com.teamcubation.footmatchapi.application.usecase.EstadioUseCases;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class EstadioController {
 
-    private final EstadioServiceKafka estadioServiceKafka;
+    private final EstadioUseCases estadioUseCases;
 
     @PostMapping
     @Operation(summary = "Cria um novo estádio (Kafka)",
@@ -33,7 +33,7 @@ public class EstadioController {
             })
     public ResponseEntity<String> createEstadio(@RequestBody @Valid EstadioRequestDTO dto) {
 
-        estadioServiceKafka.enviarEstadioParaFilaCriacao(dto);
+        estadioUseCases.solicitarCriacaoEstadio(dto);
         return ResponseEntity.accepted().body("Estadio enviado para processamento assíncrono (Kafka).");
     }
 
@@ -50,7 +50,7 @@ public class EstadioController {
             @Parameter(description = "ID do estádio a ser atualizado", example = "1") @PathVariable Long id,
             @RequestBody @Valid EstadioRequestDTO dto) {
 
-        estadioServiceKafka.enviarEstadioParaFilaAtualizacao(id, dto);
+        estadioUseCases.solicitarAtualizacaoEstadio(id, dto);
         return ResponseEntity.accepted().body("Estadio enviado para processamento assíncrono (Kafka).");
     }
 }

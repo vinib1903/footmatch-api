@@ -12,4 +12,10 @@ public interface PartidaUseCases {
     PartidaResponseDTO obterPartidaPorId(Long id);
     PartidaResponseDTO atualizarPartida(Long id, PartidaRequestDTO dto);
     void deletarPartida(Long id);
+
+    void solicitarCriacaoPartida(PartidaRequestDTO dto);
+
+    void solicitarAtualizacaoPartida(Long id, PartidaRequestDTO dto);
+
+    void solicitarExclusaoPartida(Long id);
 }

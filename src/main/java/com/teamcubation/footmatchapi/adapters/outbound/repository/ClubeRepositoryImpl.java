@@ -3,7 +3,7 @@ package com.teamcubation.footmatchapi.adapters.outbound.repository;
 import com.teamcubation.footmatchapi.adapters.outbound.entities.ClubeJpaEntity;
 import com.teamcubation.footmatchapi.domain.entities.Clube;
 import com.teamcubation.footmatchapi.domain.enums.SiglaEstado;
-import com.teamcubation.footmatchapi.domain.interfaces.ClubeRepository;
+import com.teamcubation.footmatchapi.application.ports.out.ClubeRepository;
 import com.teamcubation.footmatchapi.utils.mapper.ClubeMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

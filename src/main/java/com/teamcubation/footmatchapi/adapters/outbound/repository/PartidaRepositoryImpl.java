@@ -6,7 +6,7 @@ import com.teamcubation.footmatchapi.adapters.outbound.entities.PartidaJpaEntity
 import com.teamcubation.footmatchapi.domain.entities.Clube;
 import com.teamcubation.footmatchapi.domain.entities.Estadio;
 import com.teamcubation.footmatchapi.domain.entities.Partida;
-import com.teamcubation.footmatchapi.domain.interfaces.PartidaRepository;
+import com.teamcubation.footmatchapi.application.ports.out.PartidaRepository;
 import com.teamcubation.footmatchapi.utils.mapper.PartidaMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

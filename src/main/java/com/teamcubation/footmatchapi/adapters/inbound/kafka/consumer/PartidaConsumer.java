@@ -1,25 +1,25 @@
 package com.teamcubation.footmatchapi.adapters.inbound.kafka.consumer;
 
 import com.teamcubation.footmatchapi.application.dto.request.PartidaRequestDTO;
-import com.teamcubation.footmatchapi.application.service.kafka.NotificationServiceKafka;
-import com.teamcubation.footmatchapi.application.service.partida.PartidaServiceImpl;
+import com.teamcubation.footmatchapi.application.ports.out.NotificationPort;
+import com.teamcubation.footmatchapi.application.usecase.PartidaUseCases;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.DltHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import static org.springframework.kafka.support.KafkaHeaders.RECEIVED_KEY;
 
-@Service
+@Component
 @RequiredArgsConstructor
 @Slf4j
 public class PartidaConsumer {
 
-    private final PartidaServiceImpl partidaServiceImpl;
-    private final NotificationServiceKafka notificationServiceKafka;
+    private final PartidaUseCases partidaUseCases;
+    private final NotificationPort notificationPort;
 
     @KafkaListener(
             topics = "partidas-criacao",
@@ -27,7 +27,7 @@ public class PartidaConsumer {
             containerFactory = "partidaRequestKafkaListenerContainerFactory"
     )
     public void consumirPartidaCriacao(PartidaRequestDTO partidaDTO) {
-        partidaServiceImpl.criarPartida(partidaDTO);
+        partidaUseCases.criarPartida(partidaDTO);
         log.info("Partida consumida e salva com sucesso: {}", partidaDTO);
     }
 
@@ -37,7 +37,7 @@ public class PartidaConsumer {
             containerFactory = "partidaRequestKafkaListenerContainerFactory"
     )
     public void consumirPartidaAtualizacao(@Header(RECEIVED_KEY) String id, PartidaRequestDTO partidaDTO) {
-        partidaServiceImpl.atualizarPartida(Long.valueOf(id), partidaDTO);
+        partidaUseCases.atualizarPartida(Long.valueOf(id), partidaDTO);
         log.info("Partida consumida e atualizada com sucesso: {}", partidaDTO);
     }
 
@@ -47,15 +47,15 @@ public class PartidaConsumer {
             containerFactory = "stringKafkaListenerContainerFactory"
     )
     public void consumirPartidaExclusao(@Header(RECEIVED_KEY) String id) {
-        partidaServiceImpl.deletarPartida(Long.valueOf(id));
+        partidaUseCases.deletarPartida(Long.valueOf(id));
         log.info("Partida consumida e excluída com sucesso: {}", id);
     }
 
     @DltHandler
-    public void dltHandler(String message, 
-                           @Header(KafkaHeaders.DLT_ORIGINAL_TOPIC) String originalTopic, 
+    public void dltHandler(String message,
+                           @Header(KafkaHeaders.DLT_ORIGINAL_TOPIC) String originalTopic,
                            @Header(KafkaHeaders.DLT_EXCEPTION_MESSAGE) String exceptionMessage) {
-        
+
         String cleanedReason = exceptionMessage;
         int colonIndex = exceptionMessage.indexOf(':');
         if (colonIndex != -1) {
@@ -64,9 +64,9 @@ public class PartidaConsumer {
 
         String errorMessage = String.format(
                 "Uma mensagem falhou em todas as tentativas de processamento e foi para a DLT.\n\n" +
-                "Tópico Original: %s\n\n" +
-                "Payload: %s\n\n" +
-                "Motivo da Falha: %s\n\n",
+                        "Tópico Original: %s\n\n" +
+                        "Payload: %s\n\n" +
+                        "Motivo da Falha: %s\n\n",
                 originalTopic, message, cleanedReason
         );
         log.error("MENSAGEM NA DLT: {}\n", errorMessage);

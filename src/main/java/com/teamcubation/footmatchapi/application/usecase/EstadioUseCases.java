@@ -10,4 +10,7 @@ public interface EstadioUseCases {
     EstadioResponseDTO obterEstadioPorId(Long id);
     EstadioResponseDTO atualizarEstadio(Long id, EstadioRequestDTO estadioRequestDTO);
     Estadio validarExistenciaEstadio(Long id);
+    void solicitarCriacaoEstadio(EstadioRequestDTO dto);
+
+    void solicitarAtualizacaoEstadio(Long id, EstadioRequestDTO dto);
 }

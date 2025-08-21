@@ -2,7 +2,7 @@ package com.teamcubation.footmatchapi.adapters.inbound.controller.v2;
 
 import com.teamcubation.footmatchapi.application.dto.request.ClubeRequestDTO;
 import com.teamcubation.footmatchapi.application.dto.response.ErroResponseDTO;
-import com.teamcubation.footmatchapi.application.service.kafka.ClubeServiceKafka;
+import com.teamcubation.footmatchapi.application.usecase.ClubeUseCases;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ClubeController {
 
-    private final ClubeServiceKafka clubeServiceKafka;
+    private final ClubeUseCases clubeUseCases;
 
     @PostMapping
     @Operation(summary = "Cria um novo clube (Kafka)",
@@ -33,7 +33,7 @@ public class ClubeController {
             })
     public ResponseEntity<String> createClube(@RequestBody @Valid ClubeRequestDTO dto) {
 
-        clubeServiceKafka.enviarClubeParaFilaCriacao(dto);
+        clubeUseCases.solicitarCriacaoClube(dto);
         return ResponseEntity.accepted().body("Clube enviado para processamento assíncrono (Kafka).");
     }
 
@@ -50,7 +50,7 @@ public class ClubeController {
             @Parameter(description = "ID do clube a ser atualizado", example = "1") @PathVariable Long id,
             @RequestBody @Valid ClubeRequestDTO dto) {
 
-        clubeServiceKafka.enviarClubeParaFilaAtualizacao(id, dto);
+        clubeUseCases.solicitarAtualizacaoClube(id, dto);
         return ResponseEntity.accepted().body("Ckube enviado para processamento assíncrono (Kafka).");
     }
 
@@ -65,7 +65,7 @@ public class ClubeController {
     public ResponseEntity<String> disableClube(
             @Parameter(description = "ID do clube a ser desativado", example = "1") @PathVariable Long id) {
 
-        clubeServiceKafka.enviarClubeParaFilaExclusao(id);
+        clubeUseCases.solicitarInativacaoClube(id);
         return ResponseEntity.accepted().body("Clube enviado para processamento assíncrono (Kafka).");
     }
 }
