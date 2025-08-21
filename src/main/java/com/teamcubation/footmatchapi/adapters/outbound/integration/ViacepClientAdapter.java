@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 @Component
-public class ViacepClient {
+public class ViacepClientAdapter implements  ViacepClientPort{
 
     private final RestTemplate restTemplate = new RestTemplate();
 

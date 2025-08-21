@@ -1,6 +1,6 @@
 package com.teamcubation.footmatchapi.application.service.email;
 
-import lombok.RequiredArgsConstructor;
+import com.teamcubation.footmatchapi.application.usecase.EmailUseCases;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
@@ -8,11 +8,15 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
-public class EmailService {
+public class EmailServiceImpl implements EmailUseCases {
 
     private final JavaMailSender mailSender;
+
+    public EmailServiceImpl(JavaMailSender mailSender) {
+        this.mailSender = mailSender;
+    }
+
 
     public void sendEmail(String to, String subject, String body) {
         try {
