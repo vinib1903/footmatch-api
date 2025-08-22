@@ -1,23 +1,23 @@
 package com.teamcubation.footmatchapi.application.service.clube;
 
-import com.teamcubation.footmatchapi.application.ports.out.ClubeEventsPort;
+import com.teamcubation.footmatchapi.application.dto.request.ClubeRequestDTO;
 import com.teamcubation.footmatchapi.application.dto.response.ClubeResponseDTO;
+import com.teamcubation.footmatchapi.application.ports.out.ClubeEventsPort;
+import com.teamcubation.footmatchapi.application.ports.out.ClubeRepository;
+import com.teamcubation.footmatchapi.application.ports.out.PartidaRepository;
 import com.teamcubation.footmatchapi.application.usecase.ClubeUseCases;
 import com.teamcubation.footmatchapi.domain.entities.Clube;
 import com.teamcubation.footmatchapi.domain.entities.Partida;
 import com.teamcubation.footmatchapi.domain.enums.SiglaEstado;
-import com.teamcubation.footmatchapi.application.dto.request.ClubeRequestDTO;
-import com.teamcubation.footmatchapi.application.ports.out.ClubeRepository;
-import com.teamcubation.footmatchapi.application.ports.out.PartidaRepository;
+import com.teamcubation.footmatchapi.domain.exceptions.EntidadeEmUsoException;
+import com.teamcubation.footmatchapi.domain.exceptions.EntidadeNaoEncontradaException;
 import com.teamcubation.footmatchapi.utils.mapper.ClubeMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDate;
-import java.util.*;
+import java.util.Comparator;
+import java.util.Optional;
 
 @Service
 public class ClubeServiceImpl implements ClubeUseCases {
@@ -36,17 +36,14 @@ public class ClubeServiceImpl implements ClubeUseCases {
 
     public ClubeResponseDTO criarClube(ClubeRequestDTO dto) {
 
-        try {
-            SiglaEstado.valueOf(dto.getSiglaEstado().toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sigla do estado inválida: " + dto.getSiglaEstado());
-        }
+        validarNomeClubeExistenteNoEstado(dto.getNome(), SiglaEstado.valueOf(dto.getSiglaEstado().toUpperCase()), null);
 
-        validarDataCriacaoFutura(dto.getDataCriacao());
-
-        validarNomeClubeExistenteNoEstado(dto.getNome(), SiglaEstado.valueOf(dto.getSiglaEstado()), null);
-
-        Clube clube = clubeMapper.dtoToEntity(dto);
+        Clube clube = Clube.criar(
+                dto.getNome(),
+                dto.getSiglaEstado(),
+                dto.getAtivo(),
+                dto.getDataCriacao()
+        );
 
         clubeRepository.save(clube);
 
@@ -76,23 +73,17 @@ public class ClubeServiceImpl implements ClubeUseCases {
 
         Clube clube = validarExistenciaClube(id);
 
-        try {
-            SiglaEstado.valueOf(dto.getSiglaEstado().toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sigla do estado inválida: " + dto.getSiglaEstado());
-        }
-
-        validarDataCriacaoFutura(dto.getDataCriacao());
-
-        validarNomeClubeExistenteNoEstado(dto.getNome(), SiglaEstado.valueOf(dto.getSiglaEstado()), id);
+        validarNomeClubeExistenteNoEstado(dto.getNome(), SiglaEstado.valueOf(dto.getSiglaEstado().toUpperCase()), id);
 
         if (!dto.getDataCriacao().isEqual(clube.getDataCriacao())) {
             Optional<Partida> partidaMaisAntiga = partidaRepository.findAllByClube(clube).stream()
                     .min(Comparator.comparing(Partida::getDataHora));
             if (partidaMaisAntiga.isPresent() && dto.getDataCriacao().isAfter(partidaMaisAntiga.get().getDataHora().toLocalDate())) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Não é possível definir data de criação posterior a partidas já registradas para o clube.");
+                throw new EntidadeEmUsoException("Não é possível definir data de criação posterior a partidas já registradas para o clube.");
             }
         }
+
+        Clube.criar(dto.getNome(), dto.getSiglaEstado(), dto.getAtivo(), dto.getDataCriacao());
 
         clube.setNome(dto.getNome());
         clube.setSiglaEstado(SiglaEstado.valueOf(dto.getSiglaEstado()));
@@ -131,22 +122,15 @@ public class ClubeServiceImpl implements ClubeUseCases {
     public Clube validarExistenciaClube(Long id) {
 
         return clubeRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Clube não encontrado."));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Clube não encontrado."));
     }
 
-    private void validarDataCriacaoFutura(LocalDate dataCriacao) throws ResponseStatusException {
-
-        if (dataCriacao.isAfter(LocalDate.now()))
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data de criação não pode ser no futuro.");
-
-    }
-
-    private void validarNomeClubeExistenteNoEstado(String nome, SiglaEstado siglaEstado, Long id) throws ResponseStatusException {
+    private void validarNomeClubeExistenteNoEstado(String nome, SiglaEstado siglaEstado, Long id) {
 
         Clube clubeExistente = clubeRepository.findByNomeAndSiglaEstado(nome, siglaEstado);
 
-        if (clubeExistente != null && !clubeExistente.getId().equals(id)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um clube com este nome no estado informado.");
+        if (clubeExistente != null && (id == null || !clubeExistente.getId().equals(id))) {
+            throw new EntidadeEmUsoException("Já existe um clube com este nome no estado informado.");
         }
     }
 }

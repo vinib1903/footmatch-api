@@ -9,13 +9,13 @@ import com.teamcubation.footmatchapi.application.dto.request.EstadioRequestDTO;
 import com.teamcubation.footmatchapi.application.dto.response.EstadioResponseDTO;
 import com.teamcubation.footmatchapi.application.dto.response.ViaCepResponseDTO;
 import com.teamcubation.footmatchapi.application.ports.out.EstadioRepository;
+import com.teamcubation.footmatchapi.domain.exceptions.EntidadeEmUsoException;
+import com.teamcubation.footmatchapi.domain.exceptions.EntidadeNaoEncontradaException;
 import com.teamcubation.footmatchapi.utils.mapper.EnderecoMapper;
 import com.teamcubation.footmatchapi.utils.mapper.EstadioMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 import java.util.Optional;
 
 @Service
@@ -47,9 +47,7 @@ public class EstadioServiceImpl implements EstadioUseCases {
 
         endereco.setCep(normalizarCep(viaCepResponse.getCep()));
 
-        Estadio estadio = estadioMapper.dtoToEntity(estadioRequestDTO);
-
-        estadio.setEndereco(endereco);
+        Estadio estadio = Estadio.criar(estadioRequestDTO.getNome(), endereco);
 
         estadioRepository.save(estadio);
 
@@ -94,7 +92,7 @@ public class EstadioServiceImpl implements EstadioUseCases {
     public Estadio validarExistenciaEstadio(Long id) {
 
         return estadioRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Estádio nao encontrado."));
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Estádio com id " + id + " não encontrado."));
     }
 
     @Override
@@ -107,28 +105,27 @@ public class EstadioServiceImpl implements EstadioUseCases {
         estadioEventsPort.notificarAtualizacaoEstadio(id, dto);
     }
 
-    private void validarNomeExistente(String nome, Long id) throws ResponseStatusException {
-
-        Optional<Estadio> estadioExistente = estadioRepository.findByNome(nome);
-
-        if (estadioExistente.isPresent() && !estadioExistente.get().getId().equals(id)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um estádio com este nome.");
-        }
-    }
-
     private String normalizarCep(String cep) {
 
         return cep.replaceAll("\\D", "");
     }
 
+    private void validarNomeExistente(String nome, Long id) {
+
+        Optional<Estadio> estadioExistente = estadioRepository.findByNome(nome);
+
+        if (estadioExistente.isPresent() && (id == null || !estadioExistente.get().getId().equals(id))) {
+            throw new EntidadeEmUsoException("Já existe um estádio com este nome.");
+        }
+    }
+
     private void validarCepExistente(String cep, Long id) {
 
-        String cepNormalizado = normalizarCep(cep);
-        Optional<Estadio> estadioExistente = estadioRepository.findByEndereco_Cep(cepNormalizado);
+        Optional<Estadio> estadioExistente = estadioRepository.findByEndereco_Cep(cep);
 
         if (estadioExistente.isPresent()
                 && (id == null || !estadioExistente.get().getId().equals(id))) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe um estádio cadastrado neste CEP.");
+            throw new EntidadeEmUsoException("Já existe um estádio cadastrado neste CEP.");
         }
     }
 

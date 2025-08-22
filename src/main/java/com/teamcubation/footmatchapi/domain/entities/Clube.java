@@ -1,6 +1,8 @@
 package com.teamcubation.footmatchapi.domain.entities;
 
 import com.teamcubation.footmatchapi.domain.enums.SiglaEstado;
+import com.teamcubation.footmatchapi.domain.exceptions.RegraDeNegocioException;
+
 import java.time.LocalDate;
 
 public class Clube {
@@ -10,14 +12,18 @@ public class Clube {
     private Boolean ativo;
     private LocalDate dataCriacao;
 
-    public Clube() {}
-
-    public Clube(Long id, String nome, SiglaEstado siglaEstado, Boolean ativo, LocalDate dataCriacao) {
-        this.id = id;
+    private Clube(String nome, SiglaEstado siglaEstado, Boolean ativo, LocalDate dataCriacao) {
         this.nome = nome;
         this.siglaEstado = siglaEstado;
         this.ativo = ativo;
         this.dataCriacao = dataCriacao;
+    }
+
+    public static Clube criar(String nome, String siglaEstadoStr, Boolean ativo, LocalDate dataCriacao) {
+        validarDataCriacaoFutura(dataCriacao);
+        SiglaEstado sigla = validarSiglaEstado(siglaEstadoStr);
+
+        return new Clube(nome, sigla, ativo, dataCriacao);
     }
 
     public Long getId() {
@@ -58,5 +64,19 @@ public class Clube {
 
     public void setDataCriacao(LocalDate dataCriacao) {
         this.dataCriacao = dataCriacao;
+    }
+
+    private static void validarDataCriacaoFutura(LocalDate dataCriacao) {
+        if (dataCriacao.isAfter(LocalDate.now())) {
+            throw new RegraDeNegocioException("Data de criação não pode ser no futuro.");
+        }
+    }
+
+    private static SiglaEstado validarSiglaEstado(String siglaEstadoStr) {
+        try {
+            return SiglaEstado.valueOf(siglaEstadoStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new RegraDeNegocioException("Sigla do estado inválida: " + siglaEstadoStr);
+        }
     }
 }

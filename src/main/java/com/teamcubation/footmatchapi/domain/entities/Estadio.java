@@ -5,12 +5,14 @@ public class Estadio {
     private String nome;
     private Endereco endereco;
 
-    public Estadio() {}
-
-    public Estadio(Long id, String nome, Endereco endereco) {
-        this.id = id;
+    private Estadio(String nome, Endereco endereco) {
         this.nome = nome;
         this.endereco = endereco;
+    }
+
+    public static Estadio criar(String nome, Endereco endereco) {
+        // Validações puras (que não dependem de repositório) podem ser adicionadas aqui no futuro.
+        return new Estadio(nome, endereco);
     }
 
     public Long getId() {

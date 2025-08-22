@@ -1,23 +1,21 @@
 package com.teamcubation.footmatchapi.application.service.partida;
 
+import com.teamcubation.footmatchapi.application.dto.request.PartidaRequestDTO;
+import com.teamcubation.footmatchapi.application.dto.response.PartidaResponseDTO;
 import com.teamcubation.footmatchapi.application.ports.out.PartidaEventsPort;
+import com.teamcubation.footmatchapi.application.ports.out.PartidaRepository;
 import com.teamcubation.footmatchapi.application.usecase.ClubeUseCases;
 import com.teamcubation.footmatchapi.application.usecase.EstadioUseCases;
 import com.teamcubation.footmatchapi.application.usecase.PartidaUseCases;
 import com.teamcubation.footmatchapi.domain.entities.Clube;
 import com.teamcubation.footmatchapi.domain.entities.Estadio;
 import com.teamcubation.footmatchapi.domain.entities.Partida;
-import com.teamcubation.footmatchapi.application.dto.request.PartidaRequestDTO;
-import com.teamcubation.footmatchapi.application.dto.response.PartidaResponseDTO;
-import com.teamcubation.footmatchapi.application.ports.out.PartidaRepository;
+import com.teamcubation.footmatchapi.domain.exceptions.EntidadeEmUsoException;
+import com.teamcubation.footmatchapi.domain.exceptions.EntidadeNaoEncontradaException;
 import com.teamcubation.footmatchapi.utils.mapper.PartidaMapper;
-import com.teamcubation.footmatchapi.application.service.clube.ClubeServiceImpl;
-import com.teamcubation.footmatchapi.application.service.estadio.EstadioServiceImpl;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,45 +28,35 @@ public class PartidaServiceImpl implements PartidaUseCases {
     private final PartidaMapper partidaMapper;
     private final EstadioUseCases estadioUseCases;
     private final ClubeUseCases clubeUseCases;
-    PartidaEventsPort partidaEventsPort;
+    private final PartidaEventsPort partidaEventsPort;
 
-    public PartidaServiceImpl(PartidaRepository partidaRepository, PartidaMapper partidaMapper, EstadioServiceImpl estadioUseCases, ClubeServiceImpl clubeUseCases) {
+    public PartidaServiceImpl(PartidaRepository partidaRepository, PartidaMapper partidaMapper, EstadioUseCases estadioUseCases, ClubeUseCases clubeUseCases, PartidaEventsPort partidaEventsPort) {
         this.partidaRepository = partidaRepository;
         this.partidaMapper = partidaMapper;
         this.estadioUseCases = estadioUseCases;
         this.clubeUseCases = clubeUseCases;
+        this.partidaEventsPort = partidaEventsPort;
     }
 
     public PartidaResponseDTO criarPartida(PartidaRequestDTO dto) {
 
         Clube mandante = clubeUseCases.validarExistenciaClube(dto.getMandanteId());
-
         Clube visitante = clubeUseCases.validarExistenciaClube(dto.getVisitanteId());
-
         Estadio estadio = estadioUseCases.validarExistenciaEstadio(dto.getEstadioId());
 
-        validarClubesAtivos(mandante, visitante);
-
-        validarClubesDiferentes(dto.getMandanteId(), dto.getVisitanteId());
-
-        validarDataPartidaAnteriorCriacaoClube(mandante, visitante, dto.getDataHora().toLocalDate());
-
-        validarDataCriacaoFutura(dto.getDataHora());
-
+        // Validações que dependem de repositório permanecem no serviço
         validarPartidasProximas(mandante, visitante, dto.getDataHora(), null);
-
-        validarGolsNegativos(dto.getGolsMandante(), dto.getGolsVisitante());
-
         validarEstadioOcupado(estadio, dto.getDataHora().toLocalDate(), null);
 
-        Partida partida = new Partida();
-        partida.setMandante(mandante);
-        partida.setVisitante(visitante);
-        partida.setEstadio(estadio);
-        partida.setDataHora(dto.getDataHora());
-        partida.setGolsMandante(dto.getGolsMandante());
-        partida.setGolsVisitante(dto.getGolsVisitante());
-
+        // A criação e validação pura agora é responsabilidade da entidade
+        Partida partida = Partida.criar(
+                mandante,
+                visitante,
+                estadio,
+                dto.getDataHora(),
+                dto.getGolsMandante(),
+                dto.getGolsVisitante()
+        );
 
         partidaRepository.save(partida);
 
@@ -78,7 +66,6 @@ public class PartidaServiceImpl implements PartidaUseCases {
     public Page<PartidaResponseDTO> obterPartidas(Long clubeId, Long estadioId, Boolean goleada, String papel, Pageable pageable) {
 
         Clube clube = (clubeId != null) ? clubeUseCases.validarExistenciaClube(clubeId) : null;
-
         Estadio estadio = (estadioId != null) ? estadioUseCases.validarExistenciaEstadio(estadioId) : null;
 
         return partidaRepository.findPartidasWithFilters(clube, estadio, goleada, papel, pageable)
@@ -87,35 +74,25 @@ public class PartidaServiceImpl implements PartidaUseCases {
 
     public PartidaResponseDTO obterPartidaPorId(Long id) {
 
-        Partida partida = validarExistenciaPartida(id);
-
+        Partida partida = partidaRepository.findById(id)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Partida com id " + id + " não encontrada."));
         return partidaMapper.EntityToDto(partida);
     }
 
     public PartidaResponseDTO atualizarPartida(Long id, PartidaRequestDTO dto) {
 
-        Partida partida = validarExistenciaPartida(id);
+        Partida partida = partidaRepository.findById(id)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Partida com id " + id + " não encontrada."));
 
         Clube mandante = clubeUseCases.validarExistenciaClube(dto.getMandanteId());
-
         Clube visitante = clubeUseCases.validarExistenciaClube(dto.getVisitanteId());
-
         Estadio estadio = estadioUseCases.validarExistenciaEstadio(dto.getEstadioId());
 
-        validarClubesAtivos(mandante, visitante);
-
-        validarClubesDiferentes(dto.getMandanteId(), dto.getVisitanteId());
-
-        validarDataPartidaAnteriorCriacaoClube(mandante, visitante, dto.getDataHora().toLocalDate());
-
-        validarDataCriacaoFutura(dto.getDataHora());
-
+        // Validações que dependem de repositório permanecem no serviço
         validarPartidasProximas(mandante, visitante, dto.getDataHora(), partida.getId());
-
-        validarGolsNegativos(dto.getGolsMandante(), dto.getGolsVisitante());
-
         validarEstadioOcupado(estadio, dto.getDataHora().toLocalDate(), partida.getId());
 
+        // A entidade não é recriada, apenas atualizada.
         partida.setMandante(mandante);
         partida.setVisitante(visitante);
         partida.setEstadio(estadio);
@@ -130,7 +107,8 @@ public class PartidaServiceImpl implements PartidaUseCases {
 
     public void deletarPartida(Long id) {
 
-        Partida partida = validarExistenciaPartida(id);
+        partidaRepository.findById(id)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Partida com id " + id + " não encontrada."));
 
         partidaRepository.deletePartida(id);
     }
@@ -148,13 +126,6 @@ public class PartidaServiceImpl implements PartidaUseCases {
     @Override
     public void solicitarExclusaoPartida(Long id) {
         partidaEventsPort.notificarExclusaoPartida(id);
-    }
-
-    private void validarDataPartidaAnteriorCriacaoClube(Clube mandante, Clube visitante, LocalDate dataPartida) {
-
-        if (dataPartida.isBefore(mandante.getDataCriacao()) || dataPartida.isBefore(visitante.getDataCriacao())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Data anterior à criação de um dos clubes.");
-        }
     }
 
     private void validarPartidasProximas(Clube mandante, Clube visitante, LocalDateTime dataHora, Long partidaId) {
@@ -175,41 +146,7 @@ public class PartidaServiceImpl implements PartidaUseCases {
                 );
 
         if (existePartidaMandante || existePartidaVisitante) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Já existe partida para um dos clubes em menos de 48h.");
-        }
-    }
-
-    private void validarDataCriacaoFutura(LocalDateTime dataHora) {
-
-        if (dataHora.isAfter(LocalDateTime.now()))
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data de criação não pode ser no futuro.");
-
-    }
-
-    private void validarGolsNegativos(Integer golsMandante, Integer golsVisitante) {
-
-        if (golsMandante < 0 || golsVisitante < 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Gols não podem ser negativos.");
-        }
-    }
-
-    private void validarClubesAtivos(Clube mandante, Clube visitante) {
-
-        if (!mandante.getAtivo() || !visitante.getAtivo()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Clube inativo.");
-        }
-    }
-
-    private Partida validarExistenciaPartida(Long id) {
-
-        return partidaRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Partida não encontrada."));
-    }
-
-    private void validarClubesDiferentes(Long mandanteId, Long visitanteId) {
-
-        if (mandanteId == visitanteId) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Clubes devem ser diferentes.");
+            throw new EntidadeEmUsoException("Já existe partida para um dos clubes em menos de 48h.");
         }
     }
 
@@ -221,7 +158,7 @@ public class PartidaServiceImpl implements PartidaUseCases {
                 .anyMatch(p -> partidaId == null || !p.getId().equals(partidaId));
 
         if (ocupado) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Estádio já possui partida neste dia.");
+            throw new EntidadeEmUsoException("Estádio já possui partida neste dia.");
         }
     }
 }
