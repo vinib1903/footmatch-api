@@ -15,6 +15,8 @@ public class Partida {
     private Integer golsMandante;
     private Integer golsVisitante;
 
+    public Partida() {}
+
     private Partida(Clube mandante, Clube visitante, Estadio estadio, LocalDateTime dataHora, Integer golsMandante, Integer golsVisitante) {
         this.mandante = mandante;
         this.visitante = visitante;

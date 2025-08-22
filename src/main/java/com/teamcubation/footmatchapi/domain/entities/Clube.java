@@ -12,6 +12,8 @@ public class Clube {
     private Boolean ativo;
     private LocalDate dataCriacao;
 
+    public Clube() {}
+
     private Clube(String nome, SiglaEstado siglaEstado, Boolean ativo, LocalDate dataCriacao) {
         this.nome = nome;
         this.siglaEstado = siglaEstado;

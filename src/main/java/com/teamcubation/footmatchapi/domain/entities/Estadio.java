@@ -5,6 +5,8 @@ public class Estadio {
     private String nome;
     private Endereco endereco;
 
+    public Estadio() {}
+
     private Estadio(String nome, Endereco endereco) {
         this.nome = nome;
         this.endereco = endereco;
