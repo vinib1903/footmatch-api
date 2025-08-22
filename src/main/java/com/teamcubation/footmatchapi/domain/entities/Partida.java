@@ -1,49 +1,124 @@
 package com.teamcubation.footmatchapi.domain.entities;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.*;
-import lombok.*;
+import com.teamcubation.footmatchapi.domain.exceptions.EntidadeEmUsoException;
+import com.teamcubation.footmatchapi.domain.exceptions.RegraDeNegocioException;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Entity @Table(name = "partidas")
-@Data
-@NoArgsConstructor @AllArgsConstructor
-@Builder
 public class Partida {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(description = "Identificador único da partida.", example = "1")
     private Long id;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "mandante_id")
-    @Schema(description = "Identificador único do clube mandante da partida.", example = "1", required = true)
     private Clube mandante;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "visitante_id")
-    @Schema(description = "Identificador único do clube visitante da partida.", example = "2", required = true)
     private Clube visitante;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "estadio_id")
-    @Schema(description = "Identificador único do estádio da partida.", example = "1", required = true)
     private Estadio estadio;
-
-    @Column(nullable = false)
-    @Schema(description = "Data e hora da partida.", example = "2023-09-15T12:00:00", format = "yyyy-MM-dd'T'HH:mm:ss", required = true)
     private LocalDateTime dataHora;
-
-    @Column(nullable = false)
-    @Schema(description = "Número de gols do clube mandante.", example = "3", required = true)
     private Integer golsMandante;
-
-    @Column(nullable = false)
-    @Schema(description = "Número de gols do clube visitante.", example = "0", required = true)
     private Integer golsVisitante;
 
+    public Partida() {}
+
+    private Partida(Clube mandante, Clube visitante, Estadio estadio, LocalDateTime dataHora, Integer golsMandante, Integer golsVisitante) {
+        this.mandante = mandante;
+        this.visitante = visitante;
+        this.estadio = estadio;
+        this.dataHora = dataHora;
+        this.golsMandante = golsMandante;
+        this.golsVisitante = golsVisitante;
+    }
+
+    public static Partida criar(Clube mandante, Clube visitante, Estadio estadio, LocalDateTime dataHora, Integer golsMandante, Integer golsVisitante) {
+        validarClubesAtivos(mandante, visitante);
+        validarClubesDiferentes(mandante, visitante);
+        validarDataPartidaAnteriorCriacaoClube(mandante, visitante, dataHora.toLocalDate());
+        validarDataCriacaoFutura(dataHora);
+        validarGolsNegativos(golsMandante, golsVisitante);
+
+        return new Partida(mandante, visitante, estadio, dataHora, golsMandante, golsVisitante);
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Clube getMandante() {
+        return mandante;
+    }
+
+    public void setMandante(Clube mandante) {
+        this.mandante = mandante;
+    }
+
+    public Clube getVisitante() {
+        return visitante;
+    }
+
+    public void setVisitante(Clube visitante) {
+        this.visitante = visitante;
+    }
+
+    public Estadio getEstadio() {
+        return estadio;
+    }
+
+    public void setEstadio(Estadio estadio) {
+        this.estadio = estadio;
+    }
+
+    public LocalDateTime getDataHora() {
+        return dataHora;
+    }
+
+    public void setDataHora(LocalDateTime dataHora) {
+        this.dataHora = dataHora;
+    }
+
+    public Integer getGolsMandante() {
+        return golsMandante;
+    }
+
+    public void setGolsMandante(Integer golsMandante) {
+        this.golsMandante = golsMandante;
+    }
+
+    public Integer getGolsVisitante() {
+        return golsVisitante;
+    }
+
+    public void setGolsVisitante(Integer golsVisitante) {
+        this.golsVisitante = golsVisitante;
+    }
+
+    private static void validarDataPartidaAnteriorCriacaoClube(Clube mandante, Clube visitante, LocalDate dataPartida) {
+        if (dataPartida.isBefore(mandante.getDataCriacao()) || dataPartida.isBefore(visitante.getDataCriacao())) {
+            throw new EntidadeEmUsoException("A data da partida não pode ser anterior à data de criação dos clubes.");
+        }
+    }
+
+    private static void validarDataCriacaoFutura(LocalDateTime dataHora) {
+        if (dataHora.isAfter(LocalDateTime.now())) {
+            throw new RegraDeNegocioException("A data da partida não pode ser no futuro.");
+        }
+    }
+
+    private static void validarGolsNegativos(Integer golsMandante, Integer golsVisitante) {
+        if (golsMandante < 0 || golsVisitante < 0) {
+            throw new RegraDeNegocioException("Gols não podem ser negativos.");
+        }
+    }
+
+    private static void validarClubesAtivos(Clube mandante, Clube visitante) {
+        if (!mandante.getAtivo() || !visitante.getAtivo()) {
+            throw new EntidadeEmUsoException("Não é possível criar partida com clubes inativos.");
+        }
+    }
+
+    private static void validarClubesDiferentes(Clube mandante, Clube visitante) {
+        if (mandante.equals(visitante)) {
+            throw new RegraDeNegocioException("O clube mandante não pode ser o mesmo que o visitante.");
+        }
+    }
 }

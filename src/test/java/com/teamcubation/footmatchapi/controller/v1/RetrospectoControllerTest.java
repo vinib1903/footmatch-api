@@ -1,7 +1,8 @@
 package com.teamcubation.footmatchapi.controller.v1;
 
-import com.teamcubation.footmatchapi.dto.response.*;
-import com.teamcubation.footmatchapi.service.retrospecto.RetrospectoService;
+import com.teamcubation.footmatchapi.adapters.inbound.controller.v1.RetrospectoController;
+import com.teamcubation.footmatchapi.application.dto.response.*;
+import com.teamcubation.footmatchapi.application.service.retrospecto.RetrospectoServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -31,7 +32,7 @@ public class RetrospectoControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private RetrospectoService retrospectoService;
+    private RetrospectoServiceImpl retrospectoServiceImpl;
 
     final String BASE_URL = "/api/v1/retrospectos";
 
@@ -48,7 +49,7 @@ public class RetrospectoControllerTest {
                 .golsSofridos(7)
                 .build();
 
-        when(retrospectoService.obterRetrospecto(eq(1L), anyString()))
+        when(retrospectoServiceImpl.obterRetrospecto(eq(1L), anyString()))
                 .thenReturn(response);
 
         mockMvc.perform(get(BASE_URL + "/1")
@@ -63,7 +64,7 @@ public class RetrospectoControllerTest {
                 .andExpect(jsonPath("$.golsMarcados").value(13))
                 .andExpect(jsonPath("$.golsSofridos").value(7));
 
-        verify(retrospectoService).obterRetrospecto(eq(1L), anyString());
+        verify(retrospectoServiceImpl).obterRetrospecto(eq(1L), anyString());
     }
 
     @Test
@@ -91,7 +92,7 @@ public class RetrospectoControllerTest {
 
         Pageable pageable = PageRequest.of(0, 10, Sort.by("nome"));
 
-        when(retrospectoService.obterRestrospectoAdversarios(eq(1L), anyString(), eq(pageable)))
+        when(retrospectoServiceImpl.obterRestrospectoAdversarios(eq(1L), anyString(), eq(pageable)))
                 .thenReturn(new PageImpl<>(List.of(gremio, palmeiras), pageable, 2));
 
         mockMvc.perform(get(BASE_URL + "/1/contra-adversarios")
@@ -114,7 +115,7 @@ public class RetrospectoControllerTest {
                 .andExpect(jsonPath("$.content[1].golsMarcados").value(9))
                 .andExpect(jsonPath("$.content[1].golsSofridos").value(4));
 
-        verify(retrospectoService).obterRestrospectoAdversarios(eq(1L), anyString(), eq(pageable));
+        verify(retrospectoServiceImpl).obterRestrospectoAdversarios(eq(1L), anyString(), eq(pageable));
     }
 
     @Test
@@ -126,7 +127,7 @@ public class RetrospectoControllerTest {
                 .partidas(List.of(PartidaResponseDTO.builder().build()))
                 .build();
 
-        when(retrospectoService.obterConfrontoDireto(eq(1L), eq(2L), anyString()))
+        when(retrospectoServiceImpl.obterConfrontoDireto(eq(1L), eq(2L), anyString()))
                 .thenReturn(response);
 
         mockMvc.perform(get(BASE_URL + "/1/confrontos-diretos/2")
@@ -138,7 +139,7 @@ public class RetrospectoControllerTest {
                 .andExpect(jsonPath("$.adversario").exists())
                 .andExpect(jsonPath("$.partidas[0]").exists());
 
-        verify(retrospectoService).obterConfrontoDireto(eq(1L), eq(2L), anyString());
+        verify(retrospectoServiceImpl).obterConfrontoDireto(eq(1L), eq(2L), anyString());
     }
 
     @Test
@@ -163,7 +164,7 @@ public class RetrospectoControllerTest {
                 .build();
 
         Pageable pageable = PageRequest.of(0, 10);
-        when(retrospectoService.obterRanking(eq("pontos"), eq(pageable)))
+        when(retrospectoServiceImpl.obterRanking(eq("pontos"), eq(pageable)))
                 .thenReturn(new PageImpl<>(List.of(gremio, palmeiras), pageable, 2));
 
         mockMvc.perform(get(BASE_URL + "/ranking")
@@ -176,6 +177,6 @@ public class RetrospectoControllerTest {
                 .andExpect(jsonPath("$.content[1].nome").value("Palmeiras"))
                 .andExpect(jsonPath("$.content[1].pontos").value(22));
 
-        verify(retrospectoService).obterRanking(eq("pontos"), eq(pageable));
+        verify(retrospectoServiceImpl).obterRanking(eq("pontos"), eq(pageable));
     }
 }
