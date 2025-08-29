@@ -49,9 +49,11 @@ public class EstadioServiceImpl implements EstadioUseCases {
 
         Estadio estadio = Estadio.criar(estadioRequestDTO.getNome(), endereco);
 
-        estadioRepository.save(estadio);
+        Estadio estadioSalvo = estadioRepository.save(estadio);
+        
+        estadioEventsPort.notificarCriacaoEstadio(estadioRequestDTO);
 
-        return estadioMapper.entityToDto(estadio);
+        return estadioMapper.entityToDto(estadioSalvo);
     }
 
     public Page<EstadioResponseDTO> obterEstadios(String nome, Pageable pageable) {
@@ -85,6 +87,8 @@ public class EstadioServiceImpl implements EstadioUseCases {
         estadio.setNome(estadioRequestDTO.getNome());
 
         Estadio salvo = estadioRepository.save(estadio);
+        
+        estadioEventsPort.notificarAtualizacaoEstadio(id, estadioRequestDTO);
 
         return estadioMapper.entityToDto(salvo);
     }
