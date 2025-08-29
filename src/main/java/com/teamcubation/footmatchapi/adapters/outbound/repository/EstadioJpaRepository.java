@@ -1,0 +1,22 @@
+package com.teamcubation.footmatchapi.adapters.outbound.repository;
+
+import com.teamcubation.footmatchapi.adapters.outbound.entities.EstadioJpaEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.Optional;
+
+public interface EstadioJpaRepository extends JpaRepository<EstadioJpaEntity, Long> {
+
+    Optional<EstadioJpaEntity> findByNome(String nome);
+
+    Optional<EstadioJpaEntity> findByEndereco_Cep(String cep);
+
+    @Query("SELECT e FROM EstadioJpaEntity e WHERE " +
+            "(:nome IS NULL OR LOWER(e.nome) LIKE LOWER(CONCAT('%', :nome, '%')))")
+    Page<EstadioJpaEntity> findStadiumsWichFilters(@Param("nome") String nome,
+                                      Pageable pageable);
+}

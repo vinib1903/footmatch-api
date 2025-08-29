@@ -1,28 +1,43 @@
 package com.teamcubation.footmatchapi.domain.entities;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
-import lombok.*;
-
-@Entity
-@Table(name = "estadios", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"nome"})
-})
-@Data
-@NoArgsConstructor @AllArgsConstructor
-@Builder
 public class Estadio {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(description = "Identificador único do estadio.", example = "1")
     private Long id;
-
-    @Column(nullable = false)
-    @Schema(description = "Nome do estadio.", example = "Arena do Grêmio", required = true)
     private String nome;
-
-    @Embedded
-    @Schema(description = "Endereço do estadio, gerado automaticamente no ato do cadastro.", required = true)
     private Endereco endereco;
+
+    public Estadio() {}
+
+    private Estadio(String nome, Endereco endereco) {
+        this.nome = nome;
+        this.endereco = endereco;
+    }
+
+    public static Estadio criar(String nome, Endereco endereco) {
+        // Validações puras (que não dependem de repositório) podem ser adicionadas aqui no futuro.
+        return new Estadio(nome, endereco);
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public Endereco getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(Endereco endereco) {
+        this.endereco = endereco;
+    }
 }
